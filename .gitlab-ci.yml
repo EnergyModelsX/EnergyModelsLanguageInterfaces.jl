@@ -1,0 +1,35 @@
+stages:
+  - test
+  - deploy
+
+
+before_script:
+  # Install git.
+  - apt-get update -qq && apt-get install -y git
+  
+  # Add the public General registry.
+  - julia -e 'using Pkg; Pkg.Registry.add(RegistrySpec(url = "https://github.com/JuliaRegistries/General"))'
+
+
+# Below is the template to run the tests in Julia
+.test_template: &test_definition
+  stage: test
+  script:
+    - echo "Run tests"
+    - julia -e 'using Pkg; Pkg.Registry.status()'
+    - julia --project=. -e 'using Pkg; Pkg.test(; coverage = true);
+        Pkg.add("Coverage");
+        Pkg.instantiate();
+        using Coverage;
+        processed = process_folder();
+        covered_lines, total_lines = get_summary(processed);
+        percentage = covered_lines / total_lines * 100;
+        return println("Code coverage $(percentage)%")'
+  coverage: '/Code coverage \d+\.\d+/'
+  rules:
+    - when: always
+
+
+test:1.10:
+  image: julia:1.10
+  <<: *test_definition
