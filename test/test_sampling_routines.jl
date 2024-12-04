@@ -3,6 +3,7 @@ using Conda
 @testset "call_python_function tests" begin
     # Install the required package
     Conda.add("pyomo")
+    Conda.add("glpk")
 
     # Define paths to python module
     module_path = joinpath(@__DIR__, "python_module")
