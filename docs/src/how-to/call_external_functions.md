@@ -19,7 +19,10 @@ output = EMU.call_cpp_function(libpath, "my_func", input; filepath)
 
 !!! note
     If the `.so`-file already exist for the shared library it will not be recompiled (unless you set the key word argument `compile` to `true`).
-    If compilation is required, make sure to have the `g++`-compiler available.
+    If compilation is required, make sure to have the `g++`-compiler available. 
+
+    Also note that the library is kept open to enable fast multiple evaluations of the `call_cpp_function`, but this reduces permissions on the `.so`-file.
+    In order to close the usage of the library, simply call `EMU.cleanup_libraries()` in Julia.
 
 A full example of how this could be utilized in EMX is as follows
 
@@ -75,8 +78,8 @@ function read_data()
     libpath = joinpath(EMU_path, "..", "test", "cpp_module", "libdoubling.so")
     filepath = joinpath(EMU_path, "..", "test", "cpp_module", "doubling.cpp")
     cpp_function_name = "doubling"
-    input = [1.4, 2.0, 1.2]
-    demand_profile = EMU.call_cpp_function(libpath, cpp_function_name, input; filepath)
+    input_cpp::Vector{Cdouble} = [1.4, 2.0, 1.2]
+    demand_profile = EMU.call_cpp_function(libpath, cpp_function_name, input_cpp; filepath)
 
     av = GenAvailability("av", [Power])
     solar_pv = RefSource(

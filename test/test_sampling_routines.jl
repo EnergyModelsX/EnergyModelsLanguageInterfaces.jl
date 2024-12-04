@@ -26,9 +26,10 @@ end
 
     # Call the C++ function
     function_name = "doubling"
-    demand_profile = EMU.call_cpp_function(
-        libpath, function_name, [1.4, 2.0, 1.2]; filepath
-    )
+    input_cpp::Vector{Cdouble} = [1.4, 2.0, 1.2]
+    demand_profile = EMU.call_cpp_function(libpath, function_name, input_cpp; filepath)
+
+    EMU.cleanup_libraries()
 
     @test demand_profile == [2.8, 4.0, 2.4]
 end

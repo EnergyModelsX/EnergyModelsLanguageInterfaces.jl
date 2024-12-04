@@ -1,6 +1,7 @@
 using PyCall
 using Libdl
-
+# Keep a global reference to the loaded library
+const LIB_CACHE = Dict{String,Ptr{Cvoid}}()
 """
     @dlsym(lib, func)
 
@@ -74,8 +75,12 @@ function call_cpp_function(
         run(`g++ -fPIC -shared $filepath -o $libpath`)
     end
 
-    # Load the shared library
-    lib = Libdl.dlopen(libpath)
+    # Load the library if it's not already cached
+    if !haskey(LIB_CACHE, libpath)
+        @info "Loading the C++ module $libpath"
+        LIB_CACHE[libpath] = Libdl.dlopen(libpath)
+    end
+    lib = LIB_CACHE[libpath]
 
     # Allocate the output variable
     n = length(input)
@@ -87,9 +92,18 @@ function call_cpp_function(
         input::Ptr{Cdouble}, n::Cint, output::Ptr{Cdouble}
     )::Cvoid
 
-    # Close the shared library
-    @info "Closing the C++ module library $libpath"
-    Libdl.dlclose(lib)
-
     return output
+end
+
+"""
+    cleanup_libraries()
+
+Close all the C++ module libraries that have been loaded by EnergyModelsUtilities.
+"""
+function cleanup_libraries()
+    for (libpath, lib) ∈ LIB_CACHE
+        @info "Closing the C++ module library $libpath"
+        Libdl.dlclose(lib)
+    end
+    empty!(LIB_CACHE)
 end
