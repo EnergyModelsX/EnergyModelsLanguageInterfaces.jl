@@ -14,4 +14,6 @@ include("datastructures.jl")
 include("model.jl")
 include("utils.jl")
 
+export call_python_function, call_cpp_function
+
 end # module EnergyModelsUtilities

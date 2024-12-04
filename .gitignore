@@ -25,6 +25,8 @@ Manifest.toml
 
 # Output
 *consistency_log.md
+*__pycache__
+*.so
 
 # MacOS
 .DS_Store
