@@ -7,7 +7,7 @@ before_script:
   # Install git.
   - apt-get update -qq && apt-get install -y git
   - apt-get install -y glpk-utils # the glpsol executable is needed for the solver glpk
-  - apt-get install g++ # the g++ compiler is needed for compiling C++ programs
+  - apt-get install -y g++ # the g++ compiler is needed for compiling C++ programs
 
   ## Install ssh-agent and add the private key.
   #- command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )
