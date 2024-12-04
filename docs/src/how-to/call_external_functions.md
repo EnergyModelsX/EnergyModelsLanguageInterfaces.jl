@@ -1,13 +1,25 @@
 # [Call external functions](@id call_external_functions)
 
-
+To evaluate a python function (with input argument `input`) called `my_func` which 
+is available in the file `my_python_file.py` located at `filepath`, you can do the following
 
 ```julia
-NG     = ResourceEmit("NG", 0.2)
-Coal   = ResourceCarrier("Coal", 0.35)
-Power  = ResourceCarrier("Power", 0.)
-new_id = ResourceEmit("NewID",1.)
+output = EMU.call_python_function("my_python_file", "my_func", input; "filepath")
 ```
+
+!!! note
+    All python package dependencies must be available in the root environment. You can add packages with, e.g., `using Conda; Conda.add("pyomo")`.
+
+To evaluate a C++ function (with input argument `input`) called `my_func` which 
+is available in the library `libpath` which can be compiled by a `cpp` file located at `filepath`, you can do the following
+
+```julia
+output = EMU.call_cpp_function(libpath, "my_func", input; filepath)
+```
+
+!!! note
+    If the `.so`-file already exist for the shared library it will not be recompiled (unless you set the key word argument `compile` to `true`).
+    If compilation is required, make sure to have the `g++`-compiler available.
 
 A full example of how this could be utilized in EMX is as follows
 
@@ -25,6 +37,7 @@ const EMU = EnergyModelsUtilities
 # Install the dependencies of the external module
 using Conda
 Conda.add("pyomo")
+Conda.add("glpk")
 
 function read_data()
     # Define the different resources and their emission intensity in tCO₂/MWh
