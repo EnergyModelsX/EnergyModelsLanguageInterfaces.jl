@@ -1,7 +1,6 @@
 [deps]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
-EnergyModelsUtilities = "672bb132-9406-42d0-9ef4-9203b0a61e9a"
 JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 TimeStruct = "f9ed5ce0-9f41-4eaa-96da-f38ab8df101c"
