@@ -1,14 +1,25 @@
 name = "EnergyModelsUtilities"
 uuid = "672bb132-9406-42d0-9ef4-9203b0a61e9a"
-authors = ["Julian Straus <Julian.Straus@sintef.no>", "Jon Vegard Venås <JonVegard.Venas@sintef.no>"]
+authors = ["Jon Vegard Venås <JonVegard.Venas@sintef.no>", "Julian Straus <Julian.Straus@sintef.no>"]
 version = "0.1.1"
 
 [deps]
+EnergyModelsBase = "5d7e687e-f956-46f3-9045-6f5a5fd49f50"
+JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
+TimeStruct = "f9ed5ce0-9f41-4eaa-96da-f38ab8df101c"
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
-TimeStruct = "f9ed5ce0-9f41-4eaa-96da-f38ab8df101c"
+
+[weakdeps]
+EnergyModelsInvestments = "fca3f8eb-b383-437d-8e7b-aac76bb2004f"
+
+[extensions]
+EMIExt = "EnergyModelsInvestments"
 
 [compat]
+EnergyModelsBase = "0.8.3"
+EnergyModelsInvestments = "0.8.1"
+JuMP = "1.23"
 Libdl = "1.10"
 PyCall = "1.94"
 TimeStruct = "0.9"

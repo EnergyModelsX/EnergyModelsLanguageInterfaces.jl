@@ -1,43 +1,56 @@
 using Documenter
+using DocumenterInterLinks
+using EnergyModelsBase
+using EnergyModelsInvestments
 using EnergyModelsUtilities
+using TimeStruct
+
+const EMB = EnergyModelsBase
+const EMI = EnergyModelsInvestments
+const EMU = EnergyModelsUtilities
 
 # Copy the NEWS.md file
 news = "docs/src/manual/NEWS.md"
-if isfile(news)
-    rm(news)
-end
-cp("NEWS.md", news)
+cp("NEWS.md", news; force=true)
 
-DocMeta.setdocmeta!(
-    EnergyModelsUtilities, :DocTestSetup, :(using EnergyModelsUtilities); recursive=true
+links = InterLinks(
+    "TimeStruct" => "https://sintefore.github.io/TimeStruct.jl/stable/",
+    "EnergyModelsBase" => "https://energymodelsx.github.io/EnergyModelsBase.jl/stable/",
+    "EnergyModelsInvestments" => "https://energymodelsx.github.io/EnergyModelsInvestments.jl/stable/",
 )
 
-makedocs(;
-    sitename="EnergyModelsUtilities.jl",
-    repo="https://gitlab.sintef.no/idesignres/wp-2/energymodelsutilities.jl/blob/{commit}{path}#{line}",
+makedocs(
+    sitename="EnergyModelsUtilities",
+    repo="https://gitlab.sintef.no/idesignres/wp-2/EnergyModelsUtilities.jl/blob/{commit}{path}#{line}",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://idesignres.pages.sintef.no/energymodelsutilities.jl/",
+        canonical="https://idesignres.pages.sintef.no/wp-2/EnergyModelsUtilities.jl",
         edit_link="main",
         assets=String[],
     ),
-    modules=[EnergyModelsUtilities],
+    modules=[
+        EnergyModelsUtilities,
+        isdefined(Base, :get_extension) ? Base.get_extension(EMU, :EMIExt) : EMU.EMIExt,
+    ],
     pages=[
         "Home" => "index.md",
         "Manual" => Any[
-            "Philosophy" => "manual/philosophy.md", "Release notes" => "manual/NEWS.md"
+            "Quick Start" => "manual/quick-start.md",
+            "Release notes" => "manual/NEWS.md",
         ],
-        "How-to" => Any["Call external functions" => "how-to/call_external_functions.md",],
+        "Types for EMX elements" => Any["Reference" => "types/reference.md"],
+        "Utility functions" => Any["Reference" => "util-fun/reference.md"],
+        "How-to" =>
+            Any["Contribute" => "how-to/contribute.md", "Utilize" => "how-to/utilize.md"],
         "Library" => Any[
             "Public" => "library/public.md",
-            "Internals" => Any["Reference" => "library/internals/reference.md",],
+            "Internals" => String[
+                "library/internals/types-EMU.md",
+                "library/internals/methods-fields.md",
+                "library/internals/methods-EMU.md",
+                "library/internals/methods-EMB.md",
+            ],
         ],
     ],
+    plugins=[links],
 )
-
-# Documenter can also automatically deploy documentation to gh-pages.
-# See "Hosting Documentation" and deploydocs() in the Documenter manual
-# for more information.
-#=deploydocs(
-    repo = "<repository url>"
-)=#

@@ -5,6 +5,7 @@ EnergyModelsX framework.
 module EnergyModelsUtilities
 
 using TimeStruct
+using EnergyModelsBase
 
 include("datastructures.jl")
 include("model.jl")

@@ -1,22 +1,40 @@
-# EnergyModelsUtilities.jl
+# EnergyModelsUtilities
 
 ```@docs
 EnergyModelsUtilities
 ```
 
-**EnergyModelsX** is an operational, multi nodal energy system framework, written in Julia.
-The model is based on the [`JuMP`](https://jump.dev/JuMP.jl/stable/) optimization framework.
-It is a multi carrier energy model, where the definition of the resources are fully up to the user of the model.
-One of the primary design goals was to develop a model that can eaily be extended with new functionality without the need to understand and remember every variable and constraint in the model.
+This Julia package implements additional utilities that can be used in combination with [`EnergyModelsX`](https://energymodelsx.github.io).
 
-EnergyModelsUtilities provides utilities to this framework.
+These utilities do not directly incorporate new technology descriptions.
+They can be instead added to your technology type and included in a [`create_node`](@extref EnergyModelsBase.create_node) method for your new types.
+You can also use the utility functions in both pre-processing and model building.
 
 ## Manual outline
 
 ```@contents
 Pages = [
-    "manual/philosophy.md",
+    "manual/quick-start.md",
+    "manual/simple-example.md",
     "manual/NEWS.md",
+]
+Depth = 1
+```
+
+## Description of the new types
+
+```@contents
+Pages = [
+    "types/reference.md",
+]
+Depth = 1
+```
+
+## Utility functions
+
+```@contents
+Pages = [
+    "util-fun/reference.md",
 ]
 Depth = 1
 ```
@@ -25,8 +43,8 @@ Depth = 1
 
 ```@contents
 Pages = [
-    "how-to/call_python_functions.md",
-    "how-to/call_Cpp_functions.md",
+    "how-to/contribute.md",
+    "how-to/utilize.md",
 ]
 Depth = 1
 ```
@@ -36,7 +54,10 @@ Depth = 1
 ```@contents
 Pages = [
     "library/public.md",
-    "library/internals/reference.md",
+    "library/internals/types-EMU.md",
+    "library/internals/methods-fields.md",
+    "library/internals/methods-EMU.md",
+    "library/internals/methods-EMB.md",
 ]
 Depth = 1
 ```

@@ -30,14 +30,21 @@ before_script:
   - julia -e 'using Pkg; Pkg.Registry.add(RegistrySpec(url = "git@gitlab.sintef.no:julia-one-sintef/onesintef.git"))'
   - julia -e 'using Pkg; Pkg.Registry.add(RegistrySpec(url = "https://github.com/JuliaRegistries/General"))'
 
-
 # Below is the template to run the tests in Julia
 .test_template: &test_definition
   stage: test
   script:
     - echo "Run tests"
     - julia -e 'using Pkg; Pkg.Registry.status()'
-    - julia --project=. -e 'using Pkg; Pkg.test(; coverage = true)'
+    - julia --project=. -e 'using Pkg; Pkg.test(; coverage = true);
+        Pkg.add("Coverage");
+        Pkg.instantiate();
+        using Coverage;
+        processed = process_folder();
+        covered_lines, total_lines = get_summary(processed);
+        percentage = covered_lines / total_lines * 100;
+        return println("Code coverage $(percentage)%")'
+  coverage: "/\\(\\d+.\\d+\\%\\) covered/"
   rules:
     - when: always
   
@@ -51,11 +58,8 @@ test:pages:
   image: julia:1.10
   stage: test
   script:
-    - cd docs
-    - julia -e 'using Pkg; Pkg.Registry.status()'
-    - julia --project=. -e 'using Pkg; Pkg.add("Documenter")'   # install Documenter
-    - julia --project=. -e 'using Pkg; Pkg.develop(path="..")'  # install the version that is pushed
-    - julia --project=. --color=yes make.jl  # make documentation
+    - julia --project=docs -e 'import Pkg; Pkg.develop(;path=".");Pkg.instantiate()' # Initialize environment
+    - julia --project=docs docs/make.jl                       # Build documentation
   artifacts:
     paths:
       - public
@@ -64,15 +68,11 @@ test:pages:
 
 # Deploy the documentation.
 pages:
-  image: julia:1.10
   stage: deploy
+  image: julia:latest
   script:
-    - cd docs
-    - julia -e 'using Pkg; Pkg.Registry.status()'
-    - julia --project=. -e 'using Pkg; Pkg.add("Documenter")'  # install Documenter
-    - julia --project=. -e 'using Pkg; Pkg.develop(path="..")'  # install the version that is pushed
-    - julia --project=. --color=yes make.jl  # make documentation
-    - cd ..
+    - julia --project=docs -e 'import Pkg; Pkg.develop(;path=".");Pkg.instantiate()' # Initialize environment
+    - julia --project=docs docs/make.jl                       # Build documentation
     - mv docs/build public  # move to the directory picked up by Gitlab pages
   artifacts:
     paths:
@@ -80,23 +80,3 @@ pages:
   rules:
     # Only execute this on the default branch and on merge requests.
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-
-
-# Register version
-register:
-  image: julia:1.10
-  stage: deploy
-  script:
-    - julia -e 'using Pkg; Pkg.Registry.status()'
-    # Set name and email for the bot pushing to the registry.
-    - git config --global user.email "<@>"
-    - git config --global user.name "Registrator"
-    - julia --project="test" -e 'using Pkg; Pkg.instantiate()'  # install dependencies.
-    # Register the package. LocalRegistry will not register a new version if it is already registered.
-    - julia --project="test" -e 'using LocalRegistry;
-        repo = "git@gitlab.sintef.no:" * ENV["CI_PROJECT_PATH"] * ".git";
-        register(repo=repo, create_gitlab_mr=true, ignore_reregistration = true)'  # register the package
-  rules:
-    # Only execute this on the default branch.
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-
