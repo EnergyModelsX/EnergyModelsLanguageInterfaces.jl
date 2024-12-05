@@ -4,30 +4,11 @@ stages:
 
 
 before_script:
-  # Install dependencies.
-  - apt-get update -qq && apt-get install -y git
+  # Install git.
   - apt-get install -y glpk-utils # the glpsol executable is needed for the solver glpk
   - apt-get install -y g++ # the g++ compiler is needed for compiling C++ programs
-
-  # Install ssh-agent and add the private key.
-  - command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )
-  - eval $(ssh-agent -s)
-  - echo "$PRIVATE_DEPLOY_KEY_EMB" | tr -d '\r' | ssh-add -
-
-  # Set up the .ssh directory.
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-
-  # Set the known_hosts to a variable containing the public key of gitlab.sintef.no
-  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-  - chmod 644 ~/.ssh/known_hosts
-
-  # Test the ssh connection.
-  - ssh -T git@gitlab.sintef.no
-
+  
   # Add the public General registry.
-  - julia -e 'using Pkg; Pkg.Registry.add(RegistrySpec(url = "git@gitlab.sintef.no:clean_export/registrycleanexport.git"))'
-  - julia -e 'using Pkg; Pkg.Registry.add(RegistrySpec(url = "git@gitlab.sintef.no:julia-one-sintef/onesintef.git"))'
   - julia -e 'using Pkg; Pkg.Registry.add(RegistrySpec(url = "https://github.com/JuliaRegistries/General"))'
 
 # Below is the template to run the tests in Julia
@@ -47,11 +28,12 @@ before_script:
   coverage: "/\\(\\d+.\\d+\\%\\) covered/"
   rules:
     - when: always
-  
+
 
 test:1.10:
   image: julia:1.10
   <<: *test_definition
+
 
 # Test that the pages compile, without making it public. Only runs on merge requests.
 test:pages:
