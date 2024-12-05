@@ -10,7 +10,6 @@ before_script:
   # Add the public General registry.
   - julia -e 'using Pkg; Pkg.Registry.add(RegistrySpec(url = "https://github.com/JuliaRegistries/General"))'
 
-
 # Below is the template to run the tests in Julia
 .test_template: &test_definition
   stage: test
@@ -25,7 +24,7 @@ before_script:
         covered_lines, total_lines = get_summary(processed);
         percentage = covered_lines / total_lines * 100;
         return println("Code coverage $(percentage)%")'
-  coverage: '/Code coverage \d+\.\d+/'
+  coverage: "/\\(\\d+.\\d+\\%\\) covered/"
   rules:
     - when: always
 
@@ -33,3 +32,32 @@ before_script:
 test:1.10:
   image: julia:1.10
   <<: *test_definition
+
+
+# Test that the pages compile, without making it public. Only runs on merge requests.
+test:pages:
+  image: julia:1.10
+  stage: test
+  script:
+    - julia --project=docs -e 'import Pkg; Pkg.develop(;path=".");Pkg.instantiate()' # Initialize environment
+    - julia --project=docs docs/make.jl                       # Build documentation
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+# Deploy the documentation.
+pages:
+  stage: deploy
+  image: julia:latest
+  script:
+    - julia --project=docs -e 'import Pkg; Pkg.develop(;path=".");Pkg.instantiate()' # Initialize environment
+    - julia --project=docs docs/make.jl                       # Build documentation
+    - mv docs/build public  # move to the directory picked up by Gitlab pages
+  artifacts:
+    paths:
+      - public
+  rules:
+    # Only execute this on the default branch and on merge requests.
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
