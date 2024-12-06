@@ -4,6 +4,7 @@ using EnergyModelsBase
 using EnergyModelsInvestments
 using EnergyModelsUtilities
 using TimeStruct
+using Literate
 
 const EMB = EnergyModelsBase
 const EMI = EnergyModelsInvestments
@@ -12,6 +13,9 @@ const EMU = EnergyModelsUtilities
 # Copy the NEWS.md file
 news = "docs/src/manual/NEWS.md"
 cp("NEWS.md", news; force=true)
+
+inputfile = joinpath(@__DIR__, "src", "examples", "sampling.jl")
+Literate.markdown(inputfile, joinpath(@__DIR__, "src", "examples"))
 
 links = InterLinks(
     "TimeStruct" => "https://sintefore.github.io/TimeStruct.jl/stable/",
@@ -42,6 +46,7 @@ makedocs(
         "Utility functions" => Any["Reference" => "util-fun/reference.md"],
         "How-to" =>
             Any["Contribute" => "how-to/contribute.md", "Utilize" => "how-to/utilize.md"],
+        "Examples" => Any["Sampling" => "examples/sampling.md"],
         "Library" => Any[
             "Public" => "library/public.md",
             "Internals" => String[

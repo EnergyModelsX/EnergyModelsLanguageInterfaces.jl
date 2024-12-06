@@ -18,15 +18,12 @@ Pages = ["methods-EMH.md"]
 
 ## [Utility methods](@id lib-int-met-util)
 
-```@autodocs
-Modules = [EnergyModelsUtilities]
-Public = false
-Order = [:function]
+```@docs
+EnergyModelsUtilities.cleanup_libraries
 ```
 
 ## [Macros](@id lib-int-mac-util)
-```@autodocs
-Modules = [EnergyModelsUtilities]
-Public = false
-Order = [:macro]
+
+```@docs
+@EnergyModelsUtilities.dlsym
 ```

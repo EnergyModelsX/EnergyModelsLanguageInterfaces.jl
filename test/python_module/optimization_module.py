@@ -8,10 +8,8 @@ def solve_optimization_problem(input_data):
                     x, y, z >= 0
     Returns the optimal values of x, y, and z.
     """
-    a = input_data[0]
-    b = input_data[1]
-    c = input_data[2]
-    print(f"Python module: Solving optimization problem with a = %s, b = %s, c = %s" % (a, b, c))
+    a, b, c = input_data
+    print(f"Python module: Solving optimization problem with a = {a}, b = {b}, c = {c}")
     model = pyo.ConcreteModel()
     # Define variables
     model.x = pyo.Var(within=pyo.PositiveReals)  # x >= 0
