@@ -27,7 +27,7 @@ end
 
 Call the function `function_name` of `module_name` located at `module_path`.
 It is assumed that the required packages of the python module is installed in the root
-environment (otherwise this can be resolved by, e.g., `using Conda; Conda.add("pyomo")`).
+environment (otherwise this can be resolved by, *e.g.*, `using Conda; Conda.add("pyomo")`).
 
 Note that this approach is greatly simplified if the module is available in the root environment.
 
