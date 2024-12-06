@@ -26,7 +26,7 @@ operational_periods = SimpleTimes(op_number, op_duration)
 # Creation of the time structure
 dur = [1, 2, 10] # Duration of the strategic periods
 
-T = TwoLevel(dur, operational_periods; op_per_strat=8760)
+T = TwoLevel(dur, operational_periods; op_per_strat = 8760)
 
 noSP = length(dur)     # Number of strategic periods
 
@@ -65,7 +65,7 @@ demand = RefSink(
     OperationalProfile(demand_profile),  # demand: the demand
     Dict(                                # penality: penalties for surplus or deficits
         :surplus => FixedProfile(0),     # Penalty for surplus
-        :deficit => FixedProfile(1e5),   # Penalty for deficit
+        :deficit => FixedProfile(1e5)   # Penalty for deficit
     ),
     Dict(Power => 1),                    # input `Resource`s with conversion value `Real`
 )
@@ -75,7 +75,8 @@ nodes = [av, solar_pv, demand]
 
 # Create links between nodes
 links = [
-    Direct("solar_pv-av", solar_pv, av, Linear()), Direct("av-demand", av, demand, Linear())
+    Direct("solar_pv-av", solar_pv, av, Linear()),
+    Direct("av-demand", av, demand, Linear()),
 ]
 
 # Create the EMX case

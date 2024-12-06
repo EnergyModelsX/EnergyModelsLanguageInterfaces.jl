@@ -37,7 +37,7 @@ environment (otherwise this can be resolved by, *e.g.*, `using Conda; Conda.add(
     Also note that installing Python packages for use with PyCall requires the use of the root environment.
 """
 function call_python_function(
-    module_name::String, function_name::String, input; module_path::String=""
+    module_name::String, function_name::String, input; module_path::String = "",
 )
     # If the module is provided locally, add the path to the Python sys path
     if !isempty(module_path)
@@ -79,10 +79,10 @@ function call_cpp_function(
     libpath::String,
     function_name::String,
     input;
-    filepath::String="",
-    compile::Bool=false,
-    compiler::String="g++",
-    flags::String="-fPIC -shared",
+    filepath::String = "",
+    compile::Bool = false,
+    compiler::String = "g++",
+    flags::String = "-fPIC -shared",
 )
     if compile || !isfile(libpath)
         if !isfile(filepath)
@@ -109,7 +109,7 @@ function call_cpp_function(
     # Call the function
     @info "Calling the C/C++ module $libpath"
     @ccall $(@dlsym(lib, function_name))(
-        input::Ptr{Cdouble}, n::Cint, output::Ptr{Cdouble}
+        input::Ptr{Cdouble}, n::Cint, output::Ptr{Cdouble},
     )::Cvoid
 
     return output
