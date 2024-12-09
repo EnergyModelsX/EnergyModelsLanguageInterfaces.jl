@@ -32,7 +32,7 @@ It is assumed that the required packages of the python module is installed in th
 environment (otherwise this can be resolved by, *e.g.*, `using Conda; Conda.add("pyomo")`).
 
 !!! note "Note on environments"
-    Note that this approach is greatly simplified if the module is available in the root environment.
+    This approach is greatly simplified if the module is available in the root environment.
 
     Also note that installing Python packages for use with PyCall requires the use of the root environment.
 """
@@ -71,8 +71,8 @@ Call the function `function_name` of the module with shared library (*e.g.*, .so
 The `flags` argument is used to specify the flags to be passed to the compiler. They must be
 compatible with the chosen `compiler` and create a shared library.
 
-!!! note "Note on compilation"
-    Note that is assumed that the chosen compiler is installed on the system. The full path to
+!!! note "Compiler"
+    It is assumed that the chosen compiler is installed on the system. The full path to
     the compiler may be provided in the `compiler` argument, otherwise it must be available in PATH.
 """
 function call_cpp_function(
@@ -118,7 +118,7 @@ end
 """
     cleanup_libraries()
 
-Close all the C++ module libraries that have been loaded by EnergyModelsUtilities.
+Close all the C++ module libraries that have been loaded by `EnergyModelsUtilities`.
 """
 function cleanup_libraries()
     for (libpath, lib) ∈ LIB_CACHE
