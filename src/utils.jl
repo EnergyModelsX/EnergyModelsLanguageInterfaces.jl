@@ -31,10 +31,10 @@ Call the function `function_name` of `module_name` located at `module_path`.
 It is assumed that the required packages of the python module is installed in the root
 environment (otherwise this can be resolved by, *e.g.*, `using Conda; Conda.add("pyomo")`).
 
-!!! note "Note on environments"
+!!! note "Environments"
     This approach is greatly simplified if the module is available in the root environment.
 
-    Also note that installing Python packages for use with PyCall requires the use of the root environment.
+    Installing Python packages for use with PyCall requires the use of the root environment.
 """
 function call_python_function(
     module_name::String, function_name::String, input; module_path::String = "",
