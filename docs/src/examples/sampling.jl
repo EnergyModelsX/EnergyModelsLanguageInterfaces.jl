@@ -47,7 +47,6 @@ input::Vector{Float64} = [1.4, 2.0, 1.2]
 #pv_profile = EMU.call_python_function(module_name, function_name, input; module_path)
 pv_profile = [1.0, 0.0, 0.0]
 
-
 # ## [Utilizing the C++ routines](@id exampl-sampl-c++)
 #
 # The C++ function is used for calculating the demand profile. You have to specify both the
@@ -60,7 +59,7 @@ demand_profile = EMU.call_cpp_function(libpath, cpp_function_name, input_cpp; fi
 
 # ## [Apply the routines in an `EnergyModelsBase` model](@id exampl-sampl-emb)
 #
-# They simple examples uses two resources, `Power` and `CO2` with their emission intensity in tCO₂/MWh.
+# The simple examples uses two resources, `Power` and `CO2` with their emission intensity in tCO₂/MWh.
 Power = ResourceCarrier("Power", 0.0)
 CO2 = ResourceEmit("CO2", 1.0)
 products = [Power, CO2]
@@ -79,7 +78,7 @@ sp_number = length(sp_duration)
 T = TwoLevel(sp_duration, operational_periods; op_per_strat = 8760.0)
 
 # The model is an operational model. The emission cap (`em_limits`) and the price for an
-# emission (`em_cost`) is not relevant, as non of the nodes lead to emissions.
+# emission (`em_cost`) is not relevant, as none of the nodes lead to emissions.
 # They are however required.
 em_limits = Dict(CO2 => FixedProfile(10))   # Emission cap for CO₂ in t/year
 em_cost = Dict(CO2 => FixedProfile(0.0))    # Emission price for CO₂ in NOK/t

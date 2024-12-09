@@ -27,11 +27,21 @@ end
 """
     call_python_function(module_name::String, function_name::String, input; module_path::String = "")
 
-Call the function `function_name` of `module_name` located at `module_path`.
-It is assumed that the required packages of the python module is installed in the root
-environment (otherwise this can be resolved by, *e.g.*, `using Conda; Conda.add("pyomo")`).
+Call an external Python function.
+
+## Arguments
+- `module_name` - the name of the Python module to be used.
+- `function_name` - the name of the function to be called.
+- `input` - the input to the function to be called. Multiple input arguments is currently not supported.
+
+## Keyword Arguments
+- `module_path` - optional argument for the directory of the module. If not specified,
+  it is assumed that the module is available in the root environment.
 
 !!! note "Environments"
+    It is assumed that the required packages of the python module is installed in the root
+    environment (otherwise this can be resolved by, *e.g.*, `using Conda; Conda.add("pyomo")`).
+
     This approach is greatly simplified if the module is available in the root environment.
 
     Installing Python packages for use with PyCall requires the use of the root environment.
@@ -59,17 +69,28 @@ end
     call_cpp_function(
         libpath::String,
         function_name::String,
-        input;
+        input::Vector{Cdouble};
         filepath::String="",
         compile::Bool=false,
         compiler::String="g++",
         flags::String="-fPIC -shared",
     )
 
-Call the function `function_name` of the module with shared library (*e.g.*, .so-file) at `libpath`.
+Call an external C/C++ function.
 
-The `flags` argument is used to specify the flags to be passed to the compiler. They must be
-compatible with the chosen `compiler` and create a shared library.
+## Arguments
+- `libpath` - the path of the shared library (*e.g.*, .so-file) to be used (or the destination
+  at which the compiled shared library should be placed).
+- `function_name` - the name of the function to be called.
+- `input` - a `Vector` of `Cdouble`s passed as input to the function to be called.
+
+## Keyword Arguments
+- `filepath` - the path to the .c or .cpp file to be compiled (if the .so file is not available
+  or must be recompiled).
+- `compile` - a boolean to control if recompilation is desired.
+- `compiler` - a string of the compiler command (if it exist in PATH) or the path to the compiler.
+- `flags` - the optional arguments is used to specify the flags to be passed to the compiler.
+  They must be compatible with the chosen `compiler` and create a shared library.
 
 !!! note "Compiler"
     It is assumed that the chosen compiler is installed on the system. The full path to
@@ -78,7 +99,7 @@ compatible with the chosen `compiler` and create a shared library.
 function call_cpp_function(
     libpath::String,
     function_name::String,
-    input;
+    input::Vector{Cdouble};
     filepath::String = "",
     compile::Bool = false,
     compiler::String = "g++",
