@@ -3,3 +3,11 @@
 ## [New types](@id lib-pub-types)
 
 ## [Utility functions](@id lib-pub-util_fun)
+
+```@docs
+EnergyModelsUtilities.call_python_function
+```
+
+```@docs
+EnergyModelsUtilities.call_cpp_function
+```

@@ -6,6 +6,8 @@ stages:
 before_script:
   # Install git.
   - apt-get update -qq && apt-get install -y git
+  - apt-get install -y glpk-utils # the glpsol executable is needed for the solver glpk
+  - apt-get install -y g++ # the g++ compiler is needed for compiling C++ programs
   
   # Add the public General registry.
   - julia -e 'using Pkg; Pkg.Registry.add(RegistrySpec(url = "https://github.com/JuliaRegistries/General"))'

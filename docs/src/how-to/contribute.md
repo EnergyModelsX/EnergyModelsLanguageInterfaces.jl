@@ -4,7 +4,7 @@ Contributing to `EnergyModelsUtilities` can be achieved in several different way
 
 ## [File a bug report](@id how_to-con-bug_rep)
 
-Another approach to contributing to `EnergyModelsUtilities` is through filing a bug report as an *[issue](https://gitlab.sintef.no/idesignres/wp-2/energymodelsutilities.jl/-/issues/new)* when unexpected behaviour is occuring.
+An approach to contributing to `EnergyModelsUtilities` is through filing a bug report as an *[issue](https://gitlab.sintef.no/idesignres/wp-2/energymodelsutilities.jl/-/issues/new)* when unexpected behaviour is occuring.
 
 When filing a bug report, please follow the following guidelines:
 
@@ -30,7 +30,7 @@ In this case, you can contribute through a feature request.
 Feature requests for `EnergyModelsUtilities` should follow the guidelines developed for [`EnergyModelsBase`](https://energymodelsx.github.io/EnergyModelsBase.jl/stable/how-to/contribute/).
 
 !!! tip "Development of new types and functionality"
-    In general, new types or funcionality are best tested by implementing them in a package in which they are required.
+    In general, new types or functionality are best tested by implementing them in a package in which they are required.
     In this case, if you believe that these new types or functionality may be relevant for several other packages, we ask you to create an *[issue](https://gitlab.sintef.no/idesignres/wp-2/energymodelsutilities.jl/-/issues/new)* with
 
     1. a link to the implementation,

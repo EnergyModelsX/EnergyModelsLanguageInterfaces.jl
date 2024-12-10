@@ -19,4 +19,11 @@ Pages = ["methods-EMH.md"]
 ## [Utility methods](@id lib-int-met-util)
 
 ```@docs
+EnergyModelsUtilities.cleanup_libraries
+```
+
+## [Macros](@id lib-int-mac-util)
+
+```@docs
+@EnergyModelsUtilities.dlsym
 ```
