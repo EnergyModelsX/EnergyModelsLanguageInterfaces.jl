@@ -1,0 +1,8 @@
+# This file contains description of EMX-structures and variables 
+# with fields of type TimeStruct.TimeProfile
+structures:
+  WindPower:
+    cap:                    "Installed capacity"
+    profile:                "Power production in each operational period as a ratio of the installed capacity at that time"
+    opex_var:               "Relative variable operating expense per energy unit produced"
+    opex_fixed:             "Relative fixed operating expense per installed capacity"

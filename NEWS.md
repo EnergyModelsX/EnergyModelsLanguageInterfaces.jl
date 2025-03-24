@@ -1,5 +1,15 @@
 # Release notes
 
+## Version 0.2.0 (2025-03-07)
+
+### Adjustment
+
+* Adjusted python sampling routine to use a conda environment and enabled keyword arguments.
+
+### Enhancement
+
+* Added the WindPower node using the wind_power_timeseries at https://gitlab.sintef.no/harald.svendsen/timeseries/
+
 ## Version 0.1.1 (2024-12-04)
 
 ### Added sampling routines

@@ -1,6 +1,10 @@
 
 # [Types](@id lib-int-types)
 
+```@docs
+EnergyModelsUtilities.WindPower
+```
+
 ## [Index](@id lib-int-types-idx)
 
 ```@index

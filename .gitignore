@@ -31,3 +31,12 @@ Manifest.toml
 
 # MacOS
 .DS_Store
+
+# poetry lock files
+*poetry.lock
+
+# python cache
+*cache*
+
+# downloaded files
+*downloaded_nora3*

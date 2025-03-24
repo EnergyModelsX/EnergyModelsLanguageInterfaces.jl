@@ -1,18 +1,11 @@
-using Conda
-
 @testset "call_python_function tests" begin
-    # Install the required package
-    Conda.add("pyomo")
-    Conda.add("glpk")
-
     # Define paths to python module
-    module_path = joinpath(@__DIR__, "python_module")
-    module_name = "optimization_module"
-    function_name = "solve_optimization_problem"
+    module_name = "test_python_sampling"
+    function_name = "optimization_module.solve_optimization_problem"
 
     # Call the Python function
-    input = [1.4, 2.0, 1.2]
-    pv_profile = EMU.call_python_function(module_name, function_name, input; module_path)
+    input_data = [1.4, 2.0, 1.2]
+    pv_profile = EMU.call_python_function(module_name, function_name; input_data)
 
     @test pv_profile[1] == 1.0
     @test pv_profile[2] == 0.0
