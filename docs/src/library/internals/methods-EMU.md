@@ -14,12 +14,14 @@ Pages = ["methods-EMH.md"]
 ## [Check methods](@id lib-int-met-check)
 
 ```@docs
+EnergyModelsBase.check_node
 ```
 
 ## [Utility methods](@id lib-int-met-util)
 
 ```@docs
 EnergyModelsUtilities.cleanup_libraries
+EnergyModelsUtilities.getfirst
 ```
 
 ## [Macros](@id lib-int-mac-util)

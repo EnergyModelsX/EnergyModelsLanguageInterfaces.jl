@@ -7,6 +7,23 @@
 #     The example require that you have G++ as C++ compiler installed.
 #     It is however also possible to use a different compiler as outlined in [`call_cpp_function`](@ref).
 #
+# You first need to install the optimization_module package in the a conda environment in python:
+# ```bash
+# conda create --name testenv python=3.10
+# conda activate testenv
+# conda install -c conda-forge poetry
+# cd test/python_module
+# poetry install
+# cd ../..
+# ```
+# and then in julia:
+# ```julia
+# ENV["PYTHON"] = joinpath(homedir(), "AppData", "Local", "miniconda3", "envs", "testenv", "python.exe")
+# using Pkg
+# Pkg.build("PyCall")
+# ```
+# restart Julia
+
 # It is first required to load the relevant packages for running the model.
 using EnergyModelsBase
 using JuMP
@@ -19,13 +36,6 @@ const EMB = EnergyModelsBase
 const EMU = EnergyModelsUtilities
 
 # ## [Utilizing the python routine](@id exampl-sampl-py)
-#
-# The chosen python function includes a Pyomo optimization model. It is hence necessary to
-# add both Pyomo and GLPK to the environment. These will be added in the root environment.
-# If they are already installed, they are not installed again.
-Conda.add("pyomo")
-Conda.add("glpk")
-
 # A python function is called for providing the profile of the PV module (`pv_profile`).
 # The variable `module_name` corresponds to the python file, while the variable `function_name`
 # corresponds to the function you want to call from the python file. The input Vector
@@ -36,21 +46,20 @@ Conda.add("glpk")
 #     `EnergyModelsUtilities` as Literate crashes. The function is however running. Hence,
 #     you have to uncomment the line
 #
-#     `pv_profile = EMU.call_python_function(module_name, function_name, input; module_path)`
+#     `pv_profile = EMU.call_python_function(module_name, function_name; input_data)`
 #
 #     and comment the line following it.
-EMU_path = pkgdir(EnergyModelsUtilities)
-module_path = joinpath(EMU_path, "test", "python_module")
-module_name = "optimization_module"
-function_name = "solve_optimization_problem"
-input::Vector{Float64} = [1.4, 2.0, 1.2]
-#pv_profile = EMU.call_python_function(module_name, function_name, input; module_path)
+module_name = "test_python_sampling"
+function_name = "optimization_module.solve_optimization_problem"
+input_data = [1.4, 2.0, 1.2]
+#pv_profile = EMU.call_python_function(module_name, function_name; input_data)
 pv_profile = [1.0, 0.0, 0.0]
 
 # ## [Utilizing the C++ routines](@id exampl-sampl-c++)
 #
 # The C++ function is used for calculating the demand profile. You have to specify both the
 # path to the library (`libpath`) and the function name. file (`filepath`).
+EMU_path = pkgdir(EnergyModelsUtilities)
 libpath = joinpath(EMU_path, "test", "cpp_module", "libdoubling.so")
 filepath = joinpath(EMU_path, "test", "cpp_module", "doubling.cpp")
 cpp_function_name = "doubling"
@@ -110,18 +119,13 @@ nodes = [solar_pv, demand]
 ## Create links between nodes
 links = [Direct("solar_pv-demand", solar_pv, demand, Linear())]
 
-## Create the EMX case dictionary
-case = Dict(
-    :nodes => Array{EMB.Node}(nodes),
-    :links => Array{Link}(links),
-    :products => products,
-    :T => T,
-)
+## Create the EMX case
+case = Case(T, products, [nodes, links], [[get_nodes, get_links]])
 
 # Subsequently, we can create the model and solve it:
 
 ## Construct JuMP model for optimization
-m = EMB.create_model(case, model)
+m = create_model(case, model)
 
 ## Set optimizer for JuMP
 set_optimizer(m, HiGHS.Optimizer)

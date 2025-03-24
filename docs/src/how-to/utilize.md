@@ -5,20 +5,39 @@
 ### [Call Python functions](@id how_to-utilize-ext_fun-Python)
 
 To evaluate a python function (with input argument `input`) called `my_func` which 
-is available in the file `my_python_file.py` located at `filepath`, you can do the following
+is available in the `my_python_package`, you can do the following
 
 ```julia
-output = EMU.call_python_function("my_python_file", "my_func", input; "filepath")
+output = EMU.call_python_function("my_python_package", "my_func"; input)
 ```
 
 !!! note
     All python package dependencies must be available in the root environment. 
-    You can add packages with, *e.g.*, `using Conda; Conda.add("pyomo")`.
+
+    If you want to install non-standard python packages and/or you want to sample
+    a local package you must create a conda environment (using a conda installation),
+    or an other environment management system (not tested yet), and install required 
+    packages there. E.g.,
+    ```bash
+    conda create --name testenv python=3.10
+    conda activate testenv
+    conda install -c conda-forge poetry
+    cd path_to_your_python_project
+    poetry install
+    ```
+    You must then (in Julia) set (it is here assumed you use miniconda on Windows)
+    ```julia
+    using Pkg
+    Pkg.add("PyCall")
+    ENV["PYTHON"] = joinpath(homedir(), "AppData", "Local", "miniconda3", "envs", "testenv", "python.exe")
+    Pkg.build("PyCall")
+    ```
+    and restart Julia.
+
+### [Call C++ functions](@id how_to-utilize-ext_fun-Cpp)
 
 To evaluate a C++ function (with input argument `input`) called `my_func` which 
 is available in the library `libpath` which can be compiled by a `cpp` file located at `filepath`, you can do the following
-
-### [Call C++ functions](@id how_to-utilize-ext_fun-Cpp)
 
 ```julia
 output = EMU.call_cpp_function(libpath, "my_func", input; filepath)

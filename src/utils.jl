@@ -25,44 +25,37 @@ macro dlsym(lib, func)
 end
 
 """
-    call_python_function(module_name::String, function_name::String, input; module_path::String = "")
+    call_python_function(module_name::String, function_name::String; kwargs...)
 
 Call an external Python function.
 
 ## Arguments
 - `module_name` - the name of the Python module to be used.
-- `function_name` - the name of the function to be called.
-- `input` - the input to the function to be called. Multiple input arguments is currently not supported.
+- `function_name` - the name of the function to be called. Nested names (e.g., due to sub modules)
+  must be separated by ".".
 
 ## Keyword Arguments
-- `module_path` - optional argument for the directory of the module. If not specified,
-  it is assumed that the module is available in the root environment.
+- `kwargs` - the input to the python function to be called.
 
 !!! note "Environments"
     It is assumed that the required packages of the python module is installed in the root
     environment (otherwise this can be resolved by, *e.g.*, `using Conda; Conda.add("pyomo")`).
 
-    This approach is greatly simplified if the module is available in the root environment.
-
-    Installing Python packages for use with PyCall requires the use of the root environment.
+    If a specific python environment is required, one can use conda to create the environment
+    and then set ENV["PYTHON"] to the path of the python executable in that environment. This
+    requires a rebuild of `PyCall` with `Pkg.build("PyCall")` followed by a restart of Julia.
 """
-function call_python_function(
-    module_name::String, function_name::String, input; module_path::String = "",
-)
-    # If the module is provided locally, add the path to the Python sys path
-    if !isempty(module_path)
-        sys_paths = pyimport("sys")."path"
-        if !(module_path in collect(sys_paths))
-            sys_paths.append(module_path)
-        end
+function call_python_function(module_name::String, function_name::String; kwargs...)
+    # Import the requested function from the python module
+    sub_names = split(function_name, ".")
+    python_function = pyimport(module_name)
+    for name ∈ sub_names
+        python_function = python_function[name]
     end
 
-    # Import the requested function from the python module
-    python_function = pyimport(module_name)[function_name]
-
-    # Call the Python function with inputs a, b and c, and return the result.
-    @info "Calling the Python module $module_name"
-    return python_function(input)
+    # Call the Python function with kwargs as input, and return the result.
+    @info "Calling $function_name in the Python module $module_name"
+    return python_function(; kwargs...)
 end
 
 """
@@ -147,4 +140,23 @@ function cleanup_libraries()
         Libdl.dlclose(lib)
     end
     empty!(LIB_CACHE)
+end
+
+"""
+    getfirst(f::Function, a::Vector)
+
+Return the first element of Vector `a` satisfying the requirement of Function `f`.
+"""
+function getfirst(f::Function, a::Vector)
+    index = findfirst(f, a)
+    return isnothing(index) ? nothing : a[index]
+end
+
+"""
+    fetch_element(elements, id)
+
+Fetch the element with the given `id` from the `elements` array.
+"""
+function fetch_element(elements, id)
+    return getfirst(element -> element.id == id, elements)
 end

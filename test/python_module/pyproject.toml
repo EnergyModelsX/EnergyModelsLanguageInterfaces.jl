@@ -1,0 +1,26 @@
+[project]
+name = "test_python_sampling"
+version = "0.1.0"
+authors = [{name="Jon Vegard Venås", email="jonvegard.venas@sintef.no"}]
+description = "A test module for python sampling in Julia"
+license = "MIT"
+readme = "README.md"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python"
+]
+requires_python = ">=3.10"
+dependencies = [
+    "pyomo >= 6.5",
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pulp = "^2.6.0"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 92
+

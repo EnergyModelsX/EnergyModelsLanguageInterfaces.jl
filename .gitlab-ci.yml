@@ -2,15 +2,38 @@ stages:
   - test
   - deploy
 
-
 before_script:
   # Install git.
   - apt-get update -qq && apt-get install -y git
   - apt-get install -y glpk-utils # the glpsol executable is needed for the solver glpk
   - apt-get install -y g++ # the g++ compiler is needed for compiling C++ programs
+  - apt-get install wget curl -y # to donwload miniconda
+  - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+  - bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda # run the installer
+  - export PATH="$HOME/miniconda/bin:$PATH" # add the miniconda path to the PATH
+
+  # Create a conda environment and install poetry such that test/python_module can be installed.
+  - eval "$(conda shell.bash hook)"
+  - conda create --name testenv python=3.10 -y
+  - conda activate testenv
+  - conda install -c conda-forge poetry -y
+  - pip install --upgrade pip setuptools wheel
+  - pip uninstall -y distlib && pip install --no-cache-dir --force-reinstall distlib
+  - cd test/python_module
+  - poetry install
+  - cd ../..
+  - git clone https://gitlab.sintef.no/harald.svendsen/timeseries.git
+  - cd timeseries
+  - poetry install
+  - cd ..
   
   # Add the public General registry.
   - julia -e 'using Pkg; Pkg.Registry.add(RegistrySpec(url = "https://github.com/JuliaRegistries/General"))'
+  
+  # Build the PyCall package.
+  - julia --project=. -e 'using Pkg; Pkg.add("PyCall");
+    ENV["PYTHON"] = joinpath("/root/miniconda/envs", "testenv", "bin", "python");
+    Pkg.build("PyCall");'
 
 # Below is the template to run the tests in Julia
 .test_template: &test_definition
@@ -18,6 +41,8 @@ before_script:
   script:
     - echo "Run tests"
     - julia -e 'using Pkg; Pkg.Registry.status()'
+
+    # Run the tests.
     - julia --project=. -e 'using Pkg; Pkg.test(; coverage = true);
         Pkg.add("Coverage");
         Pkg.instantiate();
