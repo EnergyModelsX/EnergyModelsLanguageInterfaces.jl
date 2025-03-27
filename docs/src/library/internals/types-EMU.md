@@ -3,6 +3,7 @@
 
 ```@docs
 EnergyModelsUtilities.WindPower
+EnergyModelsUtilities.CSPandPV
 ```
 
 ## [Index](@id lib-int-types-idx)
