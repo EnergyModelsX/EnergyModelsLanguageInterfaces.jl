@@ -9,6 +9,7 @@ using TimeStruct
 using EnergyModelsBase
 using EnergyModelsRenewableProducers
 using Dates
+using Libdl
 using YAML
 
 const EMB = EnergyModelsBase
@@ -22,5 +23,6 @@ include("utils.jl")
 
 export call_python_function, call_cpp_function, fetch_element
 export WindPower, CSPandPV
+export MultipleBuildingTypes
 
 end # module EnergyModelsUtilities

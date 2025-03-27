@@ -29,6 +29,8 @@ before_script:
   - git clone https://github.com/iDesignRES/Tecnalia.git
   - cd Tecnalia/examples/pv_power_plants
   - poetry install
+  - cd ../building_energy_process
+  - poetry install
   - cd ../../..
   
   # Add the public General registry.

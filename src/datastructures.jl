@@ -162,7 +162,10 @@ end
         process_pay_load::Dict,
         time_start::DateTime,
         time_end::DateTime,
+        resources_map::Dict{String,<:Resource};
         data::Vector{Data} = Data[],
+        data_location::String = joinpath(tempdir(), "CSPandPV"),
+        overwrite_saved_data::Bool = false,
     )
 
 Constructs a `CSPandPV` instance where the power and heat production profiles are sampled from
@@ -332,3 +335,249 @@ or in operational period `t`.
 EMR.profile(n::CSPandPV) = n.profile
 EMR.profile(n::CSPandPV, p::Resource) = n.profile[p]
 EMR.profile(n::CSPandPV, t, p::Resource) = n.profile[p][t]
+
+"""
+    struct MultipleBuildingTypes <: EMB.Sink
+
+A [`MultipleBuildingTypes`](@ref) node that creates sinks for all demand resources. The
+demand for each resources has a penalty for both surplus and deficit.
+The penalties introduced in the field `penalty` affect the variable OPEX for both a surplus
+and deficit.
+
+# Fields
+- **`id`** is the name/identifier of the node.
+- **`cap::Dict{<:Resource,<:TimeProfile}`** is the demand.
+- **`penalty_surplus::Dict{<:Resource,<:TimeProfile}`** are the penalties for surplus.
+- **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** are the penalties for deficit.
+- **`input::Dict{<:Resource,<:Real}`** are the input [`Resource`](@ref)s with conversion
+  value `Real`.
+- **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments). The field `data`
+  is conditional through usage of a constructor.
+
+!!! danger
+    Investments are not available for this node.
+"""
+struct MultipleBuildingTypes <: EMB.Sink
+    id::Any
+    cap::Dict{<:Resource,<:TimeProfile}
+    penalty_surplus::Dict{<:Resource,<:TimeProfile}
+    penalty_deficit::Dict{<:Resource,<:TimeProfile}
+    input::Dict{<:Resource,<:Real}
+    data::Vector{<:Data}
+end
+function MultipleBuildingTypes(
+    id::Any,
+    cap::Dict{<:Resource,<:TimeProfile},
+    penalty_surplus::Dict{<:Resource,<:TimeProfile},
+    penalty_deficit::Dict{<:Resource,<:TimeProfile},
+    input::Dict{<:Resource,<:Real},
+)
+    return MultipleBuildingTypes(id, cap, penalty_surplus, penalty_deficit, input, Data[])
+end
+
+"""
+    MultipleBuildingTypes(
+        id::Any,
+        auth_pay_load::Dict,
+        process_pay_load::Dict,
+        time_start::DateTime,
+        time_end::DateTime,
+        buildings::Vector{String},
+        resources_map::Dict{String,<:Resource},
+        T::TimeStructure,
+        penalty_surplus::Dict{<:Resource,<:TimeProfile},
+        penalty_deficit::Dict{<:Resource,<:TimeProfile};
+        data::Vector{<:Data} = Data[],
+        data_location::String = joinpath(tempdir(), "buildings"),
+        overwrite_saved_data::Bool = false,
+    )
+
+Constructs a `MultipleBuildingTypes` instance where the demand profiles are sampled from the
+`executeBuildingEnergySimulationProcess` function in the `building_energy_process` python project.
+
+# Arguments
+- **`id`** is the name or identifier of the node.
+- **`auth_pay_load`** is the authentication dictionary for the Python function.
+- **`process_pay_load`** is the process dictionary for the Python function.
+- **`time_start`** is the starting time for the sampling.
+- **`time_end`** is the ending time for the sampling.
+- **`buildings`** is a vector of the buildings to be considered. Any combination of the following building types is allowed:
+  - "Apartment Block"
+  - "Single family- Terraced houses"
+  - "Hotels and Restaurants"
+  - "Health"
+  - "Education"
+  - "Offices"
+  - "Trade"
+  - "Other non-residential buildings"
+  - "Sport"
+- **`resources_map`** is a map of resource keys to `EMB.Resource`s. E.g., the dictionary
+
+  ```julia
+  Coal = ResourceCarrier("Coal", 0.35)
+  LNG = ResourceCarrier("LNG", 0.2)
+  Oil = ResourceCarrier("Oil", 0.3)
+  NG = ResourceCarrier("NG", 0.2)
+  SolidBiomass = ResourceCarrier("SolidBiomass", 0.1)
+  Power = ResourceCarrier("Power", 0.0)
+  Heat = ResourceCarrier("Heat", 0.0)
+  LiquidBiomass = ResourceCarrier("LiquidBiomass", 0.15)
+  Biogas = ResourceCarrier("Biogas", 0.05)
+  Hydrogen = ResourceCarrier("Hydrogen", 0.0)
+  SolarHeat = ResourceCarrier("SolarHeat", 0.0)
+
+  resources_map = Dict(
+      "Solids|Coal" => Coal,
+      "Liquids|Gas" => LNG,
+      "Liquids|Oil" => Oil,
+      "Gases|Gas" => NG,
+      "Solids|Biomass" => SolidBiomass,
+      "Electricity" => Power,
+      "Heat" => Heat,
+      "Liquids|Biomass" => LiquidBiomass,
+      "Gases|Biomass" => Biogas,
+      "Hydrogen" => Hydrogen,
+      "Heat|Solar" => SolarHeat,
+  )
+  ```
+- **`T`** is the TimeStructure used in the model.
+- **`penalty_surplus::Dict{<:Resource,<:TimeProfile}`** is the penalties for surplus.
+- **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** is the penalties for deficit.
+
+# Keyword arguments
+- **`data`** is the additional data (*e.g.*, for investments). The default value is no `data`.
+- **`data_location`** is the location where the data is saved. The default value is in the
+  temporary directory.
+- **`overwrite_saved_data`** is a boolean that determines if the stored data should be
+  overwritten (in which case the building_energy_process is called). The default value is
+  `false`.
+
+!!! note
+    The "Variable cost [€/KWh]" and "Emissions [KgCO2/KWh]" from the `building_energy_process`
+    model is currently not used. Both of these are incorporated indirectly through the usage
+    of the energy carriers.
+
+!!! note
+    The arguments `aut_pay_load` and `process_pay_load` are dictionaries that contain the
+    authentication and process information for the Python function. The defaults can be
+    achieved through
+
+    ```julia
+    using JSON
+    auth_pay_load = JSON.parsefile(path_to_building_energy_process/auth.json)
+    process_pay_load = JSON.parsefile(path_to_building_energy_process/process.json)
+    ```
+
+!!! note
+    If you want to incorporate unique penalities for each building type, you must create A
+    `MultipleBuildingTypes` node for each building type.
+"""
+function MultipleBuildingTypes(
+    id::Any,
+    auth_pay_load::Dict,
+    process_pay_load::Dict,
+    time_start::DateTime,
+    time_end::DateTime,
+    buildings::Vector{String},
+    resources_map::Dict{String,<:Resource},
+    T::TimeStructure,
+    penalty_surplus::Dict{<:Resource,<:TimeProfile},
+    penalty_deficit::Dict{<:Resource,<:TimeProfile};
+    data::Vector{<:Data} = Data[],
+    data_location::String = joinpath(tempdir(), "buildings"),
+    overwrite_saved_data::Bool = false,
+)
+    time_start_str = Dates.format(time_start, "yyyy-mm-dd\\THH:MM:SS")
+    time_end_str = Dates.format(time_end, "yyyy-mm-dd\\THH:MM:SS")
+    oper_length = length(T.operational[1]) # Assume the length to be the same in all Strategic periods
+    resources = values(resources_map)
+    cap_vector =
+        Dict{Resource,Vector}(resource => zeros(oper_length) for resource ∈ resources)
+    for building ∈ buildings
+        # The keys of demands is
+        data_path = joinpath(data_location, building * ".yml")
+        if isfile(data_path) && !overwrite_saved_data
+            demands = YAML.load(open(data_path))
+        else
+            demands = call_python_function(
+                "building_energy_process",
+                "executeBuildingEnergySimulationProcess",
+                [auth_pay_load, process_pay_load, time_start_str, time_end_str, building],
+            )
+
+            if !isdir(data_location)
+                mkpath(data_location)
+            end
+
+            # Scale power_outputs to MW
+            for key ∈ keys(demands)
+                if !(key in ["Datetime", "Variable cost [€/KWh]", "Emissions [KgCO2/KWh]"])
+                    demands[key] /= 1e6
+                end
+            end
+            open(data_path, "w") do io
+                YAML.write(io, demands)
+            end
+        end
+        for (key, demand) ∈ demands
+            # Skip fields not used
+            if key in ["Datetime", "Variable cost [€/KWh]", "Emissions [KgCO2/KWh]"]
+                continue
+            end
+
+            # Add the demand to the corresponding resource
+            cap_vector[resources_map[key]] += demand
+        end
+    end
+    # Convert to OperationalProfile
+    cap = Dict{Resource,TimeProfile}(
+        resource => OperationalProfile(cap_vector[resource]) for
+        resource ∈ resources
+    )
+
+    input = Dict{Resource,Real}(resource => 1.0 for resource ∈ resources)
+    return MultipleBuildingTypes(id, cap, penalty_surplus, penalty_deficit, input, data)
+end
+
+"""
+    EMB.capacity(n::MultipleBuildingTypes)
+    EMB.capacity(n::MultipleBuildingTypes, p::Resource)
+    EMB.capacity(n::MultipleBuildingTypes, t, p::Resource)
+
+Returns the capacity of a MultipleBuildingTypes `n` as a `Dictionary` or of resource `p` as `TimeProfile`
+or in operational period `t`.
+"""
+EMB.capacity(n::MultipleBuildingTypes) = n.cap
+EMB.capacity(n::MultipleBuildingTypes, p::Resource) = n.cap[p]
+EMB.capacity(n::MultipleBuildingTypes, t, p::Resource) = n.cap[p][t]
+
+"""
+    EMB.has_capacity(n::MultipleBuildingTypes)
+
+A MultipleBuildingTypes has capacity for all its resources but not in a EMB sense.
+"""
+EMB.has_capacity(n::MultipleBuildingTypes) = false
+
+"""
+    EMB.surplus_penalty(n::MultipleBuildingTypes)
+    EMB.surplus_penalty(n::MultipleBuildingTypes, p::Resource)
+    EMB.surplus_penalty(n::MultipleBuildingTypes, t, p::Resource)
+
+Returns the surplus penalty of MultipleBuildingTypes `n` as a `Dictionary` or of resource `p` as `TimeProfile`
+or in operational period `t`.
+"""
+EMB.surplus_penalty(n::MultipleBuildingTypes) = n.penalty_surplus
+EMB.surplus_penalty(n::MultipleBuildingTypes, p::Resource) = n.penalty_surplus[p]
+EMB.surplus_penalty(n::MultipleBuildingTypes, t, p::Resource) = n.penalty_surplus[p][t]
+
+"""
+    EMB.deficit_penalty(n::MultipleBuildingTypes)
+    EMB.deficit_penalty(n::MultipleBuildingTypes, p::Resource)
+    EMB.deficit_penalty(n::MultipleBuildingTypes, t, p::Resource)
+
+Returns the deficit penalty of MultipleBuildingTypes `n` as a `Dictionary` or of resource `p` as `TimeProfile`
+or in operational period `t`.
+"""
+EMB.deficit_penalty(n::MultipleBuildingTypes) = n.penalty_deficit
+EMB.deficit_penalty(n::MultipleBuildingTypes, p::Resource) = n.penalty_deficit[p]
+EMB.deficit_penalty(n::MultipleBuildingTypes, t, p::Resource) = n.penalty_deficit[p][t]

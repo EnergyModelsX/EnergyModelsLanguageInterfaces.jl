@@ -1,4 +1,34 @@
 """
+    EMB.constraints_capacity(m, n::MultipleBuildingTypes, 𝒯::TimeStructure, modeltype::EnergyModel)
+
+Function for creating the constraints on the maximum capacity of a [`MultipleBuildingTypes`](@ref) node.
+"""
+function EMB.constraints_capacity(
+    m,
+    n::MultipleBuildingTypes,
+    𝒯::TimeStructure,
+    ::EnergyModel,
+)
+    𝒫ⁱⁿ = inputs(n)
+    @constraint(m, [t ∈ 𝒯, p ∈ 𝒫ⁱⁿ],
+        m[:flow_in][n, t, p] / inputs(n, p) + m[:buildings_deficit][n, t, p] ==
+        EMB.capacity(n, t, p) + m[:buildings_surplus][n, t, p]
+    )
+
+    # Define sink_deficit and sink_surplus
+    @constraint(
+        m,
+        [t ∈ 𝒯],
+        sum(m[:buildings_deficit][n, t, p] for p ∈ 𝒫ⁱⁿ) == m[:sink_deficit][n, t]
+    )
+    @constraint(
+        m,
+        [t ∈ 𝒯],
+        sum(m[:buildings_surplus][n, t, p] for p ∈ 𝒫ⁱⁿ) == m[:sink_surplus][n, t]
+    )
+end
+
+"""
     EMB.constraints_capacity(m, n::CSPandPV, 𝒯::TimeStructure, ::EnergyModel)
 
 Function for creating the constraint on the maximum capacity of a [`CSPandPV`](@ref) node.
@@ -30,6 +60,15 @@ function EMB.constraints_capacity(m, n::CSPandPV, 𝒯::TimeStructure, ::EnergyM
 end
 
 """
+    EMB.constraints_flow_in(m, n::MultipleBuildingTypes, 𝒯::TimeStructure, ::EnergyModel)
+
+Constraint on the inlet flow for a [`MultipleBuildingTypes`](@ref) node are implemented
+directly in the multiple dispatched function `EMB.constraints_capacity`.
+"""
+function EMB.constraints_flow_in(m, ::MultipleBuildingTypes, ::TimeStructure, ::EnergyModel)
+end
+
+"""
     EMB.constraints_flow_out(m, n::CSPandPV, 𝒯::TimeStructure, modeltype::EnergyModel)
 
 Function for creating the constraint on the outlet flow from a [`CSPandPV`](@ref) node.
@@ -41,6 +80,25 @@ function EMB.constraints_flow_out(m, n::CSPandPV, 𝒯::TimeStructure, modeltype
     # Constraint for the individual output stream connections
     @constraint(m, [t ∈ 𝒯, p ∈ 𝒫ᵒᵘᵗ],
         m[:flow_out][n, t, p] == m[:solar_cap_use][n, t, p] * outputs(n, p)
+    )
+end
+
+"""
+    EMB.constraints_opex_var(m, n::MultipleBuildingTypes, 𝒯ᴵⁿᵛ, ::EnergyModel)
+
+Function for creating the constraint on the variable OPEX of a [`MultipleBuildingTypes`](@ref) node.
+
+The variable OPEX is calculate through the penalties for both `surplus` and `deficit`.
+"""
+function EMB.constraints_opex_var(m, n::MultipleBuildingTypes, 𝒯ᴵⁿᵛ, ::EnergyModel)
+    @constraint(m, [t_inv ∈ 𝒯ᴵⁿᵛ],
+        m[:opex_var][n, t_inv] ==
+        sum(
+            (
+                m[:buildings_surplus][n, t, p] * EMB.surplus_penalty(n, t, p) +
+                m[:buildings_deficit][n, t, p] * EMB.deficit_penalty(n, t, p)
+            ) * scale_op_sp(t_inv, t) for t ∈ t_inv, p ∈ inputs(n)
+        )
     )
 end
 
