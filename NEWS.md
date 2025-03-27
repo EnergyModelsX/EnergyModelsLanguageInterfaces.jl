@@ -5,6 +5,7 @@
 ### Enhancement
 
 * Added the `CSPandPV` node (as a source node for concentrated solar power and photovoltaic power).
+* Added the `MultipleBuildingTypes` (as sinks for different building types).
 
 ## Version 0.1.0 (2025-03-07)
 

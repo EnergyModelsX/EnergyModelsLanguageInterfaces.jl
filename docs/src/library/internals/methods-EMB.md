@@ -17,6 +17,7 @@ Pages = ["methods-EMB.md"]
 EnergyModelsBase.constraints_opex_var
 EnergyModelsBase.constraints_opex_fixed
 EnergyModelsBase.constraints_capacity
+EnergyModelsBase.constraints_flow_in
 EnergyModelsBase.constraints_flow_out
 ```
 
@@ -39,4 +40,6 @@ EnergyModelsBase.opex_fixed
 EnergyModelsBase.opex_var
 EnergyModelsBase.has_capacity
 EnergyModelsBase.capacity
+EnergyModelsBase.surplus_penalty
+EnergyModelsBase.deficit_penalty
 ```

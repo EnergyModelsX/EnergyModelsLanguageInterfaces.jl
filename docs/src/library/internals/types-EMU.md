@@ -4,6 +4,7 @@
 ```@docs
 EnergyModelsUtilities.WindPower
 EnergyModelsUtilities.CSPandPV
+EnergyModelsUtilities.MultipleBuildingTypes
 ```
 
 ## [Index](@id lib-int-types-idx)

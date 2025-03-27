@@ -27,5 +27,6 @@ const TEST_ATOL = 1e-6
 
     # Test nodes
     include("test_windpower.jl")
+    include("test_buildings.jl")
     include("test_CSPandPV.jl")
 end
