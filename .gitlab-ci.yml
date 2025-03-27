@@ -26,6 +26,10 @@ before_script:
   - cd timeseries
   - poetry install
   - cd ..
+  - git clone https://github.com/iDesignRES/Tecnalia.git
+  - cd Tecnalia/examples/pv_power_plants
+  - poetry install
+  - cd ../../..
   
   # Add the public General registry.
   - julia -e 'using Pkg; Pkg.Registry.add(RegistrySpec(url = "https://github.com/JuliaRegistries/General"))'

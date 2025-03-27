@@ -2,12 +2,14 @@ using Documenter
 using DocumenterInterLinks
 using EnergyModelsBase
 using EnergyModelsInvestments
+using EnergyModelsRenewableProducers
 using EnergyModelsUtilities
 using TimeStruct
 using Literate
 
 const EMB = EnergyModelsBase
 const EMI = EnergyModelsInvestments
+const EMR = EnergyModelsRenewableProducers
 const EMU = EnergyModelsUtilities
 
 # Copy the NEWS.md file

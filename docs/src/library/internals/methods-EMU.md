@@ -14,7 +14,6 @@ Pages = ["methods-EMH.md"]
 ## [Check methods](@id lib-int-met-check)
 
 ```@docs
-EnergyModelsBase.check_node
 ```
 
 ## [Utility methods](@id lib-int-met-util)
@@ -22,6 +21,7 @@ EnergyModelsBase.check_node
 ```@docs
 EnergyModelsUtilities.cleanup_libraries
 EnergyModelsUtilities.getfirst
+EnergyModelsUtilities.get_python_function
 ```
 
 ## [Macros](@id lib-int-mac-util)

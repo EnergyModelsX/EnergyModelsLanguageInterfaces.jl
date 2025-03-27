@@ -22,6 +22,7 @@ Manifest.toml
 # Internal files for testing the system locally
 *startup.jl
 /test/test_coverage.jl
+/test/data
 /dev
 
 # Output
