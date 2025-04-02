@@ -2,8 +2,10 @@
     EMB.variables_node(m, 𝒩::Vector{MultipleBuildingTypes}, 𝒯, ::EnergyModel)
 
 For a [`MultipleBuildingTypes`](@ref) node, the following variables are created:
-- `buildings_surplus[n, t, p]` is the surplus of node `n` with resource `p` in operational period `t`.
-- `buildings_deficit[n, t, p]` is the surplus of node `n` with resource `p` in operational period `t`.
+- `buildings_surplus[n, t, p]` is the surplus of node `n` with resource `p` in operational
+  period `t`.
+- `buildings_deficit[n, t, p]` is the surplus of node `n` with resource `p` in operational
+  period `t`.
 """
 function EMB.variables_node(m, 𝒩::Vector{MultipleBuildingTypes}, 𝒯, ::EnergyModel)
 
@@ -18,9 +20,12 @@ end
     EMB.variables_node(m, 𝒩::Vector{CSPandPV}, 𝒯, ::EnergyModel)
 
 For a [`CSPandPV`](@ref) node, the following variables are created:
-    - `solar_curtailment[n, t, p]` is the curtailment of node `n` with resource `p` in operational period `t`.
-    - `solar_cap_use[n, t, p]` is the capacity utilization of node `n` with resource `p` in operational period `t`.
-    - `solar_cap_inst[n, t, p]` is the installed capacity of node `n` with resource `p` in operational period `t`.
+- `solar_curtailment[n, t, p]` is the curtailment of node `n` with resource `p` in
+  operational period `t`.
+- `solar_cap_use[n, t, p]` is the capacity utilization of node `n` with resource `p` in
+  operational period `t`.
+- `solar_cap_inst[n, t, p]` is the installed capacity of node `n` with resource `p` in
+  operational period `t`.
 """
 function EMB.variables_node(m, 𝒩::Vector{CSPandPV}, 𝒯, ::EnergyModel)
 

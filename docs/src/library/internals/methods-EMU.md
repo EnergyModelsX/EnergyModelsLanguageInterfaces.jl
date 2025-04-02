@@ -22,6 +22,9 @@ Pages = ["methods-EMH.md"]
 EnergyModelsUtilities.cleanup_libraries
 EnergyModelsUtilities.getfirst
 EnergyModelsUtilities.get_python_function
+EnergyModelsUtilities.moisture
+EnergyModelsUtilities.bio_type
+EnergyModelsUtilities.electricity_resource
 ```
 
 ## [Macros](@id lib-int-mac-util)

@@ -1,16 +1,6 @@
 using EnergyModelsHeat
 using JSON
 using Dates
-using PyCall
-
-# Replace 'your_module' with the actual module name
-py"""
-import pv_power_plants
-import os
-
-module_path = os.path.dirname(pv_power_plants.__file__)
-"""
-CSPandPV_module_path = py"module_path"
 
 @testset "CSPandPV" begin
     Power = ResourceCarrier("Power", 0.0)
@@ -29,11 +19,15 @@ CSPandPV_module_path = py"module_path"
     T = TwoLevel(sp_duration, operational_periods; op_per_strat = 8760.0)
 
     # Load paths to default Buildings process and authentication files
-    EMU_path = pkgdir(EnergyModelsUtilities)
-    path_to_auth_file_csp_pv = joinpath(CSPandPV_module_path, "auth.json")
+    project_path = joinpath(@__DIR__, "..", "Tecnalia")
+    if !isdir(project_path)
+        project_path = joinpath(@__DIR__, "..", "..", "Tecnalia")
+    end
+    project_path = joinpath(project_path, "examples", "pv_power_plants")
+    path_to_auth_file_csp_pv = joinpath(project_path, "auth.json")
     auth_pay_load_csp_pv = JSON.parsefile(path_to_auth_file_csp_pv)
 
-    path_to_json_csp_pv = joinpath(CSPandPV_module_path, "process.json")
+    path_to_json_csp_pv = joinpath(project_path, "process.json")
     process_pay_load_csp_pv = JSON.parsefile(path_to_json_csp_pv)
 
     #process_pay_load_buildings["nutsid"] = "NO04" # Agder and Rogaland

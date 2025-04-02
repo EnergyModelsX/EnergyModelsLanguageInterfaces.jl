@@ -55,3 +55,6 @@ function general_tests(m)
         end
     end
 end
+
+⪆(x, y) = x > y || isapprox(x, y; atol = TEST_ATOL)
+⪅(x, y) = x < y || isapprox(x, y; atol = TEST_ATOL)

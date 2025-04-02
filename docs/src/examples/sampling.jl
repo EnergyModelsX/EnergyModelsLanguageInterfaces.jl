@@ -3,10 +3,6 @@
 # The following example shows how the samling routines can be used for, *e.g.*, creating
 # profiles that can be used in `EnergyModelsX` nodes.
 #
-# !!! warning
-#     The example require that you have G++ as C++ compiler installed.
-#     It is however also possible to use a different compiler as outlined in [`call_cpp_function`](@ref).
-#
 # You first need to install the optimization_module package in the a conda environment in python:
 # ```bash
 # conda create --name testenv python=3.10
@@ -30,7 +26,6 @@ using JuMP
 using HiGHS
 using TimeStruct
 using EnergyModelsUtilities
-using Conda
 
 const EMB = EnergyModelsBase
 const EMU = EnergyModelsUtilities
@@ -49,22 +44,23 @@ const EMU = EnergyModelsUtilities
 #     `pv_profile = EMU.call_python_function(module_name, function_name; input_data)`
 #
 #     and comment the line following it.
-module_name = "test_python_sampling"
-function_name = "optimization_module.solve_optimization_problem"
+python_module_name = "test_python_sampling"
+python_function_name = "optimization_module.solve_optimization_problem"
 input_data = [1.4, 2.0, 1.2]
-#pv_profile = EMU.call_python_function(module_name, function_name; input_data)
+#pv_profile = EMU.call_python_function(python_module_name, python_function_name; input_data)
 pv_profile = [1.0, 0.0, 0.0]
 
-# ## [Utilizing the C++ routines](@id exampl-sampl-c++)
+# ## [Utilizing the C/C++ routines](@id exampl-sampl-c++)
 #
-# The C++ function is used for calculating the demand profile. You have to specify both the
+# The C/C++ function is used for calculating the demand profile. You have to specify both the
 # path to the library (`libpath`) and the function name. file (`filepath`).
 EMU_path = pkgdir(EnergyModelsUtilities)
-libpath = joinpath(EMU_path, "test", "cpp_module", "libdoubling.so")
-filepath = joinpath(EMU_path, "test", "cpp_module", "doubling.cpp")
-cpp_function_name = "doubling"
+c_libpath = joinpath(EMU_path, "test", "doubling_module", "libdoubling.so")
+c_filepath = joinpath(EMU_path, "test", "doubling_module", "doubling.c")
+c_function_name = "doubling"
 input_cpp::Vector{Cdouble} = [1.4, 2.0, 1.2]
-demand_profile = EMU.call_cpp_function(libpath, cpp_function_name, input_cpp; filepath)
+include(joinpath(EMU_path, "test", "doubling_module", "doubling.jl"))
+demand_profile = doubling(c_libpath, c_function_name, input_cpp; filepath = c_filepath)
 
 # ## [Apply the routines in an `EnergyModelsBase` model](@id exampl-sampl-emb)
 #

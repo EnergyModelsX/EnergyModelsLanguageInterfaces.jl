@@ -7,6 +7,7 @@ before_script:
   - apt-get update -qq && apt-get install -y git
   - apt-get install -y glpk-utils # the glpsol executable is needed for the solver glpk
   - apt-get install -y g++ # the g++ compiler is needed for compiling C++ programs
+  - apt-get install -y cmake # the cmake is needed for compiling C++ programs
   - apt-get install wget curl -y # to donwload miniconda
   - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
   - bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda # run the installer
@@ -17,21 +18,38 @@ before_script:
   - conda create --name testenv python=3.10 -y
   - conda activate testenv
   - conda install -c conda-forge poetry -y
-  - pip install --upgrade pip setuptools wheel
-  - pip uninstall -y distlib && pip install --no-cache-dir --force-reinstall distlib
+  
+  # Create convenient variable for the main directory.
+  - MAIN_DIR=$(pwd)
+
+  # Install the test/python_module package.
   - cd test/python_module
   - poetry install
-  - cd ../..
+  - cd "$MAIN_DIR"
+
+  # Install the wind power model
   - git clone https://gitlab.sintef.no/harald.svendsen/timeseries.git
   - cd timeseries
   - poetry install
-  - cd ..
+  - cd "$MAIN_DIR"
+
+  # Install the Tecnalia models
   - git clone https://github.com/iDesignRES/Tecnalia.git
   - cd Tecnalia/examples/pv_power_plants
   - poetry install
   - cd ../building_energy_process
   - poetry install
-  - cd ../../..
+  - cd "$MAIN_DIR"
+
+  # Install CHP_modelling
+  - git clone https://github.com/iDesignRES/CHP_modelling.git
+  - cd CHP_modelling
+  - git checkout feat/newtestsetup # Use this branch until first release
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make
+  - cd "$MAIN_DIR"
   
   # Add the public General registry.
   - julia -e 'using Pkg; Pkg.Registry.add(RegistrySpec(url = "https://github.com/JuliaRegistries/General"))'

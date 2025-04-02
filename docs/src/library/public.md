@@ -6,6 +6,5 @@
 
 ```@docs
 EnergyModelsUtilities.call_python_function
-EnergyModelsUtilities.call_cpp_function
 EnergyModelsUtilities.fetch_element
 ```

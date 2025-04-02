@@ -8,12 +8,18 @@ using JuMP
 using TimeStruct
 using EnergyModelsBase
 using EnergyModelsRenewableProducers
+using EnergyModelsHeat
 using Dates
 using Libdl
 using YAML
 
 const EMB = EnergyModelsBase
 const EMR = EnergyModelsRenewableProducers
+const EMH = EnergyModelsHeat
+
+# Keep a global reference to the loaded library
+const LIB_CACHE = Dict{String,Ptr{Cvoid}}()
+include("macros.jl")
 
 include("datastructures.jl")
 include("model.jl")
@@ -21,8 +27,8 @@ include("checks.jl")
 include("constraint_functions.jl")
 include("utils.jl")
 
-export call_python_function, call_cpp_function, fetch_element
-export WindPower, CSPandPV
-export MultipleBuildingTypes
+export call_python_function, fetch_element
+export WindPower, CSPandPV, MultipleBuildingTypes
+export ResourceBio, BioCHP
 
 end # module EnergyModelsUtilities

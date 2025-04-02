@@ -1,11 +1,16 @@
 # Release notes
 
-## Version 0.1.0 (2025-03-27)
+## Version 0.1.0 (2025-03-30)
+
+### Adjustment
+
+* Removed the `call_cpp_function` function (breaking change) and related content as this approach was not generalizable to an arbitrary number of input/output arguments and types.
+  This must instead be done locally in node constructors.
 
 ### Enhancement
 
-* Added the `CSPandPV` node (as a source node for concentrated solar power and photovoltaic power).
-* Added the `MultipleBuildingTypes` (as sinks for different building types).
+* Added the `MultipleBuildingTypes` (as sinks for different building types) and `CSPandPV` (as a source node for concentrated solar power and photovoltaic power).
+* Added the `BioCHP` node (as a NetworkNode to model Compbined Heat and Power plant based on biomass combustion).
 
 ## Version 0.1.0 (2025-03-07)
 
