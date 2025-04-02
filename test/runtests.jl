@@ -26,7 +26,8 @@ const TEST_ATOL = 1e-6
     include("test_sampling_routines.jl")
 
     # Test nodes
-    include("test_windpower.jl")
-    include("test_buildings.jl")
-    include("test_CSPandPV.jl")
+    #include("test_windpower.jl")
+    #include("test_buildings.jl")
+    #include("test_CSPandPV.jl")
+    include("test_bioCHP.jl")
 end

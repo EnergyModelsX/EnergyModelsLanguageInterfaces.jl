@@ -1,7 +1,8 @@
 """
     EMB.constraints_capacity(m, n::MultipleBuildingTypes, 𝒯::TimeStructure, modeltype::EnergyModel)
 
-Function for creating the constraints on the maximum capacity of a [`MultipleBuildingTypes`](@ref) node.
+Function for creating the constraints on the maximum capacity of a
+[`MultipleBuildingTypes`](@ref) node.
 """
 function EMB.constraints_capacity(
     m,
@@ -62,8 +63,8 @@ end
 """
     EMB.constraints_flow_in(m, n::MultipleBuildingTypes, 𝒯::TimeStructure, ::EnergyModel)
 
-Constraint on the inlet flow for a [`MultipleBuildingTypes`](@ref) node are implemented
-directly in the multiple dispatched function `EMB.constraints_capacity`.
+The constraints on the inlet flow for a [`MultipleBuildingTypes`](@ref) node are implemented
+directly in the function `EMB.constraints_capacity`.
 """
 function EMB.constraints_flow_in(m, ::MultipleBuildingTypes, ::TimeStructure, ::EnergyModel)
 end
@@ -86,9 +87,11 @@ end
 """
     EMB.constraints_opex_var(m, n::MultipleBuildingTypes, 𝒯ᴵⁿᵛ, ::EnergyModel)
 
-Function for creating the constraint on the variable OPEX of a [`MultipleBuildingTypes`](@ref) node.
+Function for creating the constraint on the variable OPEX of a [`MultipleBuildingTypes`](@ref)
+node.
 
-The variable OPEX is calculate through the penalties for both `surplus` and `deficit`.
+The variable OPEX is calculate through the penalties for both `surplus` and `deficit` for
+each of the individual resource demands.
 """
 function EMB.constraints_opex_var(m, n::MultipleBuildingTypes, 𝒯ᴵⁿᵛ, ::EnergyModel)
     @constraint(m, [t_inv ∈ 𝒯ᴵⁿᵛ],
@@ -128,5 +131,29 @@ function EMB.constraints_opex_fixed(m, n::CSPandPV, 𝒯ᴵⁿᵛ, ::EnergyModel
             EMB.opex_fixed(n, t_inv, p) * EMB.capacity(n, first(t_inv), p) for
             p ∈ outputs(n)
         )
+    )
+end
+
+"""
+    EMB.constraints_flow_out(m, n::BioCHP, 𝒯::TimeStructure, modeltype::EnergyModel)
+
+Function for creating the constraint on the outlet flow from a [`BioCHP`](@ref) node.
+
+It differs from a standard `NetworkNode` by not requiring heat production.
+"""
+function EMB.constraints_flow_out(m, n::BioCHP, 𝒯::TimeStructure, modeltype::EnergyModel)
+    # Declaration of the required subsets, excluding CO2, if specified
+    𝒫ᵒᵘᵗ = EMB.res_not(outputs(n), co2_instance(modeltype))
+    power = electricity_resource(n)
+    𝒫ʰᵉᵃᵗ = EMB.res_not(𝒫ᵒᵘᵗ, power)
+
+    # Constraint for the power output stream connections
+    @constraint(m, [t ∈ 𝒯],
+        m[:flow_out][n, t, power] == m[:cap_use][n, t] * outputs(n, power)
+    )
+
+    # Constraint for the heat output stream connections
+    @constraint(m, [t ∈ 𝒯, p ∈ 𝒫ʰᵉᵃᵗ],
+        m[:flow_out][n, t, p] ≤ m[:cap_use][n, t] * outputs(n, p)
     )
 end

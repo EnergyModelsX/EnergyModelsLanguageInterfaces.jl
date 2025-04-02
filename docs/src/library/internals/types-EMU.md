@@ -5,6 +5,8 @@
 EnergyModelsUtilities.WindPower
 EnergyModelsUtilities.CSPandPV
 EnergyModelsUtilities.MultipleBuildingTypes
+EnergyModelsUtilities.ResourceBio
+EnergyModelsUtilities.BioCHP
 ```
 
 ## [Index](@id lib-int-types-idx)
