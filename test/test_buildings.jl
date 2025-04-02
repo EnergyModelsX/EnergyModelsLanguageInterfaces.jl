@@ -102,6 +102,7 @@ using Dates
         penalty_deficit, # deficit penalty for the node in €/MWh;
         data = [EmissionsEnergy()],
         overwrite_saved_data = false,
+        data_location = joinpath(@__DIR__, "data", "buildings"),
     )
     nodes = [buildings, sources...]
     links = [Direct(node.id * "-Buildings", node, buildings, Linear()) for node ∈ sources]
