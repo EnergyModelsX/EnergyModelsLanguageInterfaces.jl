@@ -1,14 +1,12 @@
 using Documenter
 using DocumenterInterLinks
 using EnergyModelsBase
-using EnergyModelsInvestments
 using EnergyModelsRenewableProducers
 using EnergyModelsUtilities
 using TimeStruct
 using Literate
 
 const EMB = EnergyModelsBase
-const EMI = EnergyModelsInvestments
 const EMR = EnergyModelsRenewableProducers
 const EMU = EnergyModelsUtilities
 
@@ -22,7 +20,6 @@ Literate.markdown(inputfile, joinpath(@__DIR__, "src", "examples"))
 links = InterLinks(
     "TimeStruct" => "https://sintefore.github.io/TimeStruct.jl/stable/",
     "EnergyModelsBase" => "https://energymodelsx.github.io/EnergyModelsBase.jl/stable/",
-    "EnergyModelsInvestments" => "https://energymodelsx.github.io/EnergyModelsInvestments.jl/stable/",
 )
 
 makedocs(
@@ -36,7 +33,6 @@ makedocs(
     ),
     modules = [
         EnergyModelsUtilities,
-        isdefined(Base, :get_extension) ? Base.get_extension(EMU, :EMIExt) : EMU.EMIExt,
     ],
     pages = [
         "Home" => "index.md",

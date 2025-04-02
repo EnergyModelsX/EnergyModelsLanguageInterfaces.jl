@@ -2,7 +2,6 @@
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 DocumenterInterLinks = "d12716ef-a0f6-4df4-a9f1-a5a34e75c656"
 EnergyModelsBase = "5d7e687e-f956-46f3-9045-6f5a5fd49f50"
-EnergyModelsInvestments = "fca3f8eb-b383-437d-8e7b-aac76bb2004f"
 EnergyModelsRenewableProducers = "b007c34f-ba52-4995-ba37-fffe79fbde35"
 EnergyModelsUtilities = "672bb132-9406-42d0-9ef4-9203b0a61e9a"
 HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"

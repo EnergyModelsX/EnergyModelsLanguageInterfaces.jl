@@ -14,17 +14,10 @@ PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 TimeStruct = "f9ed5ce0-9f41-4eaa-96da-f38ab8df101c"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
-[weakdeps]
-EnergyModelsInvestments = "fca3f8eb-b383-437d-8e7b-aac76bb2004f"
-
-[extensions]
-EMIExt = "EnergyModelsInvestments"
-
 [compat]
 Dates = "1.10"
 EnergyModelsBase = "0.9.0"
 EnergyModelsHeat = "0.1.1"
-EnergyModelsInvestments = "0.8.1"
 EnergyModelsRenewableProducers = "0.6.5"
 JuMP = "1.23"
 Libdl = "1.10"
