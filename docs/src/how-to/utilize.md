@@ -1,22 +1,22 @@
-# [Utilize the concepts of `EnergyModelsUtilities`](@id how_to-utilize)
+# [Utilize the concepts of `EnergyModelsLanguageInterfaces`](@id how_to-utilize)
 
 ## [Call external functions](@id how_to-utilize-ext_fun)
 
 ### [Call Python functions](@id how_to-utilize-ext_fun-Python)
 
-To evaluate a python function (with input argument `input`) called `my_func` which 
+To evaluate a python function (with input argument `input`) called `my_func` which
 is available in the `my_python_package`, you can do the following
 
 ```julia
-output = EMU.call_python_function("my_python_package", "my_func"; input)
+output = EMLI.call_python_function("my_python_package", "my_func"; input)
 ```
 
 !!! note
-    All python package dependencies must be available in the root environment. 
+    All python package dependencies must be available in the root environment.
 
     If you want to install non-standard python packages and/or you want to sample
     a local package you must create a conda environment (using a conda installation),
-    or an other environment management system (not tested yet), and install required 
+    or an other environment management system (not tested yet), and install required
     packages there. E.g.,
     ```bash
     conda create --name testenv python=3.10
@@ -37,18 +37,18 @@ output = EMU.call_python_function("my_python_package", "my_func"; input)
 ### [Call C/C++ functions](@id how_to-utilize-ext_fun-Cpp)
 
 There is no generic way of implementing a function for compiling, loading and running C/C++ code as it is for python while maintaining generality in the number of input/output arguments (and their types).
-Instead, one can create specialized function to obtain this using the `@ccall`-macro as outlined in [doubling.jl](https://gitlab.sintef.no/idesignres/wp-2/energymodelsutilities.jl/-/blob/main/test/doubling_module/doubling.jl).
+Instead, one can create specialized function to obtain this using the `@ccall`-macro as outlined in [doubling.jl](https://gitlab.sintef.no/idesignres/wp-2/EnergyModelsLanguageInterfaces.jl/-/blob/main/test/doubling_module/doubling.jl).
 Such a function can be made in your Julia framework, or its coding lines can be directly incorporated where you want to call your C/C++ function.
 For the doubling example, one is able to call the C++ function with
 
 ```julia
-using EnergyModelsUtilities
-EMU_path = pkgdir(EnergyModelsUtilities)
-libpath = joinpath(EMU_path, "test", "doubling_module", "libdoubling.so")
-filepath = joinpath(EMU_path, "test", "doubling_module", "doubling.cpp")
+using EnergyModelsLanguageInterfaces
+EMLI_path = pkgdir(EnergyModelsLanguageInterfaces)
+libpath = joinpath(EMLI_path, "test", "doubling_module", "libdoubling.so")
+filepath = joinpath(EMLI_path, "test", "doubling_module", "doubling.cpp")
 cpp_function_name = "doubling"
 input_cpp::Vector{Cdouble} = [1.4, 2.0, 1.2]
-include(joinpath(EMU_path, "test", "doubling_module", "doubling.jl"))
+include(joinpath(EMLI_path, "test", "doubling_module", "doubling.jl"))
 demand_profile = doubling(libpath, cpp_function_name, input_cpp; filepath)
 ```
 
@@ -93,7 +93,7 @@ In Julia you can now activate your project and add `CxxWrap` through
 using CxxWrap
 CxxWrap.prefix_path()
 ```
-which should return `"/home/user/.julia/dev/libcxxwrap_julia_jll/override"`. 
+which should return `"/home/user/.julia/dev/libcxxwrap_julia_jll/override"`.
 
 !!! note
     If this instead returns `"/home/user/.julia/artifacts/5016ccec96368c99a5a678ab3319d1da7bb9a2c7"`, create a n`Overrides.toml` file at `/home/user/.julia/artifacts` with  the following content
@@ -109,4 +109,4 @@ which should return `"/home/user/.julia/dev/libcxxwrap_julia_jll/override"`.
     If you get the error `ERROR: InitError: This version of CxxWrap requires a libcxxwrap-julia in the range (v"0.13.0", v"0.14.0"), but version 0.14.0 was found`, it might be related to that the main branch is set to `version 0.14.0+0` in its `binarybuilder/Manifest.toml`-file in accordance.
     You can try to clone `CxxWrap`, change the toml file to `libcxxwrap_julia_jll = "0.13.4"` (instead of `0.14.0` which is not available yet), and `develop` `CxxWrap` in your environment.
 
-An example is given by the *[trippling_module example](https://gitlab.sintef.no/idesignres/wp-2/energymodelsutilities.jl/-/blob/main/test/trippling_module/)*.
+An example is given by the *[trippling_module example](https://gitlab.sintef.no/idesignres/wp-2/EnergyModelsLanguageInterfaces.jl/-/blob/main/test/trippling_module/)*.

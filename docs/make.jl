@@ -2,13 +2,13 @@ using Documenter
 using DocumenterInterLinks
 using EnergyModelsBase
 using EnergyModelsRenewableProducers
-using EnergyModelsUtilities
+using EnergyModelsLanguageInterfaces
 using TimeStruct
 using Literate
 
 const EMB = EnergyModelsBase
 const EMR = EnergyModelsRenewableProducers
-const EMU = EnergyModelsUtilities
+const EMLI = EnergyModelsLanguageInterfaces
 
 # Copy the NEWS.md file
 news = "docs/src/manual/NEWS.md"
@@ -23,17 +23,15 @@ links = InterLinks(
 )
 
 makedocs(
-    sitename = "EnergyModelsUtilities",
-    repo = "https://gitlab.sintef.no/idesignres/wp-2/EnergyModelsUtilities.jl/blob/{commit}{path}#{line}",
+    sitename = "EnergyModelsLanguageInterfaces",
+    repo = "https://gitlab.sintef.no/idesignres/wp-2/EnergyModelsLanguageInterfaces.jl/blob/{commit}{path}#{line}",
     format = Documenter.HTML(;
         prettyurls = get(ENV, "CI", "false") == "true",
-        canonical = "https://idesignres.pages.sintef.no/wp-2/EnergyModelsUtilities.jl",
+        canonical = "https://idesignres.pages.sintef.no/wp-2/EnergyModelsLanguageInterfaces.jl",
         edit_link = "main",
         assets = String[],
     ),
-    modules = [
-        EnergyModelsUtilities,
-    ],
+    modules = [EnergyModelsLanguageInterfaces,],
     pages = [
         "Home" => "index.md",
         "Manual" => Any[
@@ -48,9 +46,9 @@ makedocs(
         "Library" => Any[
             "Public"=>"library/public.md",
             "Internals"=>String[
-                "library/internals/types-EMU.md",
+                "library/internals/types-EMLI.md",
                 "library/internals/methods-fields.md",
-                "library/internals/methods-EMU.md",
+                "library/internals/methods-EMLI.md",
                 "library/internals/methods-EMB.md",
             ],
         ],

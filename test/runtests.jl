@@ -1,4 +1,4 @@
-using EnergyModelsUtilities
+using EnergyModelsLanguageInterfaces
 using Test
 using TimeStruct
 using EnergyModelsBase
@@ -6,14 +6,14 @@ using EnergyModelsRenewableProducers
 using HiGHS
 using JuMP
 
-const EMU = EnergyModelsUtilities
+const EMLI = EnergyModelsLanguageInterfaces
 const EMB = EnergyModelsBase
 const EMRP = EnergyModelsRenewableProducers
 const TS = TimeStruct
 
 const TEST_ATOL = 1e-6
 
-@testset "EnergyModelsUtilities" begin
+@testset "EnergyModelsLanguageInterfaces" begin
     include("utils.jl")
 
     # Run all Aqua tests

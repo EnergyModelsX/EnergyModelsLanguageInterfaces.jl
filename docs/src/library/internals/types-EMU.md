@@ -2,11 +2,11 @@
 # [Types](@id lib-int-types)
 
 ```@docs
-EnergyModelsUtilities.WindPower
-EnergyModelsUtilities.CSPandPV
-EnergyModelsUtilities.MultipleBuildingTypes
-EnergyModelsUtilities.ResourceBio
-EnergyModelsUtilities.BioCHP
+EnergyModelsLanguageInterfaces.WindPower
+EnergyModelsLanguageInterfaces.CSPandPV
+EnergyModelsLanguageInterfaces.MultipleBuildingTypes
+EnergyModelsLanguageInterfaces.ResourceBio
+EnergyModelsLanguageInterfaces.BioCHP
 ```
 
 ## [Index](@id lib-int-types-idx)

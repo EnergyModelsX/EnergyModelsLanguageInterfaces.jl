@@ -5,6 +5,6 @@
 ## [Utility functions](@id lib-pub-util_fun)
 
 ```@docs
-EnergyModelsUtilities.call_python_function
-EnergyModelsUtilities.fetch_element
+EnergyModelsLanguageInterfaces.call_python_function
+EnergyModelsLanguageInterfaces.fetch_element
 ```

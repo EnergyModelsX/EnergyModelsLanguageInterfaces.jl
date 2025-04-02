@@ -1,8 +1,8 @@
-# EnergyModelsUtilities.jl
+# EnergyModelsLanguageInterfaces.jl
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://idesignres.pages.sintef.no/wp-2/EnergyModelsUtilities.jl)
-[![Build Status](https://gitlab.sintef.no/idesignres/wp-2/EnergyModelsUtilities.jl/badges/main/pipeline.svg)](https://gitlab.sintef.no/idesignres/wp-2/EnergyModelsUtilities.jl/-/pipelines)
-[![In Development](https://img.shields.io/badge/docs-dev-blue.svg)](https://idesignres.pages.sintef.no/wp-2/EnergyModelsUtilities.jl/dev/)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://idesignres.pages.sintef.no/wp-2/EnergyModelsLanguageInterfaces.jl)
+[![Build Status](https://gitlab.sintef.no/idesignres/wp-2/EnergyModelsLanguageInterfaces.jl/badges/main/pipeline.svg)](https://gitlab.sintef.no/idesignres/wp-2/EnergyModelsLanguageInterfaces.jl/-/pipelines)
+[![In Development](https://img.shields.io/badge/docs-dev-blue.svg)](https://idesignres.pages.sintef.no/wp-2/EnergyModelsLanguageInterfaces.jl/dev/)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/JuliaDiff/BlueStyle)
 

@@ -1,7 +1,7 @@
-# EnergyModelsUtilities
+# EnergyModelsLanguageInterfaces
 
 ```@docs
-EnergyModelsUtilities
+EnergyModelsLanguageInterfaces
 ```
 
 This Julia package implements additional utilities that can be used in combination with [`EnergyModelsX`](https://energymodelsx.github.io).
@@ -54,9 +54,9 @@ Depth = 1
 ```@contents
 Pages = [
     "library/public.md",
-    "library/internals/types-EMU.md",
+    "library/internals/types-EMLI.md",
     "library/internals/methods-fields.md",
-    "library/internals/methods-EMU.md",
+    "library/internals/methods-EMLI.md",
     "library/internals/methods-EMB.md",
 ]
 Depth = 1

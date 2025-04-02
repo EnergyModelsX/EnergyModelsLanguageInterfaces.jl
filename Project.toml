@@ -1,4 +1,4 @@
-name = "EnergyModelsUtilities"
+name = "EnergyModelsLanguageInterfaces"
 uuid = "672bb132-9406-42d0-9ef4-9203b0a61e9a"
 authors = ["Jon Vegard Venås <JonVegard.Venas@sintef.no>", "Julian Straus <Julian.Straus@sintef.no>"]
 version = "0.1.0"

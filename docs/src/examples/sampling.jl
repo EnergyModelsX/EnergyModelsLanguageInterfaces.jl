@@ -25,10 +25,10 @@ using EnergyModelsBase
 using JuMP
 using HiGHS
 using TimeStruct
-using EnergyModelsUtilities
+using EnergyModelsLanguageInterfaces
 
 const EMB = EnergyModelsBase
-const EMU = EnergyModelsUtilities
+const EMLI = EnergyModelsLanguageInterfaces
 
 # ## [Utilizing the python routine](@id exampl-sampl-py)
 # A python function is called for providing the profile of the PV module (`pv_profile`).
@@ -38,28 +38,28 @@ const EMU = EnergyModelsUtilities
 #
 # !!! note "Commented line"
 #     It is necessary for building the documentation that we do not use the function from
-#     `EnergyModelsUtilities` as Literate crashes. The function is however running. Hence,
+#     `EnergyModelsLanguageInterfaces` as Literate crashes. The function is however running. Hence,
 #     you have to uncomment the line
 #
-#     `pv_profile = EMU.call_python_function(module_name, function_name; input_data)`
+#     `pv_profile = EMLI.call_python_function(module_name, function_name; input_data)`
 #
 #     and comment the line following it.
 python_module_name = "test_python_sampling"
 python_function_name = "optimization_module.solve_optimization_problem"
 input_data = [1.4, 2.0, 1.2]
-#pv_profile = EMU.call_python_function(python_module_name, python_function_name; input_data)
+#pv_profile = EMLI.call_python_function(python_module_name, python_function_name; input_data)
 pv_profile = [1.0, 0.0, 0.0]
 
 # ## [Utilizing the C/C++ routines](@id exampl-sampl-c++)
 #
 # The C/C++ function is used for calculating the demand profile. You have to specify both the
 # path to the library (`libpath`) and the function name. file (`filepath`).
-EMU_path = pkgdir(EnergyModelsUtilities)
-c_libpath = joinpath(EMU_path, "test", "doubling_module", "libdoubling.so")
-c_filepath = joinpath(EMU_path, "test", "doubling_module", "doubling.c")
+EMLI_path = pkgdir(EnergyModelsLanguageInterfaces)
+c_libpath = joinpath(EMLI_path, "test", "doubling_module", "libdoubling.so")
+c_filepath = joinpath(EMLI_path, "test", "doubling_module", "doubling.c")
 c_function_name = "doubling"
 input_cpp::Vector{Cdouble} = [1.4, 2.0, 1.2]
-include(joinpath(EMU_path, "test", "doubling_module", "doubling.jl"))
+include(joinpath(EMLI_path, "test", "doubling_module", "doubling.jl"))
 demand_profile = doubling(c_libpath, c_function_name, input_cpp; filepath = c_filepath)
 
 # ## [Apply the routines in an `EnergyModelsBase` model](@id exampl-sampl-emb)

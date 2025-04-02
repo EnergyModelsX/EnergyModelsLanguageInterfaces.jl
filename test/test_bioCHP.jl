@@ -127,19 +127,19 @@ using EnergyModelsHeat
     ) == length(𝒯) * length(heat_resources)
 
     # Test the `bio_type` function
-    @test EMU.bio_type(BioSpruceStem) == "spruce_stem"
-    @test EMU.bio_type(BioSpruceBark) == "spruce_bark"
-    @test EMU.bio_type(BioBirchStem) == "birch_stem"
-    @test EMU.bio_type(BioSpruceTB) == "spruce_T&B"
+    @test EMLI.bio_type(BioSpruceStem) == "spruce_stem"
+    @test EMLI.bio_type(BioSpruceBark) == "spruce_bark"
+    @test EMLI.bio_type(BioBirchStem) == "birch_stem"
+    @test EMLI.bio_type(BioSpruceTB) == "spruce_T&B"
 
     # Test the `moisture` function
-    @test EMU.moisture(BioSpruceStem) ≈ 0.4
-    @test EMU.moisture(BioSpruceBark) ≈ 0.5
-    @test EMU.moisture(BioBirchStem) ≈ 0.35
-    @test EMU.moisture(BioSpruceTB) ≈ 0.45
+    @test EMLI.moisture(BioSpruceStem) ≈ 0.4
+    @test EMLI.moisture(BioSpruceBark) ≈ 0.5
+    @test EMLI.moisture(BioBirchStem) ≈ 0.35
+    @test EMLI.moisture(BioSpruceTB) ≈ 0.45
 
     # Test the `electricity_resource` function
-    @test EMU.electricity_resource(bio_chp) == Power
+    @test EMLI.electricity_resource(bio_chp) == Power
 end
 
-EMU.cleanup_libraries()
+EMLI.cleanup_libraries()

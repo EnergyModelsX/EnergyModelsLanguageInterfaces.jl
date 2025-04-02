@@ -1,8 +1,8 @@
 """
-The module `EnergyModelsUtilities` is a package that provides utility functions for the
+The module `EnergyModelsLanguageInterfaces` is a package that provides utility functions for the
 EnergyModelsX framework.
 """
-module EnergyModelsUtilities
+module EnergyModelsLanguageInterfaces
 
 using JuMP
 using TimeStruct
@@ -31,4 +31,4 @@ export call_python_function, fetch_element
 export WindPower, CSPandPV, MultipleBuildingTypes
 export ResourceBio, BioCHP
 
-end # module EnergyModelsUtilities
+end # module EnergyModelsLanguageInterfaces

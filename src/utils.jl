@@ -67,7 +67,7 @@ end
 """
     cleanup_libraries()
 
-Close all the C module libraries that have been loaded by `EnergyModelsUtilities`.
+Close all the C module libraries that have been loaded by `EnergyModelsLanguageInterfaces`.
 """
 function cleanup_libraries()
     for (libpath, lib) ∈ LIB_CACHE
