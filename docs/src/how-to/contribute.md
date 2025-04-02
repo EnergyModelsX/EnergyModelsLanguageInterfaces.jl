@@ -4,7 +4,7 @@ Contributing to `EnergyModelsLanguageInterfaces` can be achieved in several diff
 
 ## [File a bug report](@id how_to-con-bug_rep)
 
-An approach to contributing to `EnergyModelsLanguageInterfaces` is through filing a bug report as an *[issue](https://gitlab.sintef.no/idesignres/wp-2/EnergyModelsLanguageInterfaces.jl/-/issues/new)* when unexpected behaviour is occuring.
+An approach to contributing to `EnergyModelsLanguageInterfaces` is through filing a bug report as an *[issue](https://github.com/EnergyModelsX/EnergyModelsLanguageInterfaces.jl/issues/new)* when unexpected behaviour is occuring.
 
 When filing a bug report, please follow the following guidelines:
 
@@ -23,19 +23,8 @@ When filing a bug report, please follow the following guidelines:
 
 ## [Feature requests](@id how_to-con-feat_req)
 
-`EnergyModelsLanguageInterfaces` includes several new potential constraints utilizing developed types that can be utilized for new nodal descriptions.
-It is however always possible to think of new subtypes or types for a given nodal description.
-In this case, you can contribute through a feature request.
+`EnergyModelsLanguageInterfaces` includes sampling functionanility for both models written in Python and C++.
+This functionality is specific for the given package and we thrive to include all potential interfaces to other languages within a single package.
+Hence, if you think changes to the interfaces are beneficial, or would like to provide new interfaces, please file an *[issue](https://github.com/EnergyModelsX/EnergyModelsLanguageInterfaces.jl/issues/new)*.
 
 Feature requests for `EnergyModelsLanguageInterfaces` should follow the guidelines developed for [`EnergyModelsBase`](https://energymodelsx.github.io/EnergyModelsBase.jl/stable/how-to/contribute/).
-
-!!! tip "Development of new types and functionality"
-    In general, new types or functionality are best tested by implementing them in a package in which they are required.
-    In this case, if you believe that these new types or functionality may be relevant for several other packages, we ask you to create an *[issue](https://gitlab.sintef.no/idesignres/wp-2/EnergyModelsLanguageInterfaces.jl/-/issues/new)* with
-
-    1. a link to the implementation,
-    2. a description of its benefits, and
-    3. ideas regarding the implementation.
-
-    It is crucial that provided tests work without having to load a different package.
-    This can be achieved through types that are only introduced in the testsets.

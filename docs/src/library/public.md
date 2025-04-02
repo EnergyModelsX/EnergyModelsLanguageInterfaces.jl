@@ -1,6 +1,14 @@
 # [Public interface](@id lib-pub)
 
-## [New types](@id lib-pub-types)
+## [New nodal types](@id lib-pub-types)
+
+```@docs
+EnergyModelsLanguageInterfaces.WindPower
+EnergyModelsLanguageInterfaces.CSPandPV
+EnergyModelsLanguageInterfaces.MultipleBuildingTypes
+EnergyModelsLanguageInterfaces.ResourceBio
+EnergyModelsLanguageInterfaces.BioCHP
+```
 
 ## [Utility functions](@id lib-pub-util_fun)
 

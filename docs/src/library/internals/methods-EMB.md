@@ -6,11 +6,6 @@
 Pages = ["methods-EMB.md"]
 ```
 
-## [Extension methods](@id lib-int-met_emb-ext)
-
-```@docs
-```
-
 ## [Constraint methods](@id lib-int-met_emb-con)
 
 ```@docs

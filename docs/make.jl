@@ -24,12 +24,11 @@ links = InterLinks(
 
 makedocs(
     sitename = "EnergyModelsLanguageInterfaces",
-    repo = "https://gitlab.sintef.no/idesignres/wp-2/EnergyModelsLanguageInterfaces.jl/blob/{commit}{path}#{line}",
     format = Documenter.HTML(;
         prettyurls = get(ENV, "CI", "false") == "true",
-        canonical = "https://idesignres.pages.sintef.no/wp-2/EnergyModelsLanguageInterfaces.jl",
         edit_link = "main",
         assets = String[],
+        ansicolor = true,
     ),
     modules = [EnergyModelsLanguageInterfaces,],
     pages = [
@@ -46,12 +45,15 @@ makedocs(
         "Library" => Any[
             "Public"=>"library/public.md",
             "Internals"=>String[
-                "library/internals/types-EMLI.md",
-                "library/internals/methods-fields.md",
                 "library/internals/methods-EMLI.md",
                 "library/internals/methods-EMB.md",
+                "library/internals/methods-EMR.md",
             ],
         ],
     ],
     plugins = [links],
+)
+
+deploydocs(;
+    repo = "github.com/EnergyModelsX/EnergyModelsLanguageInterfaces.jl.git",
 )

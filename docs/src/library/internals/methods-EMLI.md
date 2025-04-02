@@ -6,16 +6,6 @@
 Pages = ["methods-EMLI.md"]
 ```
 
-## [Constraint methods](@id lib-int-met-con)
-
-```@docs
-```
-
-## [Check methods](@id lib-int-met-check)
-
-```@docs
-```
-
 ## [Utility methods](@id lib-int-met-util)
 
 ```@docs

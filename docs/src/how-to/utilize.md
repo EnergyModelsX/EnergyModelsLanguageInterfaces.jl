@@ -37,7 +37,7 @@ output = EMLI.call_python_function("my_python_package", "my_func"; input)
 ### [Call C/C++ functions](@id how_to-utilize-ext_fun-Cpp)
 
 There is no generic way of implementing a function for compiling, loading and running C/C++ code as it is for python while maintaining generality in the number of input/output arguments (and their types).
-Instead, one can create specialized function to obtain this using the `@ccall`-macro as outlined in [doubling.jl](https://gitlab.sintef.no/idesignres/wp-2/EnergyModelsLanguageInterfaces.jl/-/blob/main/test/doubling_module/doubling.jl).
+Instead, one can create specialized function to obtain this using the `@ccall`-macro as outlined in [doubling.jl](https://github.com/EnergyModelsX/EnergyModelsLanguageInterfaces.jl/tree/main/test/doubling_module/doubling.jl).
 Such a function can be made in your Julia framework, or its coding lines can be directly incorporated where you want to call your C/C++ function.
 For the doubling example, one is able to call the C++ function with
 
@@ -109,4 +109,4 @@ which should return `"/home/user/.julia/dev/libcxxwrap_julia_jll/override"`.
     If you get the error `ERROR: InitError: This version of CxxWrap requires a libcxxwrap-julia in the range (v"0.13.0", v"0.14.0"), but version 0.14.0 was found`, it might be related to that the main branch is set to `version 0.14.0+0` in its `binarybuilder/Manifest.toml`-file in accordance.
     You can try to clone `CxxWrap`, change the toml file to `libcxxwrap_julia_jll = "0.13.4"` (instead of `0.14.0` which is not available yet), and `develop` `CxxWrap` in your environment.
 
-An example is given by the *[trippling_module example](https://gitlab.sintef.no/idesignres/wp-2/EnergyModelsLanguageInterfaces.jl/-/blob/main/test/trippling_module/)*.
+An example is given by the *[trippling_module example](https://github.com/EnergyModelsX/EnergyModelsLanguageInterfaces.jl/tree/main/test/trippling_module/)*.
