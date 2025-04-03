@@ -52,33 +52,29 @@ jobs:
           conda activate testenv
           conda install -c conda-forge poetry -y
 
-          cd "$GITHUB_WORKSPACE"
-          echo "MAIN_DIR=$(pwd)" >> $GITHUB_ENV
-          cd test/python_module
+          cd "$GITHUB_WORKSPACE/test/python_module"
           poetry install
-          cd "$MAIN_DIR"
+          cd "$GITHUB_WORKSPACE"
 
           git clone https://gitlab.sintef.no/harald.svendsen/timeseries.git
-          cd timeseries
+          cd "$GITHUB_WORKSPACE/timeseries"
           poetry install
-          cd "$MAIN_DIR"
+          cd "$GITHUB_WORKSPACE"
 
           git clone https://github.com/iDesignRES/Tecnalia.git
-          cd Tecnalia/examples/pv_power_plants
+          cd "$GITHUB_WORKSPACE/Tecnalia/examples/pv_power_plants"
           poetry install
-          cd ../building_energy_process
+          cd "$GITHUB_WORKSPACE/Tecnalia/examples/building_energy_process"
           poetry install
-          cd "$MAIN_DIR"
+          cd "$GITHUB_WORKSPACE"
 
           git clone https://github.com/iDesignRES/CHP_modelling.git
-          cd CHP_modelling
+          cd "$GITHUB_WORKSPACE/CHP_modelling"
           mkdir build
           cd build
           cmake ..
           make
-          cd "$MAIN_DIR"
-          source "$HOME/miniconda/etc/profile.d/conda.sh"
-          conda activate testenv
+          cd "$GITHUB_WORKSPACE"
 
           julia --project=. -e '
             using Pkg;

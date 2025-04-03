@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: ./.github/actions/before-script
       - uses: julia-actions/setup-julia@latest
         with:
           version: '1'
@@ -24,4 +23,29 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # For authentication with SSH deploy key
-        run: julia --color=yes --project=docs/ docs/make.jl
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y git glpk-utils g++ cmake wget curl
+          wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+          bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
+          echo "$HOME/miniconda/bin" >> $GITHUB_PATH
+          source "$HOME/miniconda/etc/profile.d/conda.sh"
+          conda init bash
+
+          source "$HOME/miniconda/etc/profile.d/conda.sh"
+          conda create --name testenv python=3.10 -y
+          conda activate testenv
+          conda install -c conda-forge poetry -y
+
+          cd "$GITHUB_WORKSPACE"
+          echo "MAIN_DIR=$(pwd)" >> $GITHUB_ENV
+          cd test/python_module
+          poetry install
+          cd "$MAIN_DIR"
+
+          julia --color=yes --project=docs/ docs/make.jl '
+            using Pkg;
+            ENV["PYTHON"] = joinpath(ENV["HOME"], "miniconda", "envs", "testenv", "bin", "python");
+            Pkg.build("PyCall");
+            Pkg.test(; coverage=true)
+          '
