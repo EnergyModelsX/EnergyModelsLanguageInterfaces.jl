@@ -13,6 +13,7 @@ runs:
         echo "$HOME/miniconda/bin" >> $GITHUB_PATH
         source "$HOME/miniconda/etc/profile.d/conda.sh"
         conda init bash
+      shell: bash
 
         source "$HOME/miniconda/etc/profile.d/conda.sh"
         conda create --name testenv python=3.10 -y
