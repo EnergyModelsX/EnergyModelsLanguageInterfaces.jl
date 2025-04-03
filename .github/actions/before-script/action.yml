@@ -47,7 +47,6 @@ runs:
 
         git clone https://github.com/iDesignRES/CHP_modelling.git
         cd CHP_modelling
-        git checkout feat/newtestsetup
         mkdir build
         cd build
         cmake ..
