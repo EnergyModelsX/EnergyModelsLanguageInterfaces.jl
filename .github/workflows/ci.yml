@@ -22,7 +22,54 @@ jobs:
             arch: x64
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/before-script
+      - name: Install dependencies (apt)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y git glpk-utils g++ cmake wget curl
+        shell: bash
+
+      - name: Install Miniconda
+        run: |
+          wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+          bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
+          echo "$HOME/miniconda/bin" >> $GITHUB_PATH
+          source "$HOME/miniconda/etc/profile.d/conda.sh"
+          conda init bash
+        shell: bash
+
+      - name: Setup Conda Environment and Install Poetry
+        run: |
+          source "$HOME/miniconda/etc/profile.d/conda.sh"
+          conda create --name testenv python=3.10 -y
+          conda activate testenv
+          conda install -c conda-forge poetry -y
+
+          echo "MAIN_DIR=$(pwd)" >> $GITHUB_ENV
+          cd test/python_module
+          poetry install
+          cd "$MAIN_DIR"
+
+          git clone https://gitlab.sintef.no/harald.svendsen/timeseries.git
+          cd timeseries
+          poetry install
+          cd "$MAIN_DIR"
+
+          git clone https://github.com/iDesignRES/Tecnalia.git
+          cd Tecnalia/examples/pv_power_plants
+          poetry install
+          cd ../building_energy_process
+          poetry install
+          cd "$MAIN_DIR"
+
+          git clone https://github.com/iDesignRES/CHP_modelling.git
+          cd CHP_modelling
+          mkdir build
+          cd build
+          cmake ..
+          make
+          cd "$MAIN_DIR"
+        shell: bash
+
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
@@ -38,6 +85,15 @@ jobs:
             ${{ runner.os }}-test-
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-runtest@v1
-        with:
-          depwarn: error
+      - name: Run Julia tests inside the testenv-enviornment in Miniconda
+        run: |
+          source "$HOME/miniconda/etc/profile.d/conda.sh"
+          conda activate testenv
+
+          julia --project=. -e '
+            using Pkg;
+            ENV["PYTHON"] = joinpath(ENV["HOME"], "miniconda", "envs", "testenv", "bin", "python");
+            Pkg.build("PyCall");
+            Pkg.test(; test_args=["--depwarn=error"])
+          '
+        shell: bash
