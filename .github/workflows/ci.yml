@@ -52,6 +52,7 @@ jobs:
           conda activate testenv
           conda install -c conda-forge poetry -y
 
+          cd "$GITHUB_WORKSPACE"
           echo "MAIN_DIR=$(pwd)" >> $GITHUB_ENV
           cd test/python_module
           poetry install
