@@ -42,12 +42,14 @@ jobs:
           conda activate testenv
           conda install -c conda-forge poetry -y
 
-          cd "$GITHUB_WORKSPACE"
-          echo "MAIN_DIR=$(pwd)" >> $GITHUB_ENV
-          cd test/python_module
+          cd "$GITHUB_WORKSPACE/test/python_module"
           poetry install
+<<<<<<< HEAD
           cd "$MAIN_DIR"
 >>>>>>> fc487c5 (Check if the issue is with relative pathing and fix documentation)
+=======
+          cd "$GITHUB_WORKSPACE"
+>>>>>>> 836dcdc (Fix relative bash pathings also for documentation.yml)
 
           julia --color=yes --project=docs/ docs/make.jl '
             using Pkg;
