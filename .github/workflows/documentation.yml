@@ -37,11 +37,9 @@ jobs:
           conda activate testenv
           conda install -c conda-forge poetry -y
 
-          cd "$GITHUB_WORKSPACE"
-          echo "MAIN_DIR=$(pwd)" >> $GITHUB_ENV
-          cd test/python_module
+          cd "$GITHUB_WORKSPACE/test/python_module"
           poetry install
-          cd "$MAIN_DIR"
+          cd "$GITHUB_WORKSPACE"
 
           julia --color=yes --project=docs/ docs/make.jl '
             using Pkg;
