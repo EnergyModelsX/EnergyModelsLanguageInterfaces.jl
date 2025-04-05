@@ -679,7 +679,7 @@ end
         id::Any,
         cap::TimeProfile,
         mass_fractions::Dict{<:ResourceBio,<:Real},
-        heat_resources::Dict{<:ResourceHeat,<:Real},
+        heat_output_ratios::Dict{<:ResourceHeat,<:Real},
         electricity_resource::Resource;
         data::Vector{Data} = Data[],
         libpath::String = joinpath(
@@ -696,14 +696,14 @@ end
 Constructs a [`BioCHP`](@ref) instance where the power and heat production profiles are
 sampled from the `bioCHP_plant_c` function in the C++ library `CHP_modelling` with shared
 library file located at `libpath`. The BioCHP has electricity production of the resource
-`electricity_resource` and heat production of the resources in `heat_resources`
+`electricity_resource` and heat production of the resources in `heat_output_ratios`
 (which can be different `ResourceHeat`s at different temperature levels).
 
 # Arguments
 - **`id`** is the name or identifier of the node.
 - **`cap`** is the installed electric capacity.
 - **`mass_fractions`** is the mass fractions of each input `ResourceBio`.
-- **`heat_resources`** is the output heat `ResourceHeat`s with the ratio of installed
+- **`heat_output_ratios`** is the output heat `ResourceHeat`s with the ratio of installed
   capacity of heat to that of the electricity.
 - **`electricity_resource`** is the `Resource` for the electricity.
 
@@ -712,11 +712,6 @@ library file located at `libpath`. The BioCHP has electricity production of the 
   is conditional through usage of a constructor.
 - **`libpath`** is the absolute path of the `CHP_modelling` library file.
 
-!!! note "Current limitations"
-    - The moisture content of the biomass resource is currently not used in the model.
-    - The temperatures of `heat_resources` are currently not utilized as this would require
-      the specification of the individual heat production capacities.
-
 !!! note ""EmissionsEnergy"
     If `EmissionsEnergy` is not included in the `data` field, it is automatically added.
 """
@@ -724,7 +719,7 @@ function BioCHP(
     id::Any,
     cap::TimeProfile,
     mass_fractions::Dict{<:ResourceBio,<:Real},
-    heat_resources::Dict{<:ResourceHeat,<:Real},
+    heat_output_ratios::Dict{<:ResourceHeat,<:Real},
     electricity_resource::Resource;
     data::Vector{Data} = Data[],
     libpath::String = joinpath(
@@ -742,7 +737,8 @@ function BioCHP(
     el_capacity = cap.val
 
     # fuel_def: name of each biomass feedstock
-    fuel_def_strings = [bio_type(res) for res ∈ keys(mass_fractions)]
+    bio_resources::Vector{ResourceBio} = collect(keys(mass_fractions))
+    fuel_def_strings = [bio_type(res) for res ∈ bio_resources]
 
     # Create pointers
     fuel_def_buffers = [Vector{UInt8}(string(s, '\0')) for s ∈ fuel_def_strings]
@@ -750,10 +746,9 @@ function BioCHP(
     fuel_def_ptr_array = pointer(fuel_def_ptrs)
 
     # Create mass fractions from input that sum up to 1
-    resources = keys(mass_fractions)
-    normalization = sum(mass_fractions[res] for res ∈ resources)
+    normalization = sum(mass_fractions[res] for res ∈ bio_resources)
     normalized_mass_fractions = Dict{ResourceBio,Float64}(
-        res => val / normalization for (res, val) ∈ mass_fractions
+        res => mass_fractions[res] / normalization for res ∈ bio_resources
     )
 
     # Yj: mass fraction of each biomass feedstock
@@ -761,21 +756,22 @@ function BioCHP(
     # Qk: heat demand (MW)
     # Tk_in: Return temperature for each heat demand (district heating)
     # Tk_in: Supply temperature for each heat demand (district heating)
+    heat_resources::Vector{ResourceHeat} = collect(keys(heat_output_ratios))
     Qk_dict::Dict{Resource,Real} = Dict{Resource,Real}(
-        res => val * el_capacity for (res, val) ∈ heat_resources
+        res => heat_output_ratios[res] * el_capacity for res ∈ heat_resources
     )
-    Yj::Vector{Cdouble} = [normalized_mass_fractions[res] for res ∈ resources]
-    YH2Oj::Vector{Cdouble} = [moisture(res) for res ∈ resources]
+    Yj::Vector{Cdouble} = [normalized_mass_fractions[res] for res ∈ bio_resources]
+    YH2Oj::Vector{Cdouble} = moisture.(bio_resources)
     W_el::Cdouble = el_capacity
     Qk::Vector{Cdouble} = []
     Tk_in::Vector{Cdouble} = []
     Tk_out::Vector{Cdouble} = []
-    for (resource, val) ∈ Qk_dict
+    for res ∈ heat_resources
         # Get the heat demand
-        push!(Qk, val)
+        push!(Qk, Qk_dict[res])
 
         # Get the supply temperature
-        supply_heat_profile = EMH.t_supply(resource)
+        supply_heat_profile = EMH.t_supply(res)
         if !isa(supply_heat_profile, FixedProfile)
             @error "Current implementation require the supply heat profile to be fixed."
         else
@@ -783,7 +779,7 @@ function BioCHP(
         end
 
         # Get the return temperature
-        return_heat_profile = EMH.t_return(resource)
+        return_heat_profile = EMH.t_return(res)
         if !isa(return_heat_profile, FixedProfile)
             @error "Current implementation require the return heat profile to be fixed."
         else
@@ -837,7 +833,7 @@ function BioCHP(
     )::Bool
 
     input_updated = Dict{ResourceBio,Real}(
-        res => Mj[i] / W_el_prod[] for (i, res) ∈ enumerate(resources)
+        res => Mj[i] / W_el_prod[] for (i, res) ∈ enumerate(bio_resources)
     )
     cap_updated = FixedProfile(Float64(W_el_prod[]))
 
