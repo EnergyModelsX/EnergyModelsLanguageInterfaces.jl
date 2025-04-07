@@ -24,4 +24,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # For authentication with SSH deploy key
-        run: julia --color=yes --project=docs/ docs/make.jl
+        run: |
+          source "$HOME/miniconda/etc/profile.d/conda.sh"
+          conda init bash
+          conda activate testenv
+
+          julia --color=yes --project=docs/ docs/make.jl '
+            using Pkg;
+            ENV["PYTHON"] = joinpath(ENV["HOME"], "miniconda", "envs", "testenv", "bin", "python");
+            Pkg.build("PyCall");
+            Pkg.test(; coverage=true)
+          '

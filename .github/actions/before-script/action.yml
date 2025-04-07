@@ -5,8 +5,41 @@ runs:
   steps:
     - name: Update and install Linux dependencies
       if: runner.os == 'Linux'
-      run: sudo apt-get update && sudo apt-get install -y \
-        xorg-dev mesa-utils xvfb libgl1 freeglut3-dev \
-        libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
-        libxext-dev xsettingsd x11-xserver-utils
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y git glpk-utils g++ cmake wget curl
+        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+        bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
+        echo "$HOME/miniconda/bin" >> $GITHUB_PATH
+        source "$HOME/miniconda/etc/profile.d/conda.sh"
+        conda init bash
+
+        source "$HOME/miniconda/etc/profile.d/conda.sh"
+        conda create --name testenv python=3.10 -y
+        conda activate testenv
+        conda install -c conda-forge poetry -y
+
+        cd "$GITHUB_WORKSPACE/test/python_module"
+        poetry install
+        cd "$GITHUB_WORKSPACE"
+
+        git clone https://gitlab.sintef.no/harald.svendsen/timeseries.git
+        cd "$GITHUB_WORKSPACE/timeseries"
+        poetry install
+        cd "$GITHUB_WORKSPACE"
+
+        git clone https://github.com/iDesignRES/Tecnalia.git
+        cd "$GITHUB_WORKSPACE/Tecnalia/examples/pv_power_plants"
+        poetry install
+        cd "$GITHUB_WORKSPACE/Tecnalia/examples/building_energy_process"
+        poetry install
+        cd "$GITHUB_WORKSPACE"
+
+        git clone https://github.com/iDesignRES/CHP_modelling.git
+        cd "$GITHUB_WORKSPACE/CHP_modelling"
+        mkdir build
+        cd build
+        cmake ..
+        make
+        cd "$GITHUB_WORKSPACE"
       shell: bash

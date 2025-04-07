@@ -30,7 +30,7 @@ makedocs(
         assets = String[],
         ansicolor = true,
     ),
-    modules = [EnergyModelsLanguageInterfaces,],
+    modules = [EnergyModelsLanguageInterfaces],
     pages = [
         "Home" => "index.md",
         "Manual" => Any[
