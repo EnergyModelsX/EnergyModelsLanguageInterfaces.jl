@@ -7,3 +7,9 @@
 [submodule "submodules/CHP_modelling"]
 	path = submodules/CHP_modelling
 	url = https://github.com/iDesignRES/CHP_modelling.git
+[submodule "submodules/UCBlock"]
+	path = submodules/UCBlock
+	url = https://gitlab.com/smspp/ucblock.git
+[submodule "submodules/SMS++"]
+	path = submodules/SMS++
+	url = https://gitlab.com/smspp/smspp.git
