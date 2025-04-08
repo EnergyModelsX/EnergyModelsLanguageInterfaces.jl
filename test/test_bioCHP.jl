@@ -40,11 +40,15 @@ using EnergyModelsHeat
         BioBirchStem => 0.3,
         BioSpruceTB => 0.4,
     )
-    libpath = joinpath(@__DIR__, "..", "CHP_modelling")
-    if !isdir(libpath)
-        libpath = joinpath(@__DIR__, "..", "..", "CHP_modelling")
-    end
-    libpath = joinpath(libpath, "build", "lib", "libbioCHP_wrapper.so")
+    libpath = joinpath(
+        @__DIR__,
+        "..",
+        "submodules",
+        "CHP_modelling",
+        "build",
+        "lib",
+        "libbioCHP_wrapper.so",
+    )
 
     bio_chp = BioCHP(
         "Bio CHP plant",

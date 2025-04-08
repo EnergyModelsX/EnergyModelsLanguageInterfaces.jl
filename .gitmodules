@@ -1,0 +1,9 @@
+[submodule "submodules/Tecnalia"]
+	path = submodules/Tecnalia
+	url = https://github.com/iDesignRES/Tecnalia.git
+[submodule "submodules/wind_power_timeseries"]
+	path = submodules/wind_power_timeseries
+	url = https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries.git
+[submodule "submodules/CHP_modelling"]
+	path = submodules/CHP_modelling
+	url = https://github.com/iDesignRES/CHP_modelling.git

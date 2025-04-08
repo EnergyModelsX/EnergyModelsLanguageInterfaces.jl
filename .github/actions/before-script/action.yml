@@ -23,20 +23,17 @@ runs:
         poetry install
         cd "$GITHUB_WORKSPACE"
 
-        git clone https://gitlab.sintef.no/harald.svendsen/timeseries.git
-        cd "$GITHUB_WORKSPACE/timeseries"
+        cd "$GITHUB_WORKSPACE/submodules/wind_power_timeseries"
         poetry install
         cd "$GITHUB_WORKSPACE"
 
-        git clone https://github.com/iDesignRES/Tecnalia.git
-        cd "$GITHUB_WORKSPACE/Tecnalia/examples/pv_power_plants"
+        cd "$GITHUB_WORKSPACE/submodules/Tecnalia/examples/pv_power_plants"
         poetry install
-        cd "$GITHUB_WORKSPACE/Tecnalia/examples/building_energy_process"
+        cd "$GITHUB_WORKSPACE/submodules/Tecnalia/examples/building_energy_process"
         poetry install
         cd "$GITHUB_WORKSPACE"
 
-        git clone https://github.com/iDesignRES/CHP_modelling.git
-        cd "$GITHUB_WORKSPACE/CHP_modelling"
+        cd "$GITHUB_WORKSPACE/submodules/CHP_modelling"
         mkdir build
         cd build
         cmake ..

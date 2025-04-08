@@ -28,11 +28,14 @@ using Dates
     T = TwoLevel(sp_duration, operational_periods; op_per_strat = 8760.0)
 
     # Load paths to default Buildings process and authentication files
-    project_path = joinpath(@__DIR__, "..", "Tecnalia")
-    if !isdir(project_path)
-        project_path = joinpath(@__DIR__, "..", "..", "Tecnalia")
-    end
-    project_path = joinpath(project_path, "examples", "building_energy_process")
+    project_path = joinpath(
+        @__DIR__,
+        "..",
+        "submodules",
+        "Tecnalia",
+        "examples",
+        "building_energy_process",
+    )
     path_to_auth_file_buildings = joinpath(project_path, "auth.json")
     auth_pay_load_buildings = JSON.parsefile(path_to_auth_file_buildings)
 

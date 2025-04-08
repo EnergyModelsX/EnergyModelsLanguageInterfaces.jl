@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true  # Fetch the submodules
       - uses: ./.github/actions/before-script
       - uses: julia-actions/setup-julia@latest
         with:
