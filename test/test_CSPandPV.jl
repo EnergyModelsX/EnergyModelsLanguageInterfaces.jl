@@ -19,11 +19,8 @@ using Dates
     T = TwoLevel(sp_duration, operational_periods; op_per_strat = 8760.0)
 
     # Load paths to default Buildings process and authentication files
-    project_path = joinpath(@__DIR__, "..", "Tecnalia")
-    if !isdir(project_path)
-        project_path = joinpath(@__DIR__, "..", "..", "Tecnalia")
-    end
-    project_path = joinpath(project_path, "examples", "pv_power_plants")
+    project_path =
+        joinpath(@__DIR__, "..", "submodules", "Tecnalia", "examples", "pv_power_plants")
     path_to_auth_file_csp_pv = joinpath(project_path, "auth.json")
     auth_pay_load_csp_pv = JSON.parsefile(path_to_auth_file_csp_pv)
 
