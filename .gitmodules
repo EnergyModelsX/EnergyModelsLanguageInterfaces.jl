@@ -13,3 +13,9 @@
 [submodule "submodules/SMS++"]
 	path = submodules/SMS++
 	url = https://gitlab.com/smspp/smspp.git
+[submodule "submodules/Tests"]
+	path = submodules/Tests
+	url = https://gitlab.com/smspp/tests.git
+[submodule "submodules/MILPSolver"]
+	path = submodules/MILPSolver
+	url = https://gitlab.com/smspp/milpsolver.git
