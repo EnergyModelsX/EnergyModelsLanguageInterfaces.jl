@@ -7,9 +7,3 @@
 [submodule "submodules/CHP_modelling"]
 	path = submodules/CHP_modelling
 	url = https://github.com/iDesignRES/CHP_modelling.git
-[submodule "submodules/transcompmodel"]
-	path = submodules/transcompmodel
-	url = https://github.com/antoniamgolab/iDesignRES_transcompmodel.git
-[submodule "submodules/smspp-project"]
-	path = submodules/smspp-project
-	url = https://gitlab.com/smspp/smspp-project.git
