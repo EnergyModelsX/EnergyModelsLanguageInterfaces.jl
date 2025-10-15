@@ -6,3 +6,20 @@ structures:
     profile:                "Power production in each operational period as a ratio of the installed capacity at that time"
     opex_var:               "Relative variable operating expense per energy unit produced"
     opex_fixed:             "Relative fixed operating expense per installed capacity"
+
+  MultipleBuildingTypes:
+    cap:                    "Demand"
+    penalty_surplus:        "Penalties for surplus"
+    penalty_deficit:        "Penalties for deficits"
+
+  CSPandPV:
+    cap:                    "Installed capacity"
+    profile:                "Power production profile as a ratio of installed capacity"
+    opex_var:               "Relative variable operating expense per energy unit produced"
+    opex_fixed:             "Relative fixed operating expense per installed capacity"
+
+variables:
+  buildings_surplus:        "Surplus delivered to a sink, i.e., oversatisfied demand"
+  buildings_deficit:        "Deficit in a sink, i.e., not satisfied demand"
+  solar_curtailment:        "Curtailment of a solar energy source"
+  solar_cap_use:            "Absolute capacity utilization"
