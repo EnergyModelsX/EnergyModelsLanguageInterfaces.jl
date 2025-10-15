@@ -7,7 +7,9 @@ runs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update -qq
-        sudo apt-get install -y git glpk-utils g++ cmake wget curl
+        sudo apt-get install -y git glpk-utils g++ cmake wget curl python3-pip
+        pip install conan
+        conan profile detect
         wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
         bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
         echo "$HOME/miniconda/bin" >> $GITHUB_PATH
