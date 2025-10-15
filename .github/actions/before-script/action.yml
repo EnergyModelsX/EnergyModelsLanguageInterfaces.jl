@@ -15,7 +15,7 @@ runs:
         conda init bash
 
         source "$HOME/miniconda/etc/profile.d/conda.sh"
-        conda create --name testenv python=3.10 -y
+        conda create --name testenv python=3.11 -y
         conda activate testenv
         conda install -c conda-forge poetry -y
 
