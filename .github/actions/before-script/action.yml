@@ -28,13 +28,14 @@ runs:
         poetry install
         cd "$GITHUB_WORKSPACE"
 
-        cd "$GITHUB_WORKSPACE/submodules/Tecnalia/examples/pv_power_plants"
+        cd "$GITHUB_WORKSPACE/submodules/Tecnalia_Solar-Energy-Model"
         poetry install
-        cd "$GITHUB_WORKSPACE/submodules/Tecnalia/examples/building_energy_process"
+        cd "$GITHUB_WORKSPACE/submodules/Tecnalia_Building-Stock-Energy-Model"
         poetry install
         cd "$GITHUB_WORKSPACE"
 
         cd "$GITHUB_WORKSPACE/submodules/CHP_modelling"
+        git checkout enhanc/documentation-2
         mkdir build
         cd build
         cmake ..
