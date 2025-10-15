@@ -45,34 +45,6 @@ jobs:
           source "$HOME/miniconda/etc/profile.d/conda.sh"
           conda init bash
           conda activate testenv
-          conda install -c conda-forge poetry -y
-
-          cd "$GITHUB_WORKSPACE/test/python_module"
-          poetry install
-          cd "$GITHUB_WORKSPACE"
-
-          git clone https://gitlab.sintef.no/harald.svendsen/timeseries.git
-          cd "$GITHUB_WORKSPACE/timeseries"
-          poetry install
-          cd "$GITHUB_WORKSPACE"
-
-          git clone https://github.com/iDesignRES/Tecnalia.git
-          cd "$GITHUB_WORKSPACE/Tecnalia/examples/pv_power_plants"
-          poetry install
-          cd "$GITHUB_WORKSPACE/Tecnalia/examples/building_energy_process"
-          poetry install
-          cd "$GITHUB_WORKSPACE"
-
-          git clone https://github.com/iDesignRES/CHP_modelling.git
-          cd "$GITHUB_WORKSPACE/CHP_modelling"
-          mkdir build
-          cd build
-          cmake ..
-          make
-          cd "$MAIN_DIR"
-          source "$HOME/miniconda/etc/profile.d/conda.sh"
-          conda init bash
-          conda activate testenv
           julia --project=. -e '
             using Pkg;
             ENV["PYTHON"] = joinpath(ENV["HOME"], "miniconda", "envs", "testenv", "bin", "python");
