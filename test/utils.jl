@@ -1,9 +1,8 @@
 CO2 = ResourceEmit("CO2", 1.0)
 Power = ResourceCarrier("Power", 0.0)
 
-TEST_ATOL = 1e-6
-ROUND_DIGITS = 8
-OPTIMIZER = optimizer_with_attributes(HiGHS.Optimizer, MOI.Silent() => true)
+const TEST_ATOL = 1e-6
+const OPTIMIZER = optimizer_with_attributes(HiGHS.Optimizer, MOI.Silent() => true)
 
 function small_graph(; source = nothing, sink = nothing, ops = SimpleTimes(24, 2))
     products = [Power, CO2]

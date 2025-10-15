@@ -11,8 +11,6 @@ const EMB = EnergyModelsBase
 const EMRP = EnergyModelsRenewableProducers
 const TS = TimeStruct
 
-const TEST_ATOL = 1e-6
-
 include("utils.jl")
 
 @testset "EnergyModelsLanguageInterfaces" begin
