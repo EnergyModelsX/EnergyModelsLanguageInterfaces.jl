@@ -6,7 +6,7 @@
 
 * Adjust for updates in submodules
 * Add more descriptive names to the EMGUI extension
-* Assume submodules is now stable enough not to need local result files in test/data (and then updated .gitignore correspondingly)
+* Assume submodules are now stable enough not to need local result files in `test/data` 
 
 ### Initial version of the package
 
