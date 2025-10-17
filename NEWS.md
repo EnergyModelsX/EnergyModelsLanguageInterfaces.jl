@@ -2,6 +2,12 @@
 
 ## Version 0.1.0 (2025-04-xx)
 
+### Adjust for updates in submodules and update descriptive names for the EMGUI extension (2025-10-17)
+
+* Adjust for updates in submodules
+* Add more descriptive names to the EMGUI extension
+* Assume submodules is now stable enough not to need local result files in test/data (and then updated .gitignore correspondingly)
+
 ### Initial version of the package
 
 * Provide sampling routines for C++ and Python for incorporation into `EnergyModelsX` models

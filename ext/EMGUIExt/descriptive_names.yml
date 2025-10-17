@@ -9,8 +9,8 @@ structures:
 
   MultipleBuildingTypes:
     cap:                    "Demand"
-    penalty_surplus:        "Penalties for surplus"
-    penalty_deficit:        "Penalties for deficits"
+    penalty_surplus:        "Penalty for surplus"
+    penalty_deficit:        "Penalty for deficits"
 
   CSPandPV:
     cap:                    "Installed capacity"
