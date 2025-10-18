@@ -7,7 +7,9 @@ runs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update -qq
-        sudo apt-get install -y git glpk-utils g++ cmake wget curl
+        sudo apt-get install -y git glpk-utils g++ cmake wget curl python3-pip
+        pip install conan
+        conan profile detect
         wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
         bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
         echo "$HOME/miniconda/bin" >> $GITHUB_PATH
@@ -15,7 +17,7 @@ runs:
         conda init bash
 
         source "$HOME/miniconda/etc/profile.d/conda.sh"
-        conda create --name testenv python=3.10 -y
+        conda create --name testenv python=3.11 -y
         conda activate testenv
         conda install -c conda-forge poetry -y
 
@@ -27,16 +29,18 @@ runs:
         poetry install
         cd "$GITHUB_WORKSPACE"
 
-        cd "$GITHUB_WORKSPACE/submodules/Tecnalia/examples/pv_power_plants"
+        cd "$GITHUB_WORKSPACE/submodules/Tecnalia_Solar-Energy-Model"
         poetry install
-        cd "$GITHUB_WORKSPACE/submodules/Tecnalia/examples/building_energy_process"
+        cd "$GITHUB_WORKSPACE/submodules/Tecnalia_Building-Stock-Energy-Model"
         poetry install
         cd "$GITHUB_WORKSPACE"
 
         cd "$GITHUB_WORKSPACE/submodules/CHP_modelling"
+        git checkout enhanc/documentation-2
         mkdir build
         cd build
-        cmake ..
-        make
+        conan install .. --output-folder=. --build=missing -s compiler.cppstd=17 -s arch=x86_64
+        cmake .. -DCMAKE_TOOLCHAIN_FILE="${PWD}/conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release
+        cmake --build . --config Release
         cd "$GITHUB_WORKSPACE"
       shell: bash

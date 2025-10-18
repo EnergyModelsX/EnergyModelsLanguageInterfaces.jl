@@ -19,11 +19,6 @@ docs/src/examples/*.md
 # environment.
 Manifest.toml
 
-# Internal files for testing the system locally
-*startup.jl
-/test/test_coverage.jl
-/dev
-
 # Output
 *consistency_log.md
 *__pycache__
@@ -40,3 +35,9 @@ Manifest.toml
 
 # downloaded files
 *downloaded_nora3*
+
+# VSCode settings 
+.vscode/settings.json
+
+# Test data
+test/data

@@ -27,19 +27,13 @@ using Dates
     sp_number = length(sp_duration)
     T = TwoLevel(sp_duration, operational_periods; op_per_strat = 8760.0)
 
-    # Load paths to default Buildings process and authentication files
+    # Load paths to default Buildings process
     project_path = joinpath(
-        @__DIR__,
-        "..",
+        pkgdir(EMLI),
         "submodules",
-        "Tecnalia",
-        "examples",
-        "building_energy_process",
+        "Tecnalia_Building-Stock-Energy-Model",
     )
-    path_to_auth_file_buildings = joinpath(project_path, "auth.json")
-    auth_pay_load_buildings = JSON.parsefile(path_to_auth_file_buildings)
-
-    path_to_json_buildings = joinpath(project_path, "process.json")
+    path_to_json_buildings = joinpath(project_path, "input.json")
     process_pay_load_buildings = JSON.parsefile(path_to_json_buildings)
 
     #process_pay_load_buildings["nutsid"] = "NO04" # Agder and Rogaland
@@ -94,7 +88,6 @@ using Dates
     ]
     buildings = MultipleBuildingTypes(
         "Buildings",                     # Node id
-        auth_pay_load_buildings,                  # Dictionary for the authentication
         process_pay_load_buildings,               # Dictionary for the process
         time_start,                     # Start time
         time_end,                       # End time
@@ -104,8 +97,8 @@ using Dates
         penalty_surplus, # surplus penalty for the node in €/MWh;
         penalty_deficit, # deficit penalty for the node in €/MWh;
         data = [EmissionsEnergy()],
+        data_location = joinpath(pkgdir(EMLI), "test", "data", "buildings"),
         overwrite_saved_data = false,
-        data_location = joinpath(@__DIR__, "data", "buildings"),
     )
     nodes = [buildings, sources...]
     links = [Direct(node.id * "-Buildings", node, buildings, Linear()) for node ∈ sources]

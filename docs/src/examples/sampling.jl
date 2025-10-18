@@ -18,6 +18,13 @@
 # using Pkg
 # Pkg.build("PyCall")
 # ```
+#
+# !!! note "Python path on linux"
+#     On Linux, the path might look like this:
+#     ```julia
+#     ENV["PYTHON"] = joinpath(homedir(), "miniconda3", "envs", "testenv", "bin", "python")
+#     ```
+#
 # restart Julia
 
 # It is first required to load the relevant packages for running the model.

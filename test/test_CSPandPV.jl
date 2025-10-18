@@ -18,13 +18,11 @@ using Dates
     sp_number = length(sp_duration)
     T = TwoLevel(sp_duration, operational_periods; op_per_strat = 8760.0)
 
-    # Load paths to default Buildings process and authentication files
+    # Load paths to default Buildings process
     project_path =
-        joinpath(@__DIR__, "..", "submodules", "Tecnalia", "examples", "pv_power_plants")
-    path_to_auth_file_csp_pv = joinpath(project_path, "auth.json")
-    auth_pay_load_csp_pv = JSON.parsefile(path_to_auth_file_csp_pv)
+        joinpath(pkgdir(EMLI), "submodules", "Tecnalia_Solar-Energy-Model")
 
-    path_to_json_csp_pv = joinpath(project_path, "process.json")
+    path_to_json_csp_pv = joinpath(project_path, "input.json")
     process_pay_load_csp_pv = JSON.parsefile(path_to_json_csp_pv)
 
     #process_pay_load_buildings["nutsid"] = "NO04" # Agder and Rogaland
@@ -49,12 +47,11 @@ using Dates
     ]
     csp_and_pv_plant = CSPandPV(
         "CSP and PV plant",                     # Node id
-        auth_pay_load_csp_pv,
         process_pay_load_csp_pv,
         time_start,                    # Start time
         time_end,                      # End time
         resources_map_csp_cv;                 # Map of resource keys to `EMB.Resource`s
-        data_location = joinpath(@__DIR__, "data", "CSPandPV", "CSPandPV_data_NO04"),
+        data_location = joinpath(pkgdir(EMLI), "test", "data", "CSPandPV", "NO04"),
         overwrite_saved_data = false,
     )
     nodes = [csp_and_pv_plant, sinks...]

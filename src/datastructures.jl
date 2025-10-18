@@ -158,7 +158,6 @@ end
 """
     CSPandPV(
         id::Any,
-        auth_pay_load::Dict,
         process_pay_load::Dict,
         time_start::DateTime,
         time_end::DateTime,
@@ -169,11 +168,10 @@ end
     )
 
 Constructs a `CSPandPV` instance where the power and heat production profiles are sampled from
-the `executePVPowerPlantsProcess` function in the `pv_power_plants` python project.
+the `executeSolarEnergyModelProcess` function in the `solar_power_plants` python project.
 
 # Arguments
 - **`id`** is the name or identifier of the node in EMX.
-- **`auth_pay_load`** is the authentication dictionary for the Python function.
 - **`process_pay_load`** is the process dictionary for the Python function.
 - **`time_start`** is the start time for the sampling.
 - **`time_end`** is the end time for the sampling.
@@ -200,19 +198,16 @@ the `executePVPowerPlantsProcess` function in the `pv_power_plants` python proje
   `false`.
 
 !!! note
-    The arguments `aut_pay_load` and `process_pay_load` are dictionaries that contain the
-    authentication and process information for the Python function. The defaults can be
-    achieved through
+    The argument `process_pay_load` is a dictionary that contains the process information 
+    for the Python function. The defaults can be achieved through
 
     ```julia
     using JSON
-    auth_pay_load = JSON.parsefile(path_to_pv_power_plants/auth.json)
-    process_pay_load = JSON.parsefile(path_to_pv_power_plants/process.json)
+    process_pay_load = JSON.parsefile(path_to_pv_power_plants/input.json)
     ```
 """
 function CSPandPV(
     id::Any,
-    auth_pay_load::Dict,
     process_pay_load::Dict,
     time_start::DateTime,
     time_end::DateTime,
@@ -229,9 +224,9 @@ function CSPandPV(
         power_outputs = YAML.load(open(data_path))
     else
         csp_and_pv_dict = call_python_function(
-            "pv_power_plants",
-            "executePVPowerPlantsProcess",
-            [auth_pay_load, process_pay_load, time_start_str, time_end_str],
+            "solar_power_plants",
+            "executeSolarEnergyModelProcess",
+            [process_pay_load, time_start_str, time_end_str],
         )
 
         if !isdir(data_location)
@@ -349,8 +344,8 @@ and deficit.
 - **`cap::Dict{<:Resource,<:TimeProfile}`** is the demand.
 - **`penalty_surplus::Dict{<:Resource,<:TimeProfile}`** are the penalties for surplus.
 - **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** are the penalties for deficit.
-- **`input::Dict{<:Resource,<:Real}`** are the input [`Resource`](@ref)s with conversion
-  value `Real`.
+- **`input::Dict{<:Resource,<:Real}`** are the input 
+  [`Resource`](@extref EnergyModelsBase.Resource)s with conversion value `Real`.
 - **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments). The field `data`
   is conditional through usage of a constructor.
 
@@ -378,7 +373,6 @@ end
 """
     MultipleBuildingTypes(
         id::Any,
-        auth_pay_load::Dict,
         process_pay_load::Dict,
         time_start::DateTime,
         time_end::DateTime,
@@ -397,7 +391,6 @@ Constructs a `MultipleBuildingTypes` instance where the demand profiles are samp
 
 # Arguments
 - **`id`** is the name or identifier of the node.
-- **`auth_pay_load`** is the authentication dictionary for the Python function.
 - **`process_pay_load`** is the process dictionary for the Python function.
 - **`time_start`** is the starting time for the sampling.
 - **`time_end`** is the ending time for the sampling.
@@ -458,14 +451,12 @@ Constructs a `MultipleBuildingTypes` instance where the demand profiles are samp
     of the energy carriers.
 
 !!! note
-    The arguments `aut_pay_load` and `process_pay_load` are dictionaries that contain the
-    authentication and process information for the Python function. The defaults can be
-    achieved through
+    The argument `process_pay_load` is a dictionary that contains the process information 
+    for the Python function. The defaults can be achieved through
 
     ```julia
     using JSON
-    auth_pay_load = JSON.parsefile(path_to_building_energy_process/auth.json)
-    process_pay_load = JSON.parsefile(path_to_building_energy_process/process.json)
+    process_pay_load = JSON.parsefile(path_to_building_energy_process/input.json)
     ```
 
 !!! note
@@ -474,7 +465,6 @@ Constructs a `MultipleBuildingTypes` instance where the demand profiles are samp
 """
 function MultipleBuildingTypes(
     id::Any,
-    auth_pay_load::Dict,
     process_pay_load::Dict,
     time_start::DateTime,
     time_end::DateTime,
@@ -502,7 +492,7 @@ function MultipleBuildingTypes(
             demands = call_python_function(
                 "building_energy_process",
                 "executeBuildingEnergySimulationProcess",
-                [auth_pay_load, process_pay_load, time_start_str, time_end_str, building],
+                [process_pay_load, time_start_str, time_end_str, building],
             )
 
             if !isdir(data_location)
@@ -587,7 +577,7 @@ EMB.deficit_penalty(n::MultipleBuildingTypes, t, p::Resource) = n.penalty_defici
 
 Resources that can be transported and converted.
 These resources **cannot** be included as resources that are emitted, *e.g*, in the variable
-[`emissions_strategic`](@ref man-opt_var-emissions). Compared to a `ResourceCarrier`, the
+[`emissions_strategic`](@extref EnergyModelsBase man-opt_var-emissions). Compared to a `ResourceCarrier`, the
 `ResourceBio` `Resource` includes additionally the fuel definition (a string identifier of
 the biomass) and the moisture content of the biomass (as a mass fraction).
 
@@ -624,7 +614,7 @@ moisture(p::ResourceBio) = p.moisture
 
 A [`BioCHP`](@ref) node that samples the CHP model at https://github.com/iDesignRES/CHP_modelling.git.
 The `BioCHP` utilizes a linear, time independent conversion rate of the `input`
-[`Resource`](@ref)s to the output [`Resource`](@ref)s, subject to the available capacity.
+[`Resource`](@extref EnergyModelsBase.Resource)s to the output [`Resource`](@extref EnergyModelsBase.Resource)s, subject to the available capacity.
 The capacity is hereby normalized to a conversion value of 1 in the fields `input` and
 `output`.
 
@@ -636,9 +626,9 @@ The capacity is hereby normalized to a conversion value of 1 in the fields `inpu
   through the variable `:cap_use`.
 - **`opex_fixed::TimeProfile`** is the fixed operating expense per installed capacity
   through the variable `:cap_inst`.
-- **`input::Dict{<:Resource,<:Real}`** are the input [`Resource`](@ref)s with conversion
+- **`input::Dict{<:Resource,<:Real}`** are the input [`Resource`](@extref EnergyModelsBase.Resource)s with conversion
   value `Real`.
-- **`output::Dict{<:Resource,<:Real}`** are the generated [`Resource`](@ref)s with
+- **`output::Dict{<:Resource,<:Real}`** are the generated [`Resource`](@extref EnergyModelsBase.Resource)s with
   conversion value `Real`.
 - **`data::Vector{Data}`** is the additional data (*e.g.*, for investments). The field `data`
   is conditional through usage of a constructor.

@@ -8,7 +8,7 @@ using EnergyModelsHeat
     BioSpruceStem = ResourceBio("BioSpruceStem", "spruce_stem", 0.4, 0.1)
     BioSpruceBark = ResourceBio("BioSpruceBark", "spruce_bark", 0.5, 0.12)
     BioBirchStem = ResourceBio("BioBirchStem", "birch_stem", 0.35, 0.08)
-    BioSpruceTB = ResourceBio("BioSpruceTB", "spruce_T&B", 0.45, 0.11)
+    BioSpruceTB = ResourceBio("BioSpruceTB", "spruce_TandB", 0.45, 0.11)
 
     CO2 = ResourceEmit("CO2", 1.0)
 
@@ -41,8 +41,7 @@ using EnergyModelsHeat
         BioSpruceTB => 0.4,
     )
     libpath = joinpath(
-        @__DIR__,
-        "..",
+        pkgdir(EMLI),
         "submodules",
         "CHP_modelling",
         "build",
@@ -103,8 +102,8 @@ using EnergyModelsHeat
     sp2 = 𝒯ᴵⁿᵛ[2]
     sp3 = 𝒯ᴵⁿᵛ[3]
 
-    @test value(m[:emissions_strategic][sp1, CO2]) ≈ 10435.73959953056 # previous value 10383.783224461205
-    @test value(m[:emissions_strategic][sp2, CO2]) ≈ 825.5642923349998 # previous value 822.44841399
+    @test value(m[:emissions_strategic][sp1, CO2]) ≈ 10677.655834599282
+    @test value(m[:emissions_strategic][sp2, CO2]) ≈ 856.6910333009421
     @test value(m[:emissions_strategic][sp3, CO2]) ≈ 0.0
 
     # Check that the values of the deficits are correct.
@@ -134,7 +133,7 @@ using EnergyModelsHeat
     @test EMLI.bio_type(BioSpruceStem) == "spruce_stem"
     @test EMLI.bio_type(BioSpruceBark) == "spruce_bark"
     @test EMLI.bio_type(BioBirchStem) == "birch_stem"
-    @test EMLI.bio_type(BioSpruceTB) == "spruce_T&B"
+    @test EMLI.bio_type(BioSpruceTB) == "spruce_TandB"
 
     # Test the `moisture` function
     @test EMLI.moisture(BioSpruceStem) ≈ 0.4

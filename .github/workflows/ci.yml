@@ -24,6 +24,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true  # Fetch the submodules
+          fetch-depth: 0  # full clone
       - uses: ./.github/actions/before-script
       - uses: julia-actions/setup-julia@v2
         with:
