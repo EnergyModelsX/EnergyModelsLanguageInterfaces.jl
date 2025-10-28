@@ -3,6 +3,9 @@ using Test
 using TimeStruct
 using EnergyModelsBase
 using EnergyModelsRenewableProducers
+using EnergyModelsHeat
+using Dates
+using JSON
 using HiGHS
 using JuMP
 
@@ -22,6 +25,9 @@ include("utils.jl")
 
     ## Test sampling routines
     include("test_sampling_routines.jl")
+
+    ## Test checks
+    include("test_checks.jl")
 
     ## Test nodes
     include("test_windpower.jl")

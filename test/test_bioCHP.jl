@@ -1,93 +1,10 @@
 using EnergyModelsHeat
 
 @testset "BioCHP" begin
-    Power = ResourceCarrier("Power", 0.0)
-    Heat1 = ResourceHeat("Heat1", 70.0, 90.0) # High-temperature heat for demand 1
-    Heat2 = ResourceHeat("Heat2", 50.0, 80.0) # High-temperature heat for demand 2
+    case, modeltype = simple_graph_biochp()
 
-    BioSpruceStem = ResourceBio("BioSpruceStem", "spruce_stem", 0.4, 0.1)
-    BioSpruceBark = ResourceBio("BioSpruceBark", "spruce_bark", 0.5, 0.12)
-    BioBirchStem = ResourceBio("BioBirchStem", "birch_stem", 0.35, 0.08)
-    BioSpruceTB = ResourceBio("BioSpruceTB", "spruce_TandB", 0.45, 0.11)
-
-    CO2 = ResourceEmit("CO2", 1.0)
-
-    # Creation of the initial problem with the NonDisRES node
-    op_duration = 1
-    op_number = 24 * 7
-    operational_periods = SimpleTimes(op_number, op_duration)
-
-    sp_duration = [1, 10, 10]
-    sp_number = length(sp_duration)
-    T = TwoLevel(sp_duration, operational_periods; op_per_strat = 8760.0)
-
-    bio_products = [BioSpruceStem, BioSpruceBark, BioBirchStem, BioSpruceTB]
-    heat_resources = Dict(Heat1 => 0.30, Heat2 => 0.40)
-    products = [Power, Heat1, Heat2, bio_products..., CO2]
-
-    sources = [
-        RefSource(
-            "Source for " * resource.id,
-            FixedProfile(150),
-            FixedProfile(120),
-            FixedProfile(0),
-            Dict(resource => 1.0),
-        ) for resource ∈ bio_products
-    ]
-    mass_fractions = Dict(
-        BioSpruceStem => 0.1,
-        BioSpruceBark => 0.2,
-        BioBirchStem => 0.3,
-        BioSpruceTB => 0.4,
-    )
-    libpath = joinpath(
-        pkgdir(EMLI),
-        "submodules",
-        "CHP_modelling",
-        "build",
-        "lib",
-        "libbioCHP_wrapper.so",
-    )
-
-    bio_chp = BioCHP(
-        "Bio CHP plant",
-        FixedProfile(100.0),
-        mass_fractions,
-        heat_resources,
-        Power;
-        libpath,
-    )
-    caps = Dict(
-        Power => OperationalProfile(50 * (1 .+ sin.((1:op_number) * pi / 24) .^ 2)),
-        Heat1 => OperationalProfile(10 * (1 .+ cos.((1:op_number) * pi / 24) .^ 2)),
-        Heat2 => OperationalProfile(1 .+ cos.((1:op_number) * pi / 24) .^ 2),
-    )
-    deficits = Dict(
-        Power => FixedProfile(30),
-        Heat1 => FixedProfile(10),
-        Heat2 => FixedProfile(5),
-    )
-    sinks = [
-        RefSink(
-            "Sink for " * p.id,
-            caps[p],
-            Dict(:surplus => FixedProfile(1), :deficit => deficits[p]),
-            Dict(p => 1.0),
-        ) for p ∈ [Heat1, Heat2, Power]
-    ]
-
-    nodes = [bio_chp, sources..., sinks...]
-    links = [Direct(node.id * "-Bio CHP plant", node, bio_chp, Linear()) for node ∈ sources]
-    append!(
-        links,
-        [Direct("Bio CHP plant - " * node.id, bio_chp, node, Linear()) for node ∈ sinks],
-    )
-
-    case = Case(T, products, [nodes, links], [[get_nodes, get_links]])
-
-    em_limits = Dict(CO2 => FixedProfile(1e5))   # Emission cap for CO₂ in t/year
-    em_cost = Dict(CO2 => StrategicProfile([71.0, 100, 500]))    # Emission price for CO₂ in €/t
-    modeltype = OperationalModel(em_limits, em_cost, CO2)
+    bio_chp = get_node(case, "Bio CHP plant")  # The MultipleBuildingTypes node
+    sinks = [get_node(case, "Sink for " * p.id) for p ∈ [Heat1, Heat2, Power]]
 
     # Run the model
     m = EMB.run_model(case, modeltype, OPTIMIZER)

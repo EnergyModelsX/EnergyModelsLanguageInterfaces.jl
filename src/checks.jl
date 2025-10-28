@@ -20,7 +20,7 @@ additional check on the data.
 function EMB.check_node(
     n::WindPower,
     𝒯,
-    modeltype::EMB.EnergyModel,
+    modeltype::EnergyModel,
     check_timeprofiles::Bool,
 )
     EMB.check_node_default(n, 𝒯, modeltype, check_timeprofiles)
@@ -146,10 +146,9 @@ function EMB.check_node(n::CSPandPV, 𝒯, ::EnergyModel, check_timeprofiles::Bo
 
     # Check for potential indexing problems
     message = "are not allowed for the field `opex_fixed`."
-    bool_sp = all(EMB.check_strategic_profile(EMB.opex_fixed(n, p), message) for p ∈ 𝒫)
-
-    # Check that the value is positive in all cases
-    if bool_sp
+    if isempty(setdiff(𝒫, keys(EMB.opex_fixed(n)))) &&
+       all(EMB.check_strategic_profile(EMB.opex_fixed(n, p), message) for p ∈ 𝒫)
+        # Check that the value is positive in all cases
         @assert_or_log(
             all(EMB.opex_fixed(n, t_inv, p) ≥ 0 for t_inv ∈ 𝒯ᴵⁿᵛ, p ∈ 𝒫),
             "The fixed OPEX must be non-negative."
@@ -166,4 +165,27 @@ function EMB.check_node(n::CSPandPV, 𝒯, ::EnergyModel, check_timeprofiles::Bo
             "The profile field must be non-negative."
         )
     end
+end
+
+"""
+    check_node(n::BioCHP, 𝒯, modeltype::EnergyModel, check_timeprofiles::Bool)
+
+This method checks that the *[`BioCHP`](@ref)* node is valid.
+
+## Checks
+- The output resources must include `electricity_resource`.
+- The field `cap` is required to be non-negative.
+- The values of the dictionary `input` are required to be non-negative.
+- The values of the dictionary `output` are required to be non-negative.
+- The value of the field `fixed_opex` is required to be non-negative and
+  accessible through a `StrategicPeriod` as outlined in the function
+  [`check_fixed_opex(n, 𝒯ᴵⁿᵛ, check_timeprofiles)`](@ref).
+"""
+function EMB.check_node(n::BioCHP, 𝒯, modeltype::EnergyModel, check_timeprofiles::Bool)
+    𝒫 = outputs(n)
+    @assert_or_log(
+        electricity_resource(n) in 𝒫,
+        "The output resources must include `electricity_resource`."
+    )
+    EMB.check_node_default(n, 𝒯, modeltype, check_timeprofiles)
 end

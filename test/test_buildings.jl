@@ -1,113 +1,10 @@
-using EnergyModelsHeat
-using JSON
-using Dates
-
 @testset "MultipleBuildingTypes" begin
-    Power = ResourceCarrier("Power", 0.0)
-    HeatHT = ResourceHeat("HeatHT", 80.0, 30.0) # High-temperature heat for demand
-    Coal = ResourceCarrier("Coal", 0.35)
-    LNG = ResourceCarrier("LNG", 0.2)
-    Oil = ResourceCarrier("Oil", 0.3)
-    NG = ResourceCarrier("NG", 0.2)
-    SolidBiomass = ResourceCarrier("SolidBiomass", 0.1)
-    LiquidBiomass = ResourceCarrier("LiquidBiomass", 0.15)
-    Biogas = ResourceCarrier("Biogas", 0.05)
-    Hydrogen = ResourceCarrier("Hydrogen", 0.0)
-    SolarHeat = ResourceCarrier("SolarHeat", 0.0)
-    CO2 = ResourceEmit("CO2", 1.0)
+    case, modeltype = simple_graph_buildings()
 
-    # Creation of the initial problem with the NonDisRES node
-    time_start_str = "2019-01-01"
-    time_end_str = "2019-01-07"
-    op_duration = 1
-    op_number = 24 * (Dates.value(Date(time_end_str) - Date(time_start_str)) + 1)
-    operational_periods = SimpleTimes(op_number, op_duration)
-
-    sp_duration = [1, 2, 10]
-    sp_number = length(sp_duration)
-    T = TwoLevel(sp_duration, operational_periods; op_per_strat = 8760.0)
-
-    # Load paths to default Buildings process
-    project_path = joinpath(
-        pkgdir(EMLI),
-        "submodules",
-        "Tecnalia_Building-Stock-Energy-Model",
-    )
-    path_to_json_buildings = joinpath(project_path, "input.json")
-    process_pay_load_buildings = JSON.parsefile(path_to_json_buildings)
-
-    #process_pay_load_buildings["nutsid"] = "NO04" # Agder and Rogaland
-
-    time_start = DateTime(time_start_str * "T00:00:00")
-    time_end = DateTime(time_end_str * "T23:00:00")
-
-    buildings = ["Apartment Block", "Single family- Terraced houses"]
-    resources_map_buildings = Dict(
-        "Solids|Coal" => Coal,
-        "Liquids|Gas" => LNG,
-        "Liquids|Oil" => Oil,
-        "Gases|Gas" => NG,
-        "Solids|Biomass" => SolidBiomass,
-        "Electricity" => Power,
-        "Heat" => HeatHT,
-        "Liquids|Biomass" => LiquidBiomass,
-        "Gases|Biomass" => Biogas,
-        "Hydrogen" => Hydrogen,
-        "Heat|Solar" => SolarHeat,
-    )
-    penalty_surplus = Dict{Resource,TimeProfile}(
-        resource => FixedProfile(100) for resource ∈ values(resources_map_buildings)
-    )
-    penalty_deficit = Dict{Resource,TimeProfile}(
-        resource => FixedProfile(1e4) for resource ∈ values(resources_map_buildings)
-    )
-    building_res =
-        [
-            Power,
-            HeatHT,
-            Coal,
-            LNG,
-            Oil,
-            NG,
-            SolidBiomass,
-            LiquidBiomass,
-            Biogas,
-            Hydrogen,
-            SolarHeat,
-        ]
-    products = [building_res..., CO2]
-
-    sources = [
-        RefSource(
-            "Source for " * resource.id,
-            FixedProfile(150),
-            FixedProfile(120),
-            FixedProfile(0),
-            Dict(resource => 1.0),
-        ) for resource ∈ building_res
-    ]
-    buildings = MultipleBuildingTypes(
-        "Buildings",                     # Node id
-        process_pay_load_buildings,               # Dictionary for the process
-        time_start,                     # Start time
-        time_end,                       # End time
-        buildings,                 # List of building types to be simulated
-        resources_map_buildings,                  # Map of resource keys to `EMB.Resource`s
-        T,                            # Time structure
-        penalty_surplus, # surplus penalty for the node in €/MWh;
-        penalty_deficit, # deficit penalty for the node in €/MWh;
-        data = [EmissionsEnergy()],
-        data_location = joinpath(pkgdir(EMLI), "test", "data", "buildings"),
-        overwrite_saved_data = false,
-    )
-    nodes = [buildings, sources...]
-    links = [Direct(node.id * "-Buildings", node, buildings, Linear()) for node ∈ sources]
-
-    case = Case(T, products, [nodes, links], [[get_nodes, get_links]])
-
-    em_limits = Dict(CO2 => FixedProfile(1e4))   # Emission cap for CO₂ in t/year
-    em_cost = Dict(CO2 => FixedProfile(71.0))    # Emission price for CO₂ in €/t
-    modeltype = OperationalModel(em_limits, em_cost, CO2)
+    buildings = get_node(case, "Buildings")  # The MultipleBuildingTypes node
+    products = get_products(case)
+    building_res = products[1:(end-1)]  # All resources except CO2
+    CO2 = products[end]  # The CO2 resource
 
     # Run the model
     m = EMB.run_model(case, modeltype, OPTIMIZER)
@@ -163,4 +60,30 @@ using Dates
         )
         for t_inv ∈ 𝒯ᴵⁿᵛ
     )
+
+    # Test the utility functions for MultipleBuildingTypes
+    for p ∈ building_res
+        # Capacity
+        @test EMB.capacity(buildings) isa Dict
+        @test EMB.capacity(buildings, p) isa TimeProfile
+        @test EMB.capacity(buildings)[p] == EMB.capacity(buildings, p)
+        @test EMB.capacity(buildings, first(𝒯), p) == EMB.capacity(buildings, p)[first(𝒯)]
+
+        # Surplus penalty
+        @test EMB.surplus_penalty(buildings) isa Dict
+        @test EMB.surplus_penalty(buildings, p) isa TimeProfile
+        @test EMB.surplus_penalty(buildings)[p] == EMB.surplus_penalty(buildings, p)
+        @test EMB.surplus_penalty(buildings, first(𝒯), p) ==
+              EMB.surplus_penalty(buildings, p)[first(𝒯)]
+
+        # Deficit penalty
+        @test EMB.deficit_penalty(buildings) isa Dict
+        @test EMB.deficit_penalty(buildings, p) isa TimeProfile
+        @test EMB.deficit_penalty(buildings)[p] == EMB.deficit_penalty(buildings, p)
+        @test EMB.deficit_penalty(buildings, first(𝒯), p) ==
+              EMB.deficit_penalty(buildings, p)[first(𝒯)]
+    end
+
+    # Test has_capacity utility function
+    @test EMB.has_capacity(buildings) == false
 end

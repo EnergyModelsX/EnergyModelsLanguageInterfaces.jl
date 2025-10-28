@@ -1,29 +1,7 @@
 
 @testset "WindPower" begin
-    # Creation of the initial problem with the NonDisRES node
-    time_start = "2022-05-01"
-    time_end = "2022-05-03"
-    windfarm = Dict(
-        "id" => "windfarm_1",
-        "lat" => 55,
-        "lon" => 9,
-        "orientation" => missing,
-        "shape" => missing,
-        "turbine_height" => 150,
-    )
-    data_path = mkpath(joinpath(@__DIR__, "downloaded_nora3"))
-    wind = WindPower(
-        "Windfarm",                     # Node id
-        FixedProfile(100),              # Capacity in MW
-        windfarm,                       # Windfarm data
-        time_start,                     # Start time for the data
-        time_end,                       # End time for the data
-        FixedProfile(0),                # Variable operational cost in €/MWh
-        FixedProfile(50e3),             # Fixed operational cost in €/MW/year
-        Dict(Power => 1);               # The generated resources with conversion value 1
-        data_path,                      # Path to the data
-    )
-    case, modeltype = small_graph(source = wind, ops = SimpleTimes(72, 1))
+    case, modeltype = simple_graph_wind()
+    wind = get_node(case, "Windfarm")  # The WindPower node
 
     # Run the model
     m = EMB.run_model(case, modeltype, OPTIMIZER)
