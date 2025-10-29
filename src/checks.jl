@@ -179,7 +179,7 @@ This method checks that the *[`BioCHP`](@ref)* node is valid.
 - The values of the dictionary `output` are required to be non-negative.
 - The value of the field `fixed_opex` is required to be non-negative and
   accessible through a `StrategicPeriod` as outlined in the function
-  [`check_fixed_opex(n, 𝒯ᴵⁿᵛ, check_timeprofiles)`](@ref).
+  [`check_fixed_opex(n, 𝒯ᴵⁿᵛ, check_timeprofiles)`](@extref EnergyModelsBase.check_fixed_opex).
 """
 function EMB.check_node(n::BioCHP, 𝒯, modeltype::EnergyModel, check_timeprofiles::Bool)
     𝒫 = outputs(n)
