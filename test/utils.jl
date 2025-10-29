@@ -130,7 +130,7 @@ function simple_graph_buildings(; cap_p = nothing,
         "Tecnalia_Building-Stock-Energy-Model",
     )
     path_to_json_buildings = joinpath(project_path, "input.json")
-    process_pay_load_buildings = JSON.parsefile(path_to_json_buildings)
+    process_pay_load_buildings = Dict(JSON.parsefile(path_to_json_buildings))
 
     #process_pay_load_buildings["nutsid"] = "NO04" # Agder and Rogaland
 
@@ -240,7 +240,7 @@ function simple_graph_csp_pv(; cap_p = nothing,
         joinpath(pkgdir(EMLI), "submodules", "Tecnalia_Solar-Energy-Model")
 
     path_to_json_csp_pv = joinpath(project_path, "input.json")
-    process_pay_load_csp_pv = JSON.parsefile(path_to_json_csp_pv)
+    process_pay_load_csp_pv = Dict(JSON.parsefile(path_to_json_csp_pv))
 
     #process_pay_load_buildings["nutsid"] = "NO04" # Agder and Rogaland
 
