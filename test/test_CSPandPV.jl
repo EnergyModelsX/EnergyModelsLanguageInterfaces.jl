@@ -3,68 +3,10 @@ using JSON
 using Dates
 
 @testset "CSPandPV" begin
-    Power = ResourceCarrier("Power", 0.0)
-    CSPHeat = ResourceHeat("CSPHeat", 400.0, 390) # CSP heat
-    CO2 = ResourceEmit("CO2", 1.0)
+    case, modeltype = simple_graph_csp_pv()
 
-    # Creation of the initial problem with the NonDisRES node
-    time_start_str = "2019-01-01"
-    time_end_str = "2019-01-07"
-    op_duration = 1
-    op_number = 24 * (Dates.value(Date(time_end_str) - Date(time_start_str)) + 1)
-    operational_periods = SimpleTimes(op_number, op_duration)
-
-    sp_duration = [1, 2, 10]
-    sp_number = length(sp_duration)
-    T = TwoLevel(sp_duration, operational_periods; op_per_strat = 8760.0)
-
-    # Load paths to default Buildings process
-    project_path =
-        joinpath(pkgdir(EMLI), "submodules", "Tecnalia_Solar-Energy-Model")
-
-    path_to_json_csp_pv = joinpath(project_path, "input.json")
-    process_pay_load_csp_pv = JSON.parsefile(path_to_json_csp_pv)
-
-    #process_pay_load_buildings["nutsid"] = "NO04" # Agder and Rogaland
-
-    time_start = DateTime(time_start_str * "T00:00:00")
-    time_end = DateTime(time_end_str * "T23:00:00")
-
-    resources_map_csp_cv = Dict(
-        "Ppv" => Power,
-        "Pthermal" => CSPHeat,
-    )
-    products = [Power, CSPHeat, CO2]
-    𝒫 = [Power, CSPHeat]
-    caps = Dict(Power => 100, CSPHeat => 20)
-    sinks = [
-        RefSink(
-            "Sink for " * p.id,
-            FixedProfile(caps[p]),
-            Dict(:surplus => FixedProfile(1), :deficit => FixedProfile(1e4)),
-            Dict(p => 1.0),
-        ) for p ∈ 𝒫
-    ]
-    csp_and_pv_plant = CSPandPV(
-        "CSP and PV plant",                     # Node id
-        process_pay_load_csp_pv,
-        time_start,                    # Start time
-        time_end,                      # End time
-        resources_map_csp_cv;                 # Map of resource keys to `EMB.Resource`s
-        data_location = joinpath(pkgdir(EMLI), "test", "data", "CSPandPV", "NO04"),
-        overwrite_saved_data = false,
-    )
-    nodes = [csp_and_pv_plant, sinks...]
-    links = [
-        Direct("csp_and_pv_plant-" * node.id, csp_and_pv_plant, node, Linear()) for
-        node ∈ sinks
-    ]
-
-    case = Case(T, products, [nodes, links], [[get_nodes, get_links]])
-
-    em_limits = Dict(CO2 => FixedProfile(1e4))   # Emission cap for CO₂ in t/year
-    em_cost = Dict(CO2 => FixedProfile(71.0))    # Emission price for CO₂ in €/t
-    modeltype = OperationalModel(em_limits, em_cost, CO2)
+    csp_and_pv_plant = get_node(case, "CSP and PV plant")  # The MultipleBuildingTypes node
+    𝒫 = setdiff(get_products(case), [CO2])
 
     # Run the model
     m = EMB.run_model(case, modeltype, OPTIMIZER)
@@ -127,4 +69,31 @@ using Dates
 
     # Test that the EMB function has_capacity is false for the CSPandPV node.
     @test !EMB.has_capacity(csp_and_pv_plant)
+
+    # Test the utility functions
+    for p ∈ 𝒫
+        # Capacity
+        @test EMB.capacity(csp_and_pv_plant, p) isa TimeProfile
+        @test EMB.capacity(csp_and_pv_plant)[p] == EMB.capacity(csp_and_pv_plant, p)
+        @test EMB.capacity(csp_and_pv_plant, first(𝒯), p) ==
+              EMB.capacity(csp_and_pv_plant, p)[first(𝒯)]
+
+        # OPEX variable
+        @test EMB.opex_var(csp_and_pv_plant, p) isa TimeProfile
+        @test EMB.opex_var(csp_and_pv_plant)[p] == EMB.opex_var(csp_and_pv_plant, p)
+        @test EMB.opex_var(csp_and_pv_plant, first(𝒯), p) ==
+              EMB.opex_var(csp_and_pv_plant, p)[first(𝒯)]
+
+        # OPEX fixed
+        @test EMB.opex_fixed(csp_and_pv_plant, p) isa TimeProfile
+        @test EMB.opex_fixed(csp_and_pv_plant)[p] == EMB.opex_fixed(csp_and_pv_plant, p)
+        @test EMB.opex_fixed(csp_and_pv_plant, first(𝒯ᴵⁿᵛ), p) ==
+              EMB.opex_fixed(csp_and_pv_plant, p)[first(𝒯ᴵⁿᵛ)]
+
+        # Profile
+        @test EMRP.profile(csp_and_pv_plant, p) isa TimeProfile
+        @test EMRP.profile(csp_and_pv_plant)[p] == EMRP.profile(csp_and_pv_plant, p)
+        @test EMRP.profile(csp_and_pv_plant, first(𝒯), p) ==
+              EMRP.profile(csp_and_pv_plant, p)[first(𝒯)]
+    end
 end
