@@ -36,7 +36,7 @@ runs:
         cd "$GITHUB_WORKSPACE"
 
         cd "$GITHUB_WORKSPACE/submodules/CHP_modelling"
-        git checkout enhanc/documentation-2
+        git checkout v0.2.0
         mkdir build
         cd build
         conan install .. --output-folder=. --build=missing -s compiler.cppstd=17 -s arch=x86_64
