@@ -477,51 +477,56 @@ function MultipleBuildingTypes(
     data_location::String = joinpath(tempdir(), "buildings"),
     overwrite_saved_data::Bool = false,
 )
-    time_start_str = Dates.format(time_start, "yyyy-mm-dd\\THH:MM:SS")
-    time_end_str = Dates.format(time_end, "yyyy-mm-dd\\THH:MM:SS")
     oper_length = length(T.operational[1]) # Assume the length to be the same in all Strategic periods
     resources = values(resources_map)
-    cap_vector =
-        Dict{Resource,Vector}(resource => zeros(oper_length) for resource ∈ resources)
-    for building ∈ buildings
-        # The keys of demands is
-        data_path = joinpath(data_location, building * ".yml")
-        if isfile(data_path) && !overwrite_saved_data
-            demands = YAML.load(open(data_path))
-        else
-            demands = call_python_function(
-                "building_energy_process",
-                "executeBuildingEnergySimulationProcess",
-                [process_pay_load, time_start_str, time_end_str, building],
-            )
+    cap_vec = Dict{Resource,Vector}(resource => zeros(oper_length) for resource ∈ resources)
 
-            if !isdir(data_location)
-                mkpath(data_location)
-            end
+    data_path = joinpath(data_location, "all_buildings.yml")
+    if isfile(data_path) && !overwrite_saved_data
+        demands = YAML.load(open(data_path))
+    else
+        demands_orig_format = call_python_function(
+            "building_energy_process",
+            "executeModel",
+            [process_pay_load],
+        )
+        if !isdir(data_location)
+            mkpath(data_location)
+        end
 
-            # Scale power_outputs to MW
-            for key ∈ keys(demands)
-                if !(key in ["Datetime", "Variable cost [€/KWh]", "Emissions [KgCO2/KWh]"])
-                    demands[key] /= 1e6
+        demands = Dict{String,Any}()
+        # Filter demands based on buildings and time period. Also convert the format of demands from
+        # Dict{String, Vector{Dict}} to Dict{Resource, Vector{Float64}} and scale results to MW
+        for building ∈ buildings
+            temp = Dict{Any,Vector{Any}}(val => Any[] for val ∈ values(resources_map))
+
+            for v ∈ demands_orig_format[building]
+                date = DateTime(v["Datetime"], "yyyy-mm-dd HH:MM")
+                if time_start <= date && date <= time_end
+                    for (res, res_val) ∈ v
+                        if !(res ∈ ["Datetime", "Variable cost [€]", "Emissions [KgCO2]"])
+                            push!(temp[resources_map[res]], res_val/1e6) # Scale power_outputs to MW
+                        end
+                    end
                 end
             end
-            open(data_path, "w") do io
-                YAML.write(io, demands)
-            end
+            demands[building] = temp
         end
-        for (key, demand) ∈ demands
-            # Skip fields not used
-            if key in ["Datetime", "Variable cost [€/KWh]", "Emissions [KgCO2/KWh]"]
-                continue
-            end
-
-            # Add the demand to the corresponding resource
-            cap_vector[resources_map[key]] += demand
+        open(data_path, "w") do io
+            YAML.write(io, demands)
         end
     end
+
+    # Sum the demands for all building types
+    for val ∈ values(demands)
+        for (res, demand) ∈ val
+            cap_vec[res] += demand
+        end
+    end
+
     # Convert to OperationalProfile
     cap = Dict{Resource,TimeProfile}(
-        resource => OperationalProfile(cap_vector[resource]) for
+        resource => OperationalProfile(cap_vec[resource]) for
         resource ∈ resources
     )
 
