@@ -613,6 +613,10 @@ moisture(p::ResourceBio) = p.moisture
     BioCHP <: NetworkNode
 
 A [`BioCHP`](@ref) node that samples the CHP model at https://github.com/iDesignRES/CHP_modelling.git.
+
+!!! note "CHP_modelling version"
+    The current implementation supports v0.4.0 (can be achieved with `git checkout v0.4.0`).
+
 The `BioCHP` utilizes a linear, time independent conversion rate of the `input`
 [`Resource`](@extref EnergyModelsBase.Resource)s to the output [`Resource`](@extref EnergyModelsBase.Resource)s, subject to the available capacity.
 The capacity is hereby normalized to a conversion value of 1 in the fields `input` and
@@ -806,7 +810,8 @@ function BioCHP(
     lib = Libdl.dlopen(libpath)
 
     # Call the shared C function from the loaded library
-    @ccall $(@dlsym(lib, :bioCHP_plant_c))(
+    err_ref = Ref{Cstring}()
+    ret = @ccall $(@dlsym(lib, :bioCHP_plant_c))(
         fuel_def_ptr_array::Ptr{Cstring}, len_fuel_def_ptrs::Cint,
         Yj::Ptr{Cdouble}, len_Yj::Cint,
         YH2Oj::Ptr{Cdouble}, len_YH2Oj::Cint,
@@ -820,7 +825,15 @@ function BioCHP(
         C_inv::Ref{Cdouble},
         C_op::Ref{Cdouble},
         C_op_var::Ref{Cdouble},
-    )::Bool
+        err_ref::Ref{Cstring},
+    )::Cint
+    if ret != 0
+        msg = err_ref[] == C_NULL ? "unknown error" : unsafe_string(err_ref[])
+        if err_ref[] != C_NULL
+            ccall(:free, Cvoid, (Ptr{Cvoid},), Ptr{Cvoid}(err_ref[]))
+        end
+        error("CHP_modelling library failed: $msg")
+    end
 
     input_updated = Dict{ResourceBio,Real}(
         res => Mj[i] / W_el_prod[] for (i, res) ∈ enumerate(bio_resources)

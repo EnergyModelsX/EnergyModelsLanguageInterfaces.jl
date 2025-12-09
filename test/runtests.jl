@@ -14,7 +14,10 @@ const EMB = EnergyModelsBase
 const EMRP = EnergyModelsRenewableProducers
 const TS = TimeStruct
 
-include("utils.jl")
+pkg_dir = pkgdir(EnergyModelsLanguageInterfaces)
+testdir = joinpath(pkg_dir, "test")
+
+include(joinpath(testdir, "utils.jl"))
 
 @testset "EnergyModelsLanguageInterfaces" begin
     ## Run all Aqua tests
