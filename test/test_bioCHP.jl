@@ -19,8 +19,8 @@ using EnergyModelsHeat
     sp2 = 𝒯ᴵⁿᵛ[2]
     sp3 = 𝒯ᴵⁿᵛ[3]
 
-    @test value(m[:emissions_strategic][sp1, CO2]) ≈ 10677.655834599282
-    @test value(m[:emissions_strategic][sp2, CO2]) ≈ 856.6910333009421
+    @test value(m[:emissions_strategic][sp1, CO2]) ≈ 18356.622737778922
+    @test value(m[:emissions_strategic][sp2, CO2]) ≈ 1472.7908769969383
     @test value(m[:emissions_strategic][sp3, CO2]) ≈ 0.0
 
     # Check that the values of the deficits are correct.

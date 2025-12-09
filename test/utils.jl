@@ -195,7 +195,7 @@ function simple_graph_buildings(; cap_p = nothing,
             penalty_deficit, # deficit penalty for the node in €/MWh;
             data = [EmissionsEnergy()],
             data_location = joinpath(pkgdir(EMLI), "test", "data", "buildings"),
-            overwrite_saved_data = false,
+            overwrite_saved_data = true,
         )
     else
         buildings = MultipleBuildingTypes(
@@ -359,9 +359,9 @@ function simple_graph_biochp(; output = nothing)
         Heat2 => OperationalProfile(1 .+ cos.((1:op_number) * pi / 24) .^ 2),
     )
     deficits = Dict(
-        Power => FixedProfile(30),
-        Heat1 => FixedProfile(10),
-        Heat2 => FixedProfile(5),
+        Power => FixedProfile(52),
+        Heat1 => FixedProfile(15),
+        Heat2 => FixedProfile(10),
     )
     sinks = [
         RefSink(
@@ -401,20 +401,7 @@ end
 ⪆(x, y) = x > y || isapprox(x, y; atol = TEST_ATOL)
 ⪅(x, y) = x < y || isapprox(x, y; atol = TEST_ATOL)
 
-"""
-    fetch_element(elements, id)
-
-Fetch the element with the given `id` from the `elements` array.
-"""
-function fetch_element(elements, id)
-    for element ∈ elements
-        if element.id == id
-            return element
-        end
-    end
-    error("Element with id $id not found")
-end
 function get_node(case::Case, id)
     elements = get_nodes(case)
-    return fetch_element(elements, id)
+    return EMLI.fetch_element(elements, id)
 end
