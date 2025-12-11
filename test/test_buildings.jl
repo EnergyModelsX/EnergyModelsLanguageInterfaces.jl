@@ -1,5 +1,5 @@
 @testset "MultipleBuildingTypes" begin
-    for i ∈ 1:2 # Run the test two times to also test running from stored files (from first run)
+    for _ ∈ 1:2 # Run the test two times to also test running from stored files (from first run)
         case, modeltype = simple_graph_buildings()
 
         buildings = get_node(case, "Buildings")  # The MultipleBuildingTypes node

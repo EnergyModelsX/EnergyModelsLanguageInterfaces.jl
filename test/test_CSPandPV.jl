@@ -3,7 +3,7 @@ using JSON
 using Dates
 
 @testset "CSPandPV" begin
-    for i ∈ 1:2 # Run the test two times to also test running from stored files (from first run)
+    for _ ∈ 1:2 # Run the test two times to also test running from stored files (from first run)
         case, modeltype = simple_graph_csp_pv()
 
         csp_and_pv_plant = get_node(case, "CSP and PV plant")  # The MultipleBuildingTypes node
