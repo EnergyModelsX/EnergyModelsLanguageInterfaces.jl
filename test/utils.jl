@@ -195,7 +195,7 @@ function simple_graph_buildings(; cap_p = nothing,
             penalty_deficit, # deficit penalty for the node in €/MWh;
             data = [EmissionsEnergy()],
             data_location = joinpath(pkgdir(EMLI), "test", "data", "buildings"),
-            overwrite_saved_data = true,
+            overwrite_saved_data = false,
         )
     else
         buildings = MultipleBuildingTypes(

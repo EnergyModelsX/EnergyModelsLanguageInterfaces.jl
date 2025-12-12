@@ -498,14 +498,14 @@ function MultipleBuildingTypes(
         # Filter demands based on buildings and time period. Also convert the format of demands from
         # Dict{String, Vector{Dict}} to Dict{Resource, Vector{Float64}} and scale results to MW
         for building ∈ buildings
-            temp = Dict{Any,Vector{Any}}(val => Any[] for val ∈ values(resources_map))
+            temp = Dict{Any,Vector{Any}}(val => Any[] for val ∈ keys(resources_map))
 
             for v ∈ demands_orig_format[building]
                 date = DateTime(v["Datetime"], "yyyy-mm-dd HH:MM")
                 if time_start <= date && date <= time_end
                     for (res, res_val) ∈ v
                         if !(res ∈ ["Datetime", "Variable cost [€]", "Emissions [KgCO2]"])
-                            push!(temp[resources_map[res]], res_val/1e6) # Scale power_outputs to MW
+                            push!(temp[res], res_val/1e6) # Scale power_outputs to MW
                         end
                     end
                 end
@@ -520,7 +520,7 @@ function MultipleBuildingTypes(
     # Sum the demands for all building types
     for val ∈ values(demands)
         for (res, demand) ∈ val
-            cap_vec[res] += demand
+            cap_vec[resources_map[res]] += demand
         end
     end
 
