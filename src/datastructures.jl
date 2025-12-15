@@ -84,6 +84,8 @@ a Python function.
   The default value is "Ninja".
 - **`data_path`** is an optional file path for already downloaded data. The default value is
   an empty datapath.
+- **`source`** is the data source for wind data. The user can choose between the strings
+  "NORA3" and "ERA5". The default value is "NORA3".
 """
 function WindPower(
     id::Any,
@@ -97,6 +99,7 @@ function WindPower(
     data::Vector{Data} = Data[],
     method::String = "Ninja",
     data_path::String = "",
+    source::String = "NORA3",
 )
     power = call_python_function(
         "wind_power_timeseries",
@@ -106,6 +109,7 @@ function WindPower(
         time_end = time_end,
         method = method,
         data_path = data_path,
+        source = source,
     )
     profile = OperationalProfile(power)
 
