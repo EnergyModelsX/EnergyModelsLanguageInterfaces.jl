@@ -14,9 +14,7 @@ runs:
         bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
         echo "$HOME/miniconda/bin" >> $GITHUB_PATH
         source "$HOME/miniconda/etc/profile.d/conda.sh"
-        conda init bash
 
-        source "$HOME/miniconda/etc/profile.d/conda.sh"
         conda create --name testenv python=3.11 -y
         conda activate testenv
         conda install -c conda-forge poetry -y
