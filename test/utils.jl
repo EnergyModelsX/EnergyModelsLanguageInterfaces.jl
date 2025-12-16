@@ -383,7 +383,8 @@ function simple_graph_biochp(; output = nothing)
 
     em_limits = Dict(CO2 => FixedProfile(1e5))   # Emission cap for CO₂ in t/year
     em_cost = Dict(CO2 => StrategicProfile([71.0, 100, 500]))    # Emission price for CO₂ in €/t
-    modeltype = OperationalModel(em_limits, em_cost, CO2)
+    discount_rate = 0.07                         # Discount rate for investments
+    modeltype = InvestmentModel(em_limits, em_cost, CO2, discount_rate)
     return case, modeltype, create_model(case, modeltype)
 end
 

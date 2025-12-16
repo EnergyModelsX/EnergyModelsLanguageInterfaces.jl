@@ -860,10 +860,22 @@ function BioCHP(
     if !(EmissionsEnergy ∈ typeof.(data))
         push!(data, EmissionsEnergy())
     end
+    if !any(isa(d, Investment) for d ∈ data)
+        push!(data,
+            SingleInvData(
+                FixedProfile(Float64(C_inv[])),  # Capex in EUR/MW
+                cap_updated,                # Max installed capacity [MW]
+                ContinuousInvestment(FixedProfile(0), cap_updated),
+                # Line above: Investment mode with the following arguments:
+                # 1. argument: min added capactity per sp [MW]
+                # 2. argument: max added capactity per sp [MW]
+            ),
+        )
+    end
 
     return BioCHP(
         id,
-        cap_updated,
+        FixedProfile(0),
         electricity_resource,
         opex_var,
         opex_fixed,

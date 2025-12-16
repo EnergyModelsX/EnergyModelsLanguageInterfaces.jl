@@ -21,20 +21,20 @@ include(joinpath(testdir, "utils.jl"))
 
 @testset "EnergyModelsLanguageInterfaces" begin
     ## Run all Aqua tests
-    include("Aqua.jl")
+    include(joinpath(testdir, "Aqua.jl"))
 
     ## Check if there is need for formatting
-    include("JuliaFormatter.jl")
+    include(joinpath(testdir, "JuliaFormatter.jl"))
 
     ## Test sampling routines
-    include("test_sampling_routines.jl")
+    include(joinpath(testdir, "test_sampling_routines.jl"))
 
     ## Test checks
-    include("test_checks.jl")
+    include(joinpath(testdir, "test_checks.jl"))
 
     ## Test nodes
-    include("test_windpower.jl")
-    include("test_buildings.jl")
-    include("test_CSPandPV.jl")
-    include("test_bioCHP.jl")
+    include(joinpath(testdir, "test_windpower.jl"))
+    include(joinpath(testdir, "test_buildings.jl"))
+    include(joinpath(testdir, "test_CSPandPV.jl"))
+    include(joinpath(testdir, "test_bioCHP.jl"))
 end
