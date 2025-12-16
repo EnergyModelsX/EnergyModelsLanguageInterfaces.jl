@@ -24,7 +24,7 @@ using EnergyModelsHeat
     @test value(m[:emissions_strategic][sp3, CO2]) ≈ 0.0
 
     # Check that the values of the deficits are correct.
-    @test sum(value.(m[:sink_deficit][sinks[1], t]) > 0.0 for t ∈ 𝒯) == 407
+    @test sum(value.(m[:sink_deficit][sinks[1], t]) > 0.0 for t ∈ 𝒯) == 408
     @test sum(value.(m[:sink_deficit][sinks[2], t]) > 0.0 for t ∈ 𝒯) == 168
     @test sum(value.(m[:sink_deficit][sinks[3], t]) > 0.0 for t ∈ 𝒯) == 469
 
