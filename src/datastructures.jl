@@ -259,9 +259,10 @@ function CSPandPV(
 
     # Construct normalized power profiles
     profile = Dict{Resource,TimeProfile}(
-        resources_map[key] => OperationalProfile(power_outputs[key] / max_power[key])
-        for
-        key ∈ keys(power_outputs)
+        resources_map[key] => OperationalProfile(
+            max_power[key] == 0 ? power_outputs[key] : power_outputs[key] / max_power[key],
+        )
+        for key ∈ keys(power_outputs)
     )
 
     # Set the fixed OPEX to the values in the process_pay_load
