@@ -868,8 +868,8 @@ function BioCHP(
                 cap_updated,                # Max installed capacity [MW]
                 ContinuousInvestment(FixedProfile(0), cap_updated),
                 # Line above: Investment mode with the following arguments:
-                # 1. argument: min added capactity per sp [MW]
-                # 2. argument: max added capactity per sp [MW]
+                # 1. argument: min added capacity per sp [MW]
+                # 2. argument: max added capacity per sp [MW]
             ),
         )
     end
