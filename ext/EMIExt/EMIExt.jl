@@ -17,7 +17,7 @@ const EMLI = EnergyModelsLanguageInterfaces
         id::Any,
         cap::TimeProfile,
         cap_init::TimeProfile,
-        max_installed::TimeProfile,
+        cap_max_installed::TimeProfile,
         mass_fractions::Dict{<:ResourceBio,<:Real},
         heat_output_ratios::Dict{<:ResourceHeat,<:Real},
         electricity_resource::Resource;
@@ -41,9 +41,9 @@ library file located at `libpath`. The BioCHP has electricity production of the 
 
 # Arguments
 - **`id`** is the name or identifier of the node.
-- **`cap`** is the installed electric capacity.
-- **`cap_init`** is the initial capacity.
-- **`max_installed`** is the maximal installed capacity.
+- **`cap`** is the installed electric capacity used in the CHP submodule for the calculations.
+- **`cap_init`** is the initial capacity for the node.
+- **`cap_max_installed`** is the maximum installed capacity.
 - **`mass_fractions`** is the mass fractions of each input `ResourceBio`.
 - **`heat_output_ratios`** is the output heat `ResourceHeat`s with the ratio of installed
   capacity of heat to that of the electricity.
@@ -61,7 +61,7 @@ function EMLI.BioCHP(
     id::Any,
     cap::TimeProfile,
     cap_init::TimeProfile,
-    max_installed::TimeProfile,
+    cap_max_installed::TimeProfile,
     mass_fractions::Dict{<:ResourceBio,<:Real},
     heat_output_ratios::Dict{<:ResourceHeat,<:Real},
     electricity_resource::Resource;
@@ -89,7 +89,7 @@ function EMLI.BioCHP(
         push!(data,
             SingleInvData(
                 FixedProfile(capex),  # Capex in EUR/MW
-                max_installed,                # Max installed capacity [MW]
+                cap_max_installed,                # Max installed capacity [MW]
                 cap_init,
                 ContinuousInvestment(FixedProfile(0), cap_updated),
                 # Line above: Investment mode with the following arguments:

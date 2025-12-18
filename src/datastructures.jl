@@ -12,7 +12,7 @@ sampling the profile from a Python code through a constructor.
 - **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
 - **`opex_fixed::TimeProfile`** is the fixed operating expense.
 - **`output::Dict{Resource, Real}`** are the generated `Resource`s, normally Power.
-- **`data::Vector{Data}`** is the additional data (e.g. for investments). The field `data`
+- **`data::Vector{<:Data}`** is the additional data (e.g. for investments). The field `data`
   is conditional through usage of a constructor.
 """
 struct WindPower <: AbstractNonDisRES
@@ -22,7 +22,7 @@ struct WindPower <: AbstractNonDisRES
     opex_var::TimeProfile
     opex_fixed::TimeProfile
     output::Dict{<:Resource,<:Real}
-    data::Vector{Data}
+    data::Vector{<:Data}
 end
 function WindPower(
     id::Any,
@@ -45,7 +45,7 @@ end
         opex_var::TimeProfile,
         opex_fixed::TimeProfile,
         output::Dict{<:Resource,<:Real};
-        data::Vector{Data} = Data[],
+        data::Vector{<:Data} = Data[],
         method::String = "Ninja",
         data_path::String = ""
     )
@@ -202,7 +202,7 @@ the `executeSolarEnergyModelProcess` function in the `solar_power_plants` python
   `false`.
 
 !!! note
-    The argument `process_pay_load` is a dictionary that contains the process information 
+    The argument `process_pay_load` is a dictionary that contains the process information
     for the Python function. The defaults can be achieved through
 
     ```julia
@@ -349,7 +349,7 @@ and deficit.
 - **`cap::Dict{<:Resource,<:TimeProfile}`** is the demand.
 - **`penalty_surplus::Dict{<:Resource,<:TimeProfile}`** are the penalties for surplus.
 - **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** are the penalties for deficit.
-- **`input::Dict{<:Resource,<:Real}`** are the input 
+- **`input::Dict{<:Resource,<:Real}`** are the input
   [`Resource`](@extref EnergyModelsBase.Resource)s with conversion value `Real`.
 - **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments). The field `data`
   is conditional through usage of a constructor.
@@ -456,7 +456,7 @@ Constructs a `MultipleBuildingTypes` instance where the demand profiles are samp
     of the energy carriers.
 
 !!! note
-    The argument `process_pay_load` is a dictionary that contains the process information 
+    The argument `process_pay_load` is a dictionary that contains the process information
     for the Python function. The defaults can be achieved through
 
     ```julia
@@ -685,7 +685,7 @@ end
         mass_fractions::Dict{<:ResourceBio,<:Real},
         heat_output_ratios::Dict{<:ResourceHeat,<:Real},
         electricity_resource::Resource;
-        data::Vector{Data} = Data[],
+        data::Vector{<:Data} = Data[],
         libpath::String = joinpath(
             @__DIR__,
             "..",
@@ -712,10 +712,8 @@ library file located at `libpath`. The BioCHP has electricity production of the 
 - **`electricity_resource`** is the `Resource` for the electricity.
 
 # Keyword arguments
-- **`data::Vector{Data}`** is the additional data (*e.g.*, for investments). The field `data`
-  is conditional through usage of a constructor.
+- **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments).
 - **`libpath`** is the absolute path of the `CHP_modelling` library file.
-- **`cap_init`** is the initial capacity of the `BioCHP`-node.
 
 !!! note ""EmissionsEnergy"
     If `EmissionsEnergy` is not included in the `data` field, it is automatically added.
@@ -726,7 +724,7 @@ function BioCHP(
     mass_fractions::Dict{<:ResourceBio,<:Real},
     heat_output_ratios::Dict{<:ResourceHeat,<:Real},
     electricity_resource::Resource;
-    data::Vector{Data} = Data[],
+    data::Vector{<:Data} = Data[],
     libpath::String = joinpath(
         @__DIR__,
         "..",
@@ -762,7 +760,7 @@ function BioCHP(
     mass_fractions::Dict{<:ResourceBio,<:Real},
     heat_output_ratios::Dict{<:ResourceHeat,<:Real},
     electricity_resource::Resource,
-    data::Vector{Data},
+    data::Vector{<:Data},
     libpath::String,
 )
     # Get the capacity
