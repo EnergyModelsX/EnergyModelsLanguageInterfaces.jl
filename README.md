@@ -13,9 +13,14 @@ This is exemplified with multiple new nodal descriptions from different models.
 
 ## Usage
 
-The usage of the package is best illustrated through the commented examples.
+The usage of the package is best illustrated through the commented examples in the documentation.
 The examples are minimum working examples highlighting how to use the receding horizon framework.
 In addition, they provide a user with an overview regarding potential adjustments to their elements.
+
+> [!CAUTION]
+> The node `MultipleBuildingTypes` is currently under development.
+> It may contain incorrect implementations with respect to the calculation of the variable OPEX.
+> We hence recommendto not use this node in its current stage.
 
 > [!WARNING]
 > The package is not yet registered.
