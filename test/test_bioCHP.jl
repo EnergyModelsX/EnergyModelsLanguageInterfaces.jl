@@ -19,14 +19,14 @@ using EnergyModelsHeat
     sp2 = 𝒯ᴵⁿᵛ[2]
     sp3 = 𝒯ᴵⁿᵛ[3]
 
-    @test value(m[:emissions_strategic][sp1, CO2]) ≈ 18111.756783644374
+    @test value(m[:emissions_strategic][sp1, CO2]) ≈ 18341.59756529935
     @test value(m[:emissions_strategic][sp2, CO2]) ≈ 1471.5853754583773
     @test value(m[:emissions_strategic][sp3, CO2]) ≈ 0.0
 
     # Check that the values of the deficits are correct.
-    @test sum(value.(m[:sink_deficit][sinks[1], t]) for t ∈ 𝒯) ≈ 5044.854273631571
+    @test sum(value.(m[:sink_deficit][sinks[1], t]) for t ∈ 𝒯) ≈ 5015.335151970511
     @test sum(value.(m[:sink_deficit][sinks[2], t]) for t ∈ 𝒯) ≈ 252.0
-    @test sum(value.(m[:sink_deficit][sinks[3], t]) for t ∈ 𝒯) ≈ 29416.180912105232
+    @test sum(value.(m[:sink_deficit][sinks[3], t]) for t ∈ 𝒯) ≈ 29317.783839901702
 
     # Check that the values of the surplus are correct.
     @test all(value.(m[:sink_surplus][sinks[1], t]) ≈ 0.0 for t ∈ 𝒯)

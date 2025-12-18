@@ -7,7 +7,6 @@ module EnergyModelsLanguageInterfaces
 using JuMP
 using TimeStruct
 using EnergyModelsBase
-using EnergyModelsInvestments
 using EnergyModelsRenewableProducers
 using EnergyModelsHeat
 using Dates

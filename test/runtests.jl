@@ -3,6 +3,7 @@ using Test
 using TimeStruct
 using EnergyModelsBase
 using EnergyModelsRenewableProducers
+using EnergyModelsInvestments
 using EnergyModelsHeat
 using Dates
 using JSON

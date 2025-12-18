@@ -17,6 +17,9 @@ The usage of the package is best illustrated through the commented examples.
 The examples are minimum working examples highlighting how to use the receding horizon framework.
 In addition, they provide a user with an overview regarding potential adjustments to their elements.
 
+> [!CAUTION]
+> The MultipleBuildings node is currently under development and may contain incorrect implementation, and we suggest to not use this node currently.
+
 > [!WARNING]
 > The package is not yet registered.
 > It is hence necessary to first clone the package and manually add the package to the example environment through:
