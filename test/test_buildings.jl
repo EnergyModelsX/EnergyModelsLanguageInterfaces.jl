@@ -24,7 +24,7 @@
             value.(m[:buildings_deficit][buildings, t, p]) == 0.0 for
             t ∈ 𝒯, p ∈ building_res
         )
-        @test all(value.(m[:emissions_total][t, CO2]) > 0.001 for t ∈ 𝒯)
+        @test all(value.(m[:emissions_total][t, CO2]) > 1e3 for t ∈ 𝒯)
 
         # Test that the EMB function has_capacity is false for the MultipleBuildingTypes node.
         @test !EMB.has_capacity(buildings)

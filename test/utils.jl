@@ -170,7 +170,7 @@ function simple_graph_buildings(; cap_p = nothing,
     sources = [
         RefSource(
             "Source for " * resource.id,
-            FixedProfile(150),
+            FixedProfile(150e6),
             FixedProfile(120),
             FixedProfile(0),
             Dict(resource => 1.0),
@@ -212,7 +212,7 @@ function simple_graph_buildings(; cap_p = nothing,
 
     case = Case(T, products, [nodes, links], [[get_nodes, get_links]])
 
-    em_limits = Dict(CO2 => FixedProfile(1e4))   # Emission cap for CO₂ in t/year
+    em_limits = Dict(CO2 => FixedProfile(1e10))   # Emission cap for CO₂ in t/year
     em_cost = Dict(CO2 => FixedProfile(71.0))    # Emission price for CO₂ in €/t
     modeltype = OperationalModel(em_limits, em_cost, CO2)
     return case, modeltype, create_model(case, modeltype)

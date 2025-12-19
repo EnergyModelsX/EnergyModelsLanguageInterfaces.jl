@@ -510,7 +510,7 @@ function MultipleBuildingTypes(
                 if time_start <= date && date <= time_end
                     for (res, res_val) ∈ v
                         if !(res ∈ ["Datetime", "Variable cost [€]", "Emissions [KgCO2]"])
-                            push!(temp[res], res_val/1e6) # Scale power_outputs to MW
+                            push!(temp[res], res_val) # Scale power_outputs to MW
                         end
                     end
                 end
