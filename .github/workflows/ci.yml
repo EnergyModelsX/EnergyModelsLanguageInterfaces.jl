@@ -14,23 +14,29 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - version: '1'  # The latest point-release (Linux)
-            os: ubuntu-latest
-            arch: x64
-          - version: 'lts'  # The long term stable version (Linux) 
-            os: ubuntu-latest
-            arch: x64
-          - version: '1'
-            os: windows-latest
-            arch: x64
+          #- version: '1'  # The latest point-release (Linux)
+          #  os: ubuntu-latest
+          #  arch: x64
+          #- version: 'lts'  # The long term stable version (Linux) 
+          #  os: ubuntu-latest
+          #  arch: x64
+          #- version: '1'
+          #  os: windows-latest
+          #  arch: x64
           - version: 'lts'
             os: windows-latest
             arch: x64
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true  # Fetch the submodules
-          fetch-depth: 0  # full clone
+          submodules: true
+          fetch-depth: 0
+
+      # Recommended: ensure MSVC environment for conan/cmake on Windows
+      - name: Setup MSVC Dev Cmd
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
       - uses: ./.github/actions/before-script
       - uses: julia-actions/setup-julia@v2
         with:
@@ -67,5 +73,13 @@ jobs:
           & $conda "shell.powershell" "hook" | Out-String | Invoke-Expression
           conda activate testenv
 
-          julia --project=. -e "using Pkg; ENV[\"PYTHON\"] = joinpath(ENV[\"USERPROFILE\"], \"miniconda\", \"envs\", \"testenv\", \"python.exe\"); Pkg.build(\"PyCall\"); Pkg.test(; coverage=true)"
+          # Keep env scripts on PATH
+          $env:PATH = "$env:CONDA_PREFIX\Scripts;$env:CONDA_PREFIX;$env:PATH"
+
+          julia --project=. -e "
+            using Pkg;
+            ENV[\"PYTHON\"] = joinpath(ENV[\"USERPROFILE\"], \"miniconda\", \"envs\", \"testenv\", \"python.exe\");
+            Pkg.build(\"PyCall\");
+            Pkg.test(; coverage=true)
+          "
         shell: pwsh

@@ -57,6 +57,7 @@ runs:
 
         conda create --name testenv python=3.11 -y
         conda activate testenv
+        $env:PATH = "$env:CONDA_PREFIX\Scripts;$env:CONDA_PREFIX;$env:PATH"
         python -m pip install --upgrade pip
         conda install -c conda-forge poetry -y
         python -m pip install conan highspy
@@ -75,8 +76,8 @@ runs:
         New-Item -ItemType Directory -Force -Path "build" | Out-Null
         Set-Location "build"
 
-        python -m conan profile detect
-        python -m conan install .. --output-folder=. --build=missing -s compiler.cppstd=17 -s arch=x86_64
+        conan profile detect
+        conan install .. --output-folder=. --build=missing -s compiler.cppstd=17 -s arch=x86_64
 
         cmake .. -DCMAKE_TOOLCHAIN_FILE="$PWD\conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release
         cmake --build . --config Release
