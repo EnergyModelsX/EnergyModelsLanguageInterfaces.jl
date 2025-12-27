@@ -4,7 +4,7 @@ Wind power source generate electricity from wind sources.
 The implementation of the node is identical to that of [NonDisRES](@extref EnergyModelsRenewableProducers nodes-nondisres) and is here used to enable specialized constructors that samples the [`wind_power_timeseries`](https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries) module.
 
 !!! note "Sampling wind\_power\_timeseries module"
-    To use the constructor that samples the [`wind_power_timeseries`](https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries) module, follow the installation in the [Use nodes](@ref how_to-utilize-use_nodes) section.
+    To use the [constructor](@ref lib-pub-sampling_constructors) for [`WindPower`](@ref) that samples the [`wind_power_timeseries`](https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries) module, follow the installation in the [Use nodes](@ref how_to-utilize-use_nodes) section.
 
 ## [Introduced type and its field](@id nodes-WindPower-fields)
 

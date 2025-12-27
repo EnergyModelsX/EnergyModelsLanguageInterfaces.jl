@@ -2,8 +2,10 @@ using Documenter
 using DocumenterInterLinks
 using EnergyModelsBase
 using EnergyModelsRenewableProducers
+using EnergyModelsHeat
 using EnergyModelsLanguageInterfaces
 using TimeStruct
+using Dates
 using Literate
 
 const EMB = EnergyModelsBase

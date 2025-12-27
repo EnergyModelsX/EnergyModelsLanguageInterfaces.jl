@@ -3,7 +3,7 @@
 The [`BioCHP`](@ref) node represents a biomass-fired combined heat and power (CHP) plant.
 
 !!! note "Sampling CHP_modelling module"
-    To use the constructor that samples the [CHP_modelling](https://github.com/iDesignRES/CHP_modelling) module, follow the installation in the [Use nodes](@ref how_to-utilize-use_nodes) section.
+    To use the [constructor](@ref lib-pub-sampling_constructors) that samples the [CHP_modelling](https://github.com/iDesignRES/CHP_modelling) module, follow the installation in the [Use nodes](@ref how_to-utilize-use_nodes) section.
 
 The `BioCHP` utilizes linear, time-independent conversion rates from the `input` [`Resource`](@extref EnergyModelsBase.Resource)s to the `output` [`Resource`](@extref EnergyModelsBase.Resource)s, subject to the available capacity.
 The capacity is normalized such that a conversion value of 1 corresponds to the nominal capacity in the fields `input` and `output`.

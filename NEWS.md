@@ -2,6 +2,11 @@
 
 ## Version 0.1.0 (2025-04-xx)
 
+### Improve documentation (2026-01-06)
+
+* Added documentation for the node and a `how-to` section for the sampling constructors of these nodes.
+* Added CI test runs for windows
+
 ### Adjust for updates in submodules and update descriptive names for the EMGUI extension (2025-10-17)
 
 * Adjust for updates in submodules

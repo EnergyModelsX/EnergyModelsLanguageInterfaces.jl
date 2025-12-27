@@ -3,6 +3,10 @@
 The [`MultipleBuildingTypes`](@ref) node creates sinks for all demand resources with penalties for both surplus and deficit.
 The implementation uses `Dict` structures for the fields `cap`, `penalty_surplus`, and `penalty_deficit` to facilitate multiple [Resource](@extref EnergyModelsBase.Resource)s.
 This approach allows modeling building demands with flexible penalty mechanisms for over- and under-supply.
+The type is also used to enable specialized constructors that samples the [`Tecnalia_Building-Stock-Energy-Model`](https://github.com/iDesignRES/Tecnalia_Building-Stock-Energy-Model) module.
+
+!!! note "Sampling Tecnalia_Building-Stock-Energy-Model module"
+    To use the [constructor](@ref lib-pub-sampling_constructors) for [`MultipleBuildingTypes`](@ref) that samples the [`Tecnalia_Building-Stock-Energy-Model`](https://github.com/iDesignRES/Tecnalia_Building-Stock-Energy-Model) module, follow the installation in the [Use nodes](@ref how_to-utilize-use_nodes) section.
 
 !!! danger
     Investments are currently not available for this node.

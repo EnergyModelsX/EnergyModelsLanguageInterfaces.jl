@@ -47,7 +47,8 @@ end
         output::Dict{<:Resource,<:Real};
         data::Vector{<:Data} = Data[],
         method::String = "Ninja",
-        data_path::String = ""
+        data_path::String = "",
+        source::String = "NORA3",
     )
 
 Constructs a [`WindPower`](@ref) instance where the power production profile is sampled from
@@ -86,6 +87,10 @@ a Python function.
   an empty datapath.
 - **`source`** is the data source for wind data. The user can choose between the strings
   "NORA3" and "ERA5". The default value is "NORA3".
+
+!!! note "Usage of the ERA5 data source in wind_power_timeseries"
+    For use of the "ERA5" data source, the user needs to register and obtain a CDS API key.
+    -  Perform step 1: https://cds.climate.copernicus.eu/how-to-api
 """
 function WindPower(
     id::Any,

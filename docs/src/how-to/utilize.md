@@ -117,11 +117,11 @@ An example is given by the *[trippling_module example](https://github.com/Energy
 
 ## [Use implemented nodes](@id how_to-utilize-use_nodes)
 
-The nodes [`WindPower`](@ref WindPower), [`CSPandPV`](@ref CSPandPV) and [`MultipleBuildingTypes`](@ref MultipleBuildingTypes) have constructors that samples [wind_power_timeseries](https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries), [Tecnalia_Solar-Energy-Model](https://github.com/iDesignRES/Tecnalia_Solar-Energy-Model) and [Tecnalia_Building-Stock-Energy-Model](https://github.com/iDesignRES/Tecnalia_Building-Stock-Energy-Model), respectively. These modules are python based and the usage of these constructors requires installation of these as documented [below](@ref how_to-utilize-use_nodes-python_modules).
+The nodes [`WindPower`](@ref WindPower), [`CSPandPV`](@ref CSPandPV) and [`MultipleBuildingTypes`](@ref MultipleBuildingTypes) have [constructors](@ref lib-pub-sampling_constructors) that samples [`wind_power_timeseries`](https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries), [`Tecnalia_Solar-Energy-Model`](https://github.com/iDesignRES/Tecnalia_Solar-Energy-Model) and [`Tecnalia_Building-Stock-Energy-Model`](https://github.com/iDesignRES/Tecnalia_Building-Stock-Energy-Model), respectively. These modules are python based and the usage of these [constructors](@ref lib-pub-sampling_constructors) requires installation of these as documented [below](@ref how_to-utilize-use_nodes-python_modules).
 
-Additionally, the node [`BioCHP`](@ref BioCHP) have a constructor that samples the [CHP_modelling](https://github.com/iDesignRES/CHP_modelling) module. This module is `C++` based and the constructor then requires compilation and build before usage as described further [below](@ref how_to-utilize-use_nodes-cpp_modules).
+Additionally, the node [`BioCHP`](@ref BioCHP) have a [constructor](@ref lib-pub-sampling_constructors) that samples the [CHP_modelling](https://github.com/iDesignRES/CHP_modelling) module. This module is `C++` based and the [constructor](@ref lib-pub-sampling_constructors) then requires compilation and build before usage as described further [below](@ref how_to-utilize-use_nodes-cpp_modules).
 
-The following installation guides will show how to install the modules to enable usage of these constructors for Windows. 
+The following installation guides will show how to install the modules to enable usage of these [constructors](@ref lib-pub-sampling_constructors) for both Windows and Linux. 
 
 ### [Clone repositories](@id how_to-utilize-use_nodes-clone_repos)
 
@@ -187,26 +187,6 @@ cd ../..
 !!! note "Environments"
     If you are a developer, you probably want to install the python modules in a separate environment which can be done with, e.g., [miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install).
 
-### [Install C++ modules](@id how_to-utilize-use_nodes-cpp_modules)
-
-Start by installing [`conan`](https://pypi.org/project/conan/)
-
-```PowerShell
-pip install conan
-```
-
-Navigate to the `CHP_modelling` folder, build and install the module with the following
-
-```PowerShell
-cd submodules/CHP_modelling
-mkdir build
-cd build
-conan install .. --output-folder=. --build=missing -s compiler.cppstd=17 -s arch=x86_64
-cmake .. -DCMAKE_TOOLCHAIN_FILE="${PWD}/conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release
-cmake --build . --config Release
-cd ../../..
-```
-
 Enable these by starting a julia session in the main folder
 
 ```PowerShell
@@ -230,6 +210,26 @@ followed by restarting Julia.
     ```PowerShell
     (Get-Command python).Source
     ```
+
+### [Install C++ modules](@id how_to-utilize-use_nodes-cpp_modules)
+
+Start by installing [`conan`](https://pypi.org/project/conan/)
+
+```PowerShell
+pip install conan
+```
+
+Navigate to the `CHP_modelling` folder, build and install the module with the following
+
+```PowerShell
+cd submodules/CHP_modelling
+mkdir build
+cd build
+conan install .. --output-folder=. --build=missing -s compiler.cppstd=17 -s arch=x86_64
+cmake .. -DCMAKE_TOOLCHAIN_FILE="${PWD}/conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release
+cmake --build . --config Release
+cd ../../..
+```
 
 ### [Install modules on linux](@id how_to-utilize-use_nodes-linux)
 
@@ -293,7 +293,7 @@ followed by restarting Julia.
 
 ### [Test modules](@id how_to-utilize-use_nodes-test)
 
-All the mentioned constructors have been included in the tests of the repository and you may therefore check if everyting is properly setup by running these in julia.
+All the mentioned [constructors](@ref lib-pub-sampling_constructors) have been included in the tests of the repository and you may therefore check if everyting is properly setup by running these in julia.
 
 !!! note "Requirements"
     The tests assumes that all modules listed in the [Install python modules](@ref how_to-utilize-use_nodes-python_modules) section and the [Install C++ modules](@ref how_to-utilize-use_nodes-cpp_modules) section has been installed.
@@ -313,4 +313,4 @@ Pkg.test()
 
 ### [Utilize constructors](@id how_to-utilize-constructors)
 
-For detailed information on how to use the constructors, refer to the [test/utils.jl](https://github.com/EnergyModelsX/EnergyModelsLanguageInterfaces.jl/blob/main/test/utils.jl) file, which contains minimum working examples for both sampling the models and using saved sampled data.
+For detailed information on how to use the [constructors](@ref lib-pub-sampling_constructors), refer to the [test/utils.jl](https://github.com/EnergyModelsX/EnergyModelsLanguageInterfaces.jl/blob/main/test/utils.jl) file, which contains minimum working examples for both sampling the models and using saved sampled data.

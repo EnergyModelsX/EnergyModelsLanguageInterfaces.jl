@@ -5,7 +5,7 @@ The implementation of the node is similar to that of [NonDisRES](@extref EnergyM
 The type is also used to enable specialized constructors that samples the [Tecnalia_Solar-Energy-Model](https://github.com/iDesignRES/Tecnalia_Solar-Energy-Model) module.
 
 !!! note "Sampling Tecnalia_Solar-Energy-Model module"
-    To use the constructor that samples the [Tecnalia_Solar-Energy-Model](https://github.com/iDesignRES/Tecnalia_Solar-Energy-Model) module, follow the installation in the [Use nodes](@ref how_to-utilize-use_nodes) section.
+    To use the [constructor](@ref lib-pub-sampling_constructors) for [`CSPandPV`](@ref) that samples the [Tecnalia_Solar-Energy-Model](https://github.com/iDesignRES/Tecnalia_Solar-Energy-Model) module, follow the installation in the [Use nodes](@ref how_to-utilize-use_nodes) section.
 
 !!! danger
     Investments are currently not available for this node.
