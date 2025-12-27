@@ -44,55 +44,40 @@ runs:
     - name: Install Windows dependencies + Miniconda + python/cpp modules
       if: runner.os == 'Windows'
       run: |
-        # Install conan (use py -m pip to be explicit on Windows)
-        py -m pip install --upgrade pip
-        py -m pip install conan
-
-        # Download & install Miniconda silently into %USERPROFILE%\miniconda
+        # Download & install Miniconda into %USERPROFILE%\miniconda
         $installer = Join-Path $env:RUNNER_TEMP "Miniconda3-latest-Windows-x86_64.exe"
         Invoke-WebRequest -Uri "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe" -OutFile $installer
 
         $target = Join-Path $env:USERPROFILE "miniconda"
         Start-Process -FilePath $installer -ArgumentList "/InstallationType=JustMe", "/S", "/D=$target" -Wait
 
-        # Initialize conda in this PowerShell session
-        $conda = Join-Path $env:USERPROFILE "miniconda\Scripts\conda.exe"
+        # Initialize conda for this PowerShell session
+        $conda = Join-Path $target "Scripts\conda.exe"
         & $conda "shell.powershell" "hook" | Out-String | Invoke-Expression
 
-        conda --version
-
-        # Create env + install poetry
         conda create --name testenv python=3.11 -y
         conda activate testenv
+        python -m pip install --upgrade pip
         conda install -c conda-forge poetry -y
-
-        # Some Python deps in your docs mention highspy on Windows for the test module
-        # Keep it here to match your documented Windows setup.
-        pip install highspy
+        python -m pip install conan highspy
 
         # Poetry installs
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "test\python_module")
         poetry install
-        Set-Location $env:GITHUB_WORKSPACE
-
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\wind_power_timeseries")
         poetry install
-        Set-Location $env:GITHUB_WORKSPACE
-
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\Tecnalia_Solar-Energy-Model")
         poetry install
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\Tecnalia_Building-Stock-Energy-Model")
         poetry install
-        Set-Location $env:GITHUB_WORKSPACE
 
-        # Build C++ module (MSVC toolchain is available on windows-latest)
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\CHP_modelling")
         New-Item -ItemType Directory -Force -Path "build" | Out-Null
         Set-Location "build"
 
-        conan profile detect
+        python -m conan profile detect
+        python -m conan install .. --output-folder=. --build=missing -s compiler.cppstd=17 -s arch=x86_64
 
-        conan install .. --output-folder=. --build=missing -s compiler.cppstd=17 -s arch=x86_64
         cmake .. -DCMAKE_TOOLCHAIN_FILE="$PWD\conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release
         cmake --build . --config Release
 
