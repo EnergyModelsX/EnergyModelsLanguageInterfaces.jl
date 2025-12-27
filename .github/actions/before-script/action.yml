@@ -59,7 +59,7 @@ runs:
         conda activate testenv
         $env:PATH = "$env:CONDA_PREFIX\Scripts;$env:CONDA_PREFIX;$env:PATH"
         python -m pip install --upgrade pip
-        conda install -c conda-forge -y poetry highs highspy
+        conda install -c conda-forge -y poetry highs highspy conan
 
         # Check highs installation
         where.exe highs
