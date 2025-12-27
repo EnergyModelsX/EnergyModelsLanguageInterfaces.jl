@@ -1,3 +1,4 @@
+from sys import platform
 import pyomo.environ as pyo
 
 def solve_optimization_problem(input_data):
@@ -20,7 +21,11 @@ def solve_optimization_problem(input_data):
     # Define constraints
     model.constraint = pyo.Constraint(expr=model.x + 2 * model.y + model.z <= 1)
     # Solve the optimization problem
-    solver = pyo.SolverFactory("appsi_highs")
+    if platform.system() == "Windows":
+        solver = pyo.SolverFactory("appsi_highs")   # uses highspy
+    else:
+        solver = pyo.SolverFactory("highs")         # uses highs executable
+
     solver.solve(model, tee=False)
     # Extract results
     x_value = model.x.value
