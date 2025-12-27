@@ -72,14 +72,7 @@ jobs:
           $conda = Join-Path $env:USERPROFILE "miniconda\Scripts\conda.exe"
           & $conda "shell.powershell" "hook" | Out-String | Invoke-Expression
           conda activate testenv
+          $env:PATH = "$env:CONDA_PREFIX;$env:CONDA_PREFIX\Scripts;$env:PATH"
 
-          # Keep env scripts on PATH
-          $env:PATH = "$env:CONDA_PREFIX\Scripts;$env:CONDA_PREFIX;$env:PATH"
-
-          julia --project=. -e "
-            using Pkg;
-            ENV[\"PYTHON\"] = joinpath(ENV[\"USERPROFILE\"], \"miniconda\", \"envs\", \"testenv\", \"python.exe\");
-            Pkg.build(\"PyCall\");
-            Pkg.test(; coverage=true)
-          "
+          julia --project=. -e 'using Pkg; ENV["PYTHON"] = joinpath(ENV["USERPROFILE"], "miniconda", "envs", "testenv", "python.exe"); Pkg.build("PyCall"); Pkg.test(; coverage=true)'
         shell: pwsh
