@@ -715,8 +715,11 @@ library file located at `libpath`. The BioCHP has electricity production of the 
 - **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments).
 - **`libpath`** is the absolute path of the `CHP_modelling` library file.
 
-!!! note ""EmissionsEnergy"
+!!! note "EmissionsEnergy"
     If `EmissionsEnergy` is not included in the `data` field, it is automatically added.
+
+!!! note "Running on windows"
+    Adjust the `libpath` to point to the correct `.dll` file when running on Windows.
 """
 function BioCHP(
     id::Any,

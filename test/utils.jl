@@ -324,14 +324,25 @@ function simple_graph_biochp(; output = nothing)
         BioBirchStem => 0.3,
         BioSpruceTB => 0.4,
     )
-    libpath = joinpath(
-        pkgdir(EMLI),
-        "submodules",
-        "CHP_modelling",
-        "build",
-        "lib",
-        "libbioCHP_wrapper.so",
-    )
+    libpath::String = if Sys.iswindows()
+        joinpath(
+            pkgdir(EMLI),
+            "submodules",
+            "CHP_modelling",
+            "build",
+            "Release",
+            "bioCHP_wrapper.dll",
+        )
+    else
+        joinpath(
+            pkgdir(EMLI),
+            "submodules",
+            "CHP_modelling",
+            "build",
+            "lib",
+            "libbioCHP_wrapper.so",
+        )
+    end
 
     if isnothing(output)
         bio_chp = BioCHP(
