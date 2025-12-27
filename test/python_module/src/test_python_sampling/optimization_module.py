@@ -20,7 +20,7 @@ def solve_optimization_problem(input_data):
     # Define constraints
     model.constraint = pyo.Constraint(expr=model.x + 2 * model.y + model.z <= 1)
     # Solve the optimization problem
-    solver = pyo.SolverFactory("highs")
+    solver = pyo.SolverFactory("appsi_highs")
     solver.solve(model, tee=False)
     # Extract results
     x_value = model.x.value
