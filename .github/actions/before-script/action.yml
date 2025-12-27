@@ -59,8 +59,11 @@ runs:
         conda activate testenv
         $env:PATH = "$env:CONDA_PREFIX\Scripts;$env:CONDA_PREFIX;$env:PATH"
         python -m pip install --upgrade pip
-        conda install -c conda-forge poetry -y
-        python -m pip install conan highspy
+        conda install -c conda-forge -y poetry highs highspy
+
+        # Check highs installation
+        where.exe highs
+        highs --version
 
         # Poetry installs
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "test\python_module")
