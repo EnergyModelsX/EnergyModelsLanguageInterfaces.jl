@@ -16,6 +16,7 @@ runs:
         conda create --name testenv python=3.11 -y
         conda activate testenv
         conda install -c conda-forge -y poetry highs highspy conan
+        conan profile detect
 
         cd "$GITHUB_WORKSPACE/test/python_module"
         poetry install
@@ -58,6 +59,7 @@ runs:
         $env:PATH = "$env:CONDA_PREFIX\Scripts;$env:CONDA_PREFIX;$env:PATH"
         python -m pip install --upgrade pip
         conda install -c conda-forge -y poetry highs highspy conan
+        conan profile detect
 
         # Check highs installation
         where.exe highs
@@ -77,7 +79,6 @@ runs:
         New-Item -ItemType Directory -Force -Path "build" | Out-Null
         Set-Location "build"
 
-        conan profile detect
         conan install .. --output-folder=. --build=missing -s compiler.cppstd=17 -s arch=x86_64
 
         cmake .. -DCMAKE_TOOLCHAIN_FILE="$PWD\conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release

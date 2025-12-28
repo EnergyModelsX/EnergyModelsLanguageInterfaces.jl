@@ -217,6 +217,7 @@ Start by installing [`conan`](https://pypi.org/project/conan/)
 
 ```PowerShell
 pip install conan
+conan profile detect
 ```
 
 Navigate to the `CHP_modelling` folder, build and install the module with the following
