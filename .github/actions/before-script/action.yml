@@ -8,8 +8,6 @@ runs:
       run: |
         sudo apt-get update -qq
         sudo apt-get install -y git g++ cmake wget curl python3-pip
-        pip install conan
-        conan profile detect
         wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
         bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
         echo "$HOME/miniconda/bin" >> $GITHUB_PATH
@@ -17,7 +15,7 @@ runs:
 
         conda create --name testenv python=3.11 -y
         conda activate testenv
-        conda install -c conda-forge poetry -y
+        conda install -c conda-forge -y poetry highs highspy conan
 
         cd "$GITHUB_WORKSPACE/test/python_module"
         poetry install
