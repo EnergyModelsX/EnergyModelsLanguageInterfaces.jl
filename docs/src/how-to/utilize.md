@@ -213,7 +213,7 @@ followed by restarting Julia.
 
 ### [Install C++ modules](@id how_to-utilize-use_nodes-cpp_modules)
 
-Start by installing [`conan`](https://pypi.org/project/conan/)
+Start by installing [`conan`](https://pypi.org/project/conan/) and create a default profile
 
 ```PowerShell
 pip install conan
