@@ -1,4 +1,4 @@
-from sys import platform
+import platform
 import pyomo.environ as pyo
 
 def solve_optimization_problem(input_data):
