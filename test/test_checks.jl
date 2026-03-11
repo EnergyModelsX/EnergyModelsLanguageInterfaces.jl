@@ -16,6 +16,21 @@ EMB.TEST_ENV = true
     @test_throws AssertionError simple_graph_wind(; output = Dict(Power => -0.9))
 end
 
+@testset "Test checks - PV" begin
+    # Test that a wrong capacity is caught by the checks
+    @test_throws AssertionError simple_graph_pv(; cap = FixedProfile(-25))
+
+    # Test that a wrong profile is caught by the checks
+    @test_throws AssertionError simple_graph_pv(; profile = FixedProfile(-0.5))
+    @test_throws AssertionError simple_graph_pv(; profile = FixedProfile(1.5))
+
+    # Test that a wrong fixed OPEX is caught by the checks
+    @test_throws AssertionError simple_graph_pv(; opex_fixed = FixedProfile(-5))
+
+    # Test that a wrong output dictionary is caught
+    @test_throws AssertionError simple_graph_pv(; output = Dict(Power => -0.9))
+end
+
 @testset "Test checks - MultipleBuildingTypes" begin
     # Test missing resource in cap
     @test_throws AssertionError simple_graph_buildings(;

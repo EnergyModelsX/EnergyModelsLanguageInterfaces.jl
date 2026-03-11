@@ -1,3 +1,54 @@
+abstract type AbstractParameters end
+
+"""
+    PVParameters(; lat::Real, lon::Real, peakpower::Real = 1.0, loss::Real = 14.0, 
+        pvtechchoice::String = "crystSi", mountingplace::String = "free", 
+        optimalangles::Bool = true, usehorizon::Bool = true, 
+        data_path::String = "pvgis_cache", filename_hint::String = "", 
+        normalize::Bool = true, no_weather_years::Int = 1
+    )
+
+A structure to hold parameters for photovoltaic (PV) power generation.
+
+# Fields
+- **`lat::Real`**: Latitude of the location in decimal degrees (e.g., 52.0 for 52°N).
+- **`lon::Real`**: Longitude of the location in decimal degrees (e.g., 13.0 for 13°E).
+- **`peakpower::Real=1.0`**: Nominal peak power of the PV system in kilowatts (kW).
+- **`loss::Real=14.0`**: Total system losses in percentage (e.g., 14.0 for 14% losses).
+- **`pvtechchoice::String="crystSi"`**: Type of PV technology. Options include:
+    - `"crystSi"`: Crystalline silicon (default).
+    - `"CIS"`: Copper indium selenide.
+    - `"CdTe"`: Cadmium telluride.
+- **`mountingplace::String="free"`**: Mounting type of the PV system. Options include:
+    - `"free"`: Free-standing system (default).
+    - `"building"`: Building-integrated system.
+- **`optimalangles::Bool=true`**: Whether to use optimal tilt and azimuth angles for the PV system.
+- **`usehorizon::Bool=true`**: Whether to include the effect of the horizon in the calculations.
+"""
+struct PVParameters <: AbstractParameters
+    lat::Real
+    lon::Real
+    peakpower::Real
+    loss::Real
+    pvtechchoice::String
+    mountingplace::String
+    optimalangles::Bool
+    usehorizon::Bool
+end
+function PVParameters(
+    lat::Real,
+    lon::Real;
+    peakpower::Real = 1.0,
+    loss::Real = 14.0,
+    pvtechchoice::String = "crystSi",
+    mountingplace::String = "free",
+    optimalangles::Bool = true,
+    usehorizon::Bool = true,
+)
+    return PVParameters(lat, lon, peakpower, loss, pvtechchoice, mountingplace,
+        optimalangles, usehorizon)
+end
+
 """
     WindPower <: AbstractNonDisRES
 
@@ -119,6 +170,100 @@ function WindPower(
     profile = OperationalProfile(power)
 
     return WindPower(id, cap, profile, opex_var, opex_fixed, output, data)
+end
+
+"""
+    PV <: AbstractNonDisRES
+
+A photovoltaic source. It extends the existing `AbstractNonDisRES` node through extracting
+data from the PVGIS tool from the EU Science Hub (available at https://re.jrc.ec.europa.eu/pvg_tools) 
+through a constructor.
+
+# Fields
+- **`id`** is the name/identifyer of the node.
+- **`cap::TimeProfile`** is the installed capacity.
+- **`profile::TimeProfile`** is the power production in each operational period as a ratio
+  of the installed capacity at that time.
+- **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
+- **`opex_fixed::TimeProfile`** is the fixed operating expense.
+- **`output::Dict{Resource, Real}`** are the generated `Resource`s, normally Power.
+- **`data::Vector{<:Data}`** is the additional data (e.g. for investments). The field `data`
+  is conditional through usage of a constructor.
+"""
+struct PV <: AbstractNonDisRES
+    id::Any
+    cap::TimeProfile
+    profile::TimeProfile
+    opex_var::TimeProfile
+    opex_fixed::TimeProfile
+    output::Dict{<:Resource,<:Real}
+    data::Vector{<:Data}
+end
+function PV(
+    id::Any,
+    cap::TimeProfile,
+    profile::TimeProfile,
+    opex_var::TimeProfile,
+    opex_fixed::TimeProfile,
+    output::Dict{<:Resource,<:Real},
+)
+    return PV(id, cap, profile, opex_var, opex_fixed, output, Data[])
+end
+
+"""
+    PV(
+        id::Any,
+        cap::TimeProfile,
+        time_start::DateTime,
+        time_end::DateTime,
+        opex_var::TimeProfile,
+        opex_fixed::TimeProfile,
+        output::Dict{<:Resource,<:Real},
+        params::PVParameters;
+        data::Vector{<:Data} = Data[],
+        data_path::String = "pvgis_cache",
+        filename_hint::String = "",
+    )
+
+Constructs a [`PV`](@ref) instance where the power production profile is sampled from
+the PVGIS API.
+
+# Arguments
+- **`id`**: The name or identifier of the node.
+- **`cap`**: The installed capacity.
+- **`time_start::DateTime`**: The start of the time range for which the PV output data is requested.
+- **`time_end::DateTime`**: The end of the time range for which the PV output data is requested.
+- **`opex_var`**: The variable operating expense per energy unit produced.
+- **`opex_fixed`**: The fixed operating expense.
+- **`output`**: The generated `Resource`s, normally Power, with conversion value `Real`.
+- **`params::PVParameters`**: Parameters for the PV system.
+
+# Keyword arguments
+- **`data`**: Additional data (e.g., for investments). Default is no `data`.
+- **`data_path`**: Directory where the cached CSV file will be stored. Default is `"pvgis_cache"`.
+- **`filename_hint`**: Optional string to include in the cache file name for identification. Default is `""`.
+"""
+function PV(
+    id::Any,
+    cap::TimeProfile,
+    time_start::DateTime,
+    time_end::DateTime,
+    opex_var::TimeProfile,
+    opex_fixed::TimeProfile,
+    output::Dict{<:Resource,<:Real},
+    params::PVParameters;
+    data::Vector{<:Data} = Data[],
+    data_path::String = "pvgis_cache",
+    filename_hint::String = "",
+)
+    df = pvgis_profile(time_start, params;
+        data_path,
+        filename_hint,
+    )
+    df = filter(row -> time_start <= row."time_utc" <= time_end, df)
+    profile = OperationalProfile(df.pv)
+
+    return PV(id, cap, profile, opex_var, opex_fixed, output, data)
 end
 
 """
