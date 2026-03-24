@@ -1,8 +1,9 @@
-# [PV and CSV source node](@id nodes-CSPandPV)
+# [PV and CSP source node](@id nodes-CSPandPV)
 
-PV and CSP source generate, respectively, electricity and heat from solar power. 
-The implementation of the node is similar to that of [NonDisRES](@extref EnergyModelsRenewableProducers nodes-nondisres) but uses `Dict` structures for the fields `cap`, `profile`, `opex_var` and `opex_fixed` to facilitate multiple [Resource](@extref EnergyModelsBase.Resource)s (both electricity and heat outputs). 
-The type is also used to enable specialized constructors that samples the [Tecnalia_Solar-Energy-Model](https://github.com/iDesignRES/Tecnalia_Solar-Energy-Model) module.
+PV and CSP source nodes can generate multiple different resources simultaneously.
+The standard approach would be to include electricity and heat from solar power, both *via* solar PV and concentrated solar power.
+The implementation of the node is hence similar to that of [`NonDisRES`](@extref EnergyModelsRenewableProducers nodes-nondisres) but uses dictionaries for the fields `cap`, `profile`, `opex_var` and `opex_fixed` to facilitate multiple [`Resource`](@extref EnergyModelsBase.Resource)s (both electricity and heat outputs).
+The type is also used to enable a specialized constructor that samples the [Tecnalia_Solar-Energy-Model](https://github.com/iDesignRES/Tecnalia_Solar-Energy-Model) module.
 
 !!! note "Sampling Tecnalia_Solar-Energy-Model module"
     To use the [constructor](@ref lib-pub-sampling_constructors) for [`CSPandPV`](@ref) that samples the [Tecnalia_Solar-Energy-Model](https://github.com/iDesignRES/Tecnalia_Solar-Energy-Model) module, follow the installation in the [Use nodes](@ref how_to-utilize-use_nodes) section.
@@ -17,7 +18,7 @@ Hence, it utilizes the same functions declared in `EnergyModelsBase`.
 
 ### [Standard fields](@id nodes-CSPandPV-fields-stand)
 
-Standard fields (of a [`AbstractNonDisRES`](@extref EnergyModelsRenewableProducers.AbstractNonDisRES)) being reused are given as:
+Standard fields (of an [`AbstractNonDisRES`](@extref EnergyModelsRenewableProducers.AbstractNonDisRES)) being reused are given as:
 
 - **`id`**:\
   The field `id` is only used for providing a name to the node.
@@ -46,7 +47,7 @@ Standard fields (of a [`AbstractNonDisRES`](@extref EnergyModelsRenewableProduce
   The profiles should be provided as `OperationalProfile` or at least as `RepresentativeProfile`.
   In addition, all values should be in the range ``[0, 1]``.
 - **`opex_var::Dict{<:Resource,<:TimeProfile}`**:\
-  The variable operational expenses are based on the capacity utilization through the variable [`:cap_use`](@extref EnergyModelsBase man-opt_var-cap) for each of the produced resources.
+  The variable operating expenses are based on the capacity utilization through the variable [`:cap_use`](@extref EnergyModelsBase man-opt_var-cap) for each of the produced resources.
   Hence, it is directly related to the specified `output` ratios.
   The variable operating expenses can be provided as `OperationalProfile` as well.
 - **`opex_fixed::Dict{<:Resource,<:TimeProfile}`**:\
@@ -65,7 +66,7 @@ with square brackets, while functions are represented as
 
 ``func\_example(index_1, index_2)``
 
-with paranthesis.
+with parantheses.
 
 ### [Variables](@id nodes-CSPandPV-math-var)
 
@@ -79,7 +80,7 @@ The variables include:
 - [``\texttt{cap\_inst}``](@extref EnergyModelsBase man-opt_var-cap)
 - [``\texttt{flow\_out}``](@extref EnergyModelsBase man-opt_var-flow)
 - [``\texttt{emissions\_node}``](@extref EnergyModelsBase man-opt_var-emissions) if `EmissionsData` is added to the field `data`.
-- [``\texttt{curtailment}[n, t]``](@extref EnergyModelsRenewableProducers nodes-nondisres-math-add): For [`CSPandPV`](@ref), this variable is the sum of curtailed capacity of source ``n`` in operational period ``t``.\
+- [``\texttt{curtailment}[n, t]``](@extref EnergyModelsRenewableProducers nodes-nondisres-math-add): For [`CSPandPV`](@ref), this variable is the sum of curtailed energy (as rate) of source ``n`` in operational period ``t``.\
 
 !!! note
     Non-dispatchable renewable energy source nodes are not compatible with `CaptureData`.

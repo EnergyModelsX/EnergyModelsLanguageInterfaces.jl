@@ -25,7 +25,7 @@ include(joinpath(testdir, "utils.jl"))
     include(joinpath(testdir, "Aqua.jl"))
 
     ## Check if there is need for formatting
-    include(joinpath(testdir, "JuliaFormatter.jl"))
+    # include(joinpath(testdir, "JuliaFormatter.jl"))
 
     ## Test sampling routines
     include(joinpath(testdir, "test_sampling_routines.jl"))

@@ -17,7 +17,7 @@ output = EMLI.call_python_function("my_python_package", "my_func"; input)
     If you want to install non-standard python packages and/or you want to sample
     a local package you must create a conda environment (using a conda installation),
     or an other environment management system (not tested yet), and install required
-    packages there. E.g.,
+    packages there. *e.g.*,
 
     ```bash
     conda create --name testenv python=3.10
@@ -97,6 +97,7 @@ In Julia you can now activate your project and add `CxxWrap` through
 using CxxWrap
 CxxWrap.prefix_path()
 ```
+
 which should return `"/home/user/.julia/dev/libcxxwrap_julia_jll/override"`.
 
 !!! note
@@ -117,11 +118,13 @@ An example is given by the *[trippling_module example](https://github.com/Energy
 
 ## [Use implemented nodes](@id how_to-utilize-use_nodes)
 
-The nodes [`WindPower`](@ref WindPower), [`CSPandPV`](@ref CSPandPV) and [`MultipleBuildingTypes`](@ref MultipleBuildingTypes) have [constructors](@ref lib-pub-sampling_constructors) that samples [`wind_power_timeseries`](https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries), [`Tecnalia_Solar-Energy-Model`](https://github.com/iDesignRES/Tecnalia_Solar-Energy-Model) and [`Tecnalia_Building-Stock-Energy-Model`](https://github.com/iDesignRES/Tecnalia_Building-Stock-Energy-Model), respectively. These modules are python based and the usage of these [constructors](@ref lib-pub-sampling_constructors) requires installation of these as documented [below](@ref how_to-utilize-use_nodes-python_modules).
+The nodes [`WindPower`](@ref WindPower), [`CSPandPV`](@ref CSPandPV) and [`MultipleBuildingTypes`](@ref MultipleBuildingTypes) have *[constructors](@ref lib-pub-sampling_constructors)* that sample [`wind_power_timeseries`](https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries), [`Tecnalia_Solar-Energy-Model`](https://github.com/iDesignRES/Tecnalia_Solar-Energy-Model) and [`Tecnalia_Building-Stock-Energy-Model`](https://github.com/iDesignRES/Tecnalia_Building-Stock-Energy-Model), respectively.
+These modules are python based and the usage of these *[constructors](@ref lib-pub-sampling_constructors)* requires installation of these as documented *[below](@ref how_to-utilize-use_nodes-python_modules)*.
 
-Additionally, the node [`BioCHP`](@ref BioCHP) have a [constructor](@ref lib-pub-sampling_constructors) that samples the [CHP_modelling](https://github.com/iDesignRES/CHP_modelling) module. This module is `C++` based and the [constructor](@ref lib-pub-sampling_constructors) then requires compilation and build before usage as described further [below](@ref how_to-utilize-use_nodes-cpp_modules).
+Additionally, the node [`BioCHP`](@ref BioCHP) has a *[constructor](@ref lib-pub-sampling_constructors)* that samples the [CHP_modelling](https://github.com/iDesignRES/CHP_modelling) module.
+This module is `C++` based and the [constructor](@ref lib-pub-sampling_constructors) then requires compilation and build before usage as described further [below](@ref how_to-utilize-use_nodes-cpp_modules).
 
-The following installation guides will show how to install the modules to enable usage of these [constructors](@ref lib-pub-sampling_constructors) for both Windows and Linux. 
+The following installation guides will show how to install the modules to enable usage of these *[constructors](@ref lib-pub-sampling_constructors)* for both Windows and Linux.
 
 ### [Clone repositories](@id how_to-utilize-use_nodes-clone_repos)
 
@@ -131,7 +134,7 @@ Navigate to a folder in which you want to download required repositories and run
 git clone --recurse-submodules git@github.com:EnergyModelsX/EnergyModelsLanguageInterfaces.jl.git
 ```
 
-You should now be enabled to enter the main folder in which the other modules are located (under the submodules folder)
+You should now be able to navigate to the main package folder in which the other modules are located (under the submodules folder)
 
 ```PowerShell
 cd EnergyModelsLanguageInterfaces.jl
@@ -140,10 +143,9 @@ cd EnergyModelsLanguageInterfaces.jl
 !!! note "Install git"
     If you do not have git available in your PowerShell, make sure to [download](https://git-scm.com/install/windows) and install it properly (make sure to enable adjustment of the PATH environment).
 
-
 ### [Install python modules](@id how_to-utilize-use_nodes-python_modules)
 
-The following installs the modules using [`poetry`](https://pypi.org/project/poetry/) in a PowerShell in [VS code](https://code.visualstudio.com/). 
+The following installs the modules using [`poetry`](https://pypi.org/project/poetry/) in a PowerShell in [VS code](https://code.visualstudio.com/).
 
 !!! note "Python installation"
     You must have a python installation available in the terminal in VS code.
@@ -185,7 +187,7 @@ cd ../..
 ```
 
 !!! note "Environments"
-    If you are a developer, you probably want to install the python modules in a separate environment which can be done with, e.g., [miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install).
+    If you are a developer, you probably want to install the python modules in a separate environment which can be done with, *e.g.*, [miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install).
 
 Enable these by starting a julia session in the main folder
 
@@ -294,7 +296,7 @@ followed by restarting Julia.
 
 ### [Test modules](@id how_to-utilize-use_nodes-test)
 
-All the mentioned [constructors](@ref lib-pub-sampling_constructors) have been included in the tests of the repository and you may therefore check if everyting is properly setup by running these in julia.
+All the mentioned [constructors](@ref lib-pub-sampling_constructors) have been included in the tests of the repository and you may therefore check if everything is properly set up by running these in julia.
 
 !!! note "Requirements"
     The tests assumes that all modules listed in the [Install python modules](@ref how_to-utilize-use_nodes-python_modules) section and the [Install C++ modules](@ref how_to-utilize-use_nodes-cpp_modules) section has been installed.

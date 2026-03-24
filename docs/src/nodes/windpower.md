@@ -1,7 +1,7 @@
 # [Wind power source node](@id nodes-WindPower)
 
-Wind power source generate electricity from wind sources. 
-The implementation of the node is identical to that of [NonDisRES](@extref EnergyModelsRenewableProducers nodes-nondisres) and is here used to enable specialized constructors that samples the [`wind_power_timeseries`](https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries) module.
+Wind power sources generate electricity from wind.
+The implementation of the node is identical to that of [NonDisRES](@extref EnergyModelsRenewableProducers nodes-nondisres) and is here used to enable a specialized constructor that samples the [`wind_power_timeseries`](https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries) module.
 
 !!! note "Sampling wind\_power\_timeseries module"
     To use the [constructor](@ref lib-pub-sampling_constructors) for [`WindPower`](@ref) that samples the [`wind_power_timeseries`](https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries) module, follow the installation in the [Use nodes](@ref how_to-utilize-use_nodes) section.
@@ -27,7 +27,7 @@ The standard fields (of a [`AbstractNonDisRES`](@extref EnergyModelsRenewablePro
   The profile should be provided as `OperationalProfile` or at least as `RepresentativeProfile`.
   In addition, all values should be in the range ``[0, 1]``.
 - **`opex_var::TimeProfile`**:\
-  The variable operational expenses are based on the capacity utilization through the variable [`:cap_use`](@extref EnergyModelsBase man-opt_var-cap).
+  The variable operating expenses are based on the capacity utilization through the variable [`:cap_use`](@extref EnergyModelsBase man-opt_var-cap).
   Hence, it is directly related to the specified `output` ratios.
   The variable operating expenses can be provided as `OperationalProfile` as well.
 - **`opex_fixed::TimeProfile`**:\
@@ -60,7 +60,7 @@ with square brackets, while functions are represented as
 
 ``func\_example(index_1, index_2)``
 
-with paranthesis.
+with parantheses.
 
 ### [Variables](@id nodes-WindPower-math-var)
 
@@ -75,8 +75,8 @@ The variables include:
 - [``\texttt{cap\_inst}``](@extref EnergyModelsBase man-opt_var-cap)
 - [``\texttt{flow\_out}``](@extref EnergyModelsBase man-opt_var-flow)
 - [``\texttt{emissions\_node}``](@extref EnergyModelsBase man-opt_var-emissions) if `EmissionsData` is added to the field `data`.
-- [``\texttt{curtailment}[n, t]``](@extref EnergyModelsRenewableProducers nodes-nondisres-math-add): Curtailed capacity of source ``n`` in operational period ``t`` with a typical unit of MW.\
-  The curtailed electricity specifies the unused generation capacity of the wind power source.
+- [``\texttt{curtailment}[n, t]``](@extref EnergyModelsRenewableProducers nodes-nondisres-math-add): Curtailed energy of source ``n`` in operational period ``t`` with a typical unit of MW.\
+  The curtailed electricity specifies the unused generation (as rate) of the wind power source.
   It is currently only used in the calculation, but not with a cost.
 
 !!! note

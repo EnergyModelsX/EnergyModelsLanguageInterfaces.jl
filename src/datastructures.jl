@@ -404,7 +404,8 @@ Constructs a `MultipleBuildingTypes` instance where the demand profiles are samp
 - **`process_pay_load`** is the process dictionary for the Python function.
 - **`time_start`** is the starting time for the sampling.
 - **`time_end`** is the ending time for the sampling.
-- **`buildings`** is a vector of the buildings to be considered. Any combination of the following building types is allowed:
+- **`buildings`** is a vector of the buildings to be considered. Any combination of the
+  following building types are allowed:
   - "Apartment Block"
   - "Single family- Terraced houses"
   - "Hotels and Restaurants"
@@ -414,7 +415,7 @@ Constructs a `MultipleBuildingTypes` instance where the demand profiles are samp
   - "Trade"
   - "Other non-residential buildings"
   - "Sport"
-- **`resources_map`** is a map of resource keys to `EMB.Resource`s. E.g., the dictionary
+- **`resources_map`** is a map of resource keys to `EMB.Resource`s, *e.g.*, the dictionary
 
   ```julia
   Coal = ResourceCarrier("Coal", 0.35)

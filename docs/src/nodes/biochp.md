@@ -6,10 +6,8 @@ The [`BioCHP`](@ref) node represents a biomass-fired combined heat and power (CH
     To use the [constructor](@ref lib-pub-sampling_constructors) that samples the [CHP_modelling](https://github.com/iDesignRES/CHP_modelling) module, follow the installation in the [Use nodes](@ref how_to-utilize-use_nodes) section.
 
 The `BioCHP` utilizes linear, time-independent conversion rates from the `input` [`Resource`](@extref EnergyModelsBase.Resource)s to the `output` [`Resource`](@extref EnergyModelsBase.Resource)s, subject to the available capacity.
-The capacity is normalized such that a conversion value of 1 corresponds to the nominal capacity in the fields `input` and `output`.
-
-Compared to a standard [`NetworkNode`](@extref EnergyModelsBase.NetworkNode), `BioCHP` differs in its outlet-flow constraints:
-the produced heat does not have to be used (e.g., heat outputs are allowed to be zero), while electric output is enforced according to the given conversion factor.
+Compared to a standard [`NetworkNode`](@extref EnergyModelsBase.NetworkNode), `BioCHP` differs in its outlet-flow constraints.
+The electric touput is enfoced based on the capacity usage while the heat output is bound to an upper value, but can also be 0.
 
 ## [Introduced types and their fields](@id nodes-BioCHP-fields)
 
@@ -23,12 +21,12 @@ It uses the standard `NetworkNode` functions from `EnergyModelsBase`.
   This is similar to the approach utilized in `EnergyModelsBase`.
 
 - **`cap::TimeProfile`**:\
-  Specifies the installed capacity, that is the heat the heat pump can deliver.\
+  The installed capacity corresponds to the nominal capacity of the node.\
   If the node should contain investments through the application of [`EnergyModelsInvestments`](https://energymodelsx.github.io/EnergyModelsInvestments.jl/stable/), it is important to note that you can only use `FixedProfile` or `StrategicProfile` for the capacity, but not `RepresentativeProfile` or `OperationalProfile`.\
   In addition, all values have to be non-negative.
 
 - **`opex_var::TimeProfile`**:\
-  The variable operational expenses are based on the capacity utilization through the variable [`:cap_use`](@extref EnergyModelsBase man-opt_var-cap).
+  The variable operating expenses are based on the capacity utilization through the variable [`:cap_use`](@extref EnergyModelsBase man-opt_var-cap).
   Hence, it is directly related to the specified `output` ratios.
   The variable operating expenses can be provided as `OperationalProfile` as well.
 
@@ -39,8 +37,9 @@ It uses the standard `NetworkNode` functions from `EnergyModelsBase`.
 
 - **`output::Dict{<:Resource, <:Real}`**:\
   The field `output` includes the output [`Resource`](@extref EnergyModelsBase.Resource)s with their corresponding conversion factors as dictionaries.
-  It is also possible to include other resources which are produced with a given correlation with the heat.\
-  All values have to be non-negative.
+  It **must** include the `electricity_resource` (see below).
+  It is also possible to include other resources in addition to the chosen `electricity_resource`.
+  All other [`Resource`](@extref EnergyModelsBase.Resource)s can be produced up to the specified value of the capacity utilization, but they do not need to be produced.
 
 - **`data::Vector{<:ExtensionData}`**:\
   An entry for providing additional data to the model.
@@ -59,6 +58,8 @@ It uses the standard `NetworkNode` functions from `EnergyModelsBase`.
   The biomass input resources (of type [`ResourceBio`](@ref)) and their conversion factors.
   These conversion factors are normalized to the capacity definition of the node.
 
+  The difference to the standard [`RefNetworkNode`](@extref EnergyModelsBase nodes-network_node) is that the input must be a [`ResourceBio`](@ref).
+
 !!! note "Default `data` constructor"
     The provided constructor assigns `data = [EmissionsEnergy()]` by default.
     This means the node includes energy-based emission accounting unless overwritten by explicitly constructing `BioCHP` with a custom `data` vector.
@@ -74,7 +75,7 @@ with square brackets, while functions are represented as
 
 ``func\_example(index_1, index_2)``
 
-with paranthesis.
+with parantheses.
 
 ### [Variables](@id nodes-BioCHP-math-var)
 
@@ -91,7 +92,7 @@ The variables include:
 ### [Constraints](@id nodes-BioCHP-math-con)
 
 The following sections omit the direct inclusion of the vector of heat pump nodes.
-Instead, it is implicitly assumed that the constraints are valid ``\forall n ∈ N^{BioCHP}`` for all [`BioCHP`](@ref) types if not stated differently.
+Instead, it is implicitly assumed that the constraints are valid ``\forall n ∈ N^{BioCHP}`` for all [`BioCHP`](@ref) nodes if not stated differently.
 In addition, all constraints are valid ``\forall t \in T`` (that is in all operational periods) or ``\forall t_{inv} \in T^{Inv}`` (that is in all strategic periods).
 
 #### [Standard constraints](@id nodes-BioCHP-math-con-stand)
@@ -145,7 +146,7 @@ These standard constraints are:
       It also takes into account potential operational scenarios and their probability as well as representative periods.
 
 - `constraints_ext_data`:\
-  This function is only called for specified data of the storage node, see above.
+  This function is only called for specified data of the [`BioCHP`](@ref) node, see above.
 
 The function `constraints_flow_out` is extended with a new method for BioCHP nodes such that the outputs are flexible with respect to output resources not being the `electricity_resource`.
 
