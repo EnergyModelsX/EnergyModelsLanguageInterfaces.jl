@@ -8,8 +8,8 @@ Call an external Python function.
 
 ## Arguments
 - `module_name` - the name of the Python module to be used.
-- `function_name` - the name of the function to be called. Nested names (e.g., due to sub modules)
-  must be separated by ".".
+- `function_name` - the name of the function to be called. Nested names (*e.g.*, due to sub
+  modules) must be separated by ".".
 
 This function enables a vector of arguments (args) or keyword arguments (`kwargs`) as
 the input to the python function to be called.

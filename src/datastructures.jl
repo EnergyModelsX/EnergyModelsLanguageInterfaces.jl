@@ -47,7 +47,8 @@ end
         output::Dict{<:Resource,<:Real};
         data::Vector{<:Data} = Data[],
         method::String = "Ninja",
-        data_path::String = ""
+        data_path::String = "",
+        source::String = "NORA3",
     )
 
 Constructs a [`WindPower`](@ref) instance where the power production profile is sampled from
@@ -86,6 +87,10 @@ a Python function.
   an empty datapath.
 - **`source`** is the data source for wind data. The user can choose between the strings
   "NORA3" and "ERA5". The default value is "NORA3".
+
+!!! note "Usage of the ERA5 data source in wind_power_timeseries"
+    For use of the "ERA5" data source, the user needs to register and obtain a CDS API key.
+    -  Perform step 1: https://cds.climate.copernicus.eu/how-to-api
 """
 function WindPower(
     id::Any,
@@ -399,7 +404,8 @@ Constructs a `MultipleBuildingTypes` instance where the demand profiles are samp
 - **`process_pay_load`** is the process dictionary for the Python function.
 - **`time_start`** is the starting time for the sampling.
 - **`time_end`** is the ending time for the sampling.
-- **`buildings`** is a vector of the buildings to be considered. Any combination of the following building types is allowed:
+- **`buildings`** is a vector of the buildings to be considered. Any combination of the
+  following building types are allowed:
   - "Apartment Block"
   - "Single family- Terraced houses"
   - "Hotels and Restaurants"
@@ -409,7 +415,7 @@ Constructs a `MultipleBuildingTypes` instance where the demand profiles are samp
   - "Trade"
   - "Other non-residential buildings"
   - "Sport"
-- **`resources_map`** is a map of resource keys to `EMB.Resource`s. E.g., the dictionary
+- **`resources_map`** is a map of resource keys to `EMB.Resource`s, *e.g.*, the dictionary
 
   ```julia
   Coal = ResourceCarrier("Coal", 0.35)
@@ -510,7 +516,7 @@ function MultipleBuildingTypes(
                 if time_start <= date && date <= time_end
                     for (res, res_val) ∈ v
                         if !(res ∈ ["Datetime", "Variable cost [€]", "Emissions [KgCO2]"])
-                            push!(temp[res], res_val/1e6) # Scale power_outputs to MW
+                            push!(temp[res], res_val)
                         end
                     end
                 end
@@ -715,8 +721,11 @@ library file located at `libpath`. The BioCHP has electricity production of the 
 - **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments).
 - **`libpath`** is the absolute path of the `CHP_modelling` library file.
 
-!!! note ""EmissionsEnergy"
+!!! note "EmissionsEnergy"
     If `EmissionsEnergy` is not included in the `data` field, it is automatically added.
+
+!!! note "Running on windows"
+    Adjust the `libpath` to point to the correct `.dll` file when running on Windows.
 """
 function BioCHP(
     id::Any,

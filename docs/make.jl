@@ -2,8 +2,10 @@ using Documenter
 using DocumenterInterLinks
 using EnergyModelsBase
 using EnergyModelsRenewableProducers
+using EnergyModelsHeat
 using EnergyModelsLanguageInterfaces
 using TimeStruct
+using Dates
 using Literate
 
 const EMB = EnergyModelsBase
@@ -20,6 +22,7 @@ Literate.markdown(inputfile, joinpath(@__DIR__, "src", "examples"))
 links = InterLinks(
     "TimeStruct" => "https://sintefore.github.io/TimeStruct.jl/stable/",
     "EnergyModelsBase" => "https://energymodelsx.github.io/EnergyModelsBase.jl/stable/",
+    "EnergyModelsRenewableProducers" => "https://energymodelsx.github.io/EnergyModelsRenewableProducers.jl/stable/",
 )
 
 makedocs(
@@ -37,7 +40,13 @@ makedocs(
             "Quick Start"=>"manual/quick-start.md",
             "Release notes"=>"manual/NEWS.md",
         ],
-        "Types for EMX elements" => Any["Reference"=>"types/reference.md"],
+        "Nodes" => Any[
+            "BioCHP"=>"nodes/biochp.md",
+            "WindPower"=>"nodes/windpower.md",
+            "PVandCSP"=>"nodes/pvandcsp.md",
+            "MultipleBuildingTypes"=>"nodes/multiplebuildingtypes.md",
+        ],
+        "Resources" => Any["ResourceBio"=>"resources/resourcebio.md"],
         "Utility functions" => Any["Reference"=>"util-fun/reference.md"],
         "How-to" =>
             Any["Contribute"=>"how-to/contribute.md", "Utilize"=>"how-to/utilize.md"],

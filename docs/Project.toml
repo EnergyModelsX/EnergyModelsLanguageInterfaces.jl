@@ -1,7 +1,9 @@
 [deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 DocumenterInterLinks = "d12716ef-a0f6-4df4-a9f1-a5a34e75c656"
 EnergyModelsBase = "5d7e687e-f956-46f3-9045-6f5a5fd49f50"
+EnergyModelsHeat = "ad1b8b27-e232-4da9-b498-bea9c19a30d7"
 EnergyModelsLanguageInterfaces = "672bb132-9406-42d0-9ef4-9203b0a61e9a"
 EnergyModelsRenewableProducers = "b007c34f-ba52-4995-ba37-fffe79fbde35"
 HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"

@@ -17,14 +17,10 @@ function EMB.constraints_capacity(
     )
 
     # Define sink_deficit and sink_surplus
-    @constraint(
-        m,
-        [t ∈ 𝒯],
+    @constraint(m, [t ∈ 𝒯],
         sum(m[:buildings_deficit][n, t, p] for p ∈ 𝒫ⁱⁿ) == m[:sink_deficit][n, t]
     )
-    @constraint(
-        m,
-        [t ∈ 𝒯],
+    @constraint(m, [t ∈ 𝒯],
         sum(m[:buildings_surplus][n, t, p] for p ∈ 𝒫ⁱⁿ) == m[:sink_surplus][n, t]
     )
 end

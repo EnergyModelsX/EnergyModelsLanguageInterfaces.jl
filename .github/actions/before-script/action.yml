@@ -7,9 +7,7 @@ runs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update -qq
-        sudo apt-get install -y git glpk-utils g++ cmake wget curl python3-pip
-        pip install conan
-        conan profile detect
+        sudo apt-get install -y git g++ cmake wget curl python3-pip
         wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
         bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
         echo "$HOME/miniconda/bin" >> $GITHUB_PATH
@@ -17,7 +15,8 @@ runs:
 
         conda create --name testenv python=3.11 -y
         conda activate testenv
-        conda install -c conda-forge poetry -y
+        conda install -c conda-forge -y poetry highs highspy conan
+        conan profile detect
 
         cd "$GITHUB_WORKSPACE/test/python_module"
         poetry install
@@ -41,3 +40,49 @@ runs:
         cmake --build . --config Release
         cd "$GITHUB_WORKSPACE"
       shell: bash
+    - name: Install Windows dependencies + Miniconda + python/cpp modules
+      if: runner.os == 'Windows'
+      run: |
+        # Download & install Miniconda into %USERPROFILE%\miniconda
+        $installer = Join-Path $env:RUNNER_TEMP "Miniconda3-latest-Windows-x86_64.exe"
+        Invoke-WebRequest -Uri "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe" -OutFile $installer
+
+        $target = Join-Path $env:USERPROFILE "miniconda"
+        Start-Process -FilePath $installer -ArgumentList "/InstallationType=JustMe", "/S", "/D=$target" -Wait
+
+        # Initialize conda for this PowerShell session
+        $conda = Join-Path $target "Scripts\conda.exe"
+        & $conda "shell.powershell" "hook" | Out-String | Invoke-Expression
+
+        conda create --name testenv python=3.11 -y
+        conda activate testenv
+        $env:PATH = "$env:CONDA_PREFIX\Scripts;$env:CONDA_PREFIX;$env:PATH"
+        python -m pip install --upgrade pip
+        conda install -c conda-forge -y poetry highs highspy conan
+        conan profile detect
+
+        # Check highs installation
+        where.exe highs
+        highs --version
+
+        # Poetry installs
+        Set-Location (Join-Path $env:GITHUB_WORKSPACE "test\python_module")
+        poetry install
+        Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\wind_power_timeseries")
+        poetry install
+        Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\Tecnalia_Solar-Energy-Model")
+        poetry install
+        Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\Tecnalia_Building-Stock-Energy-Model")
+        poetry install
+
+        Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\CHP_modelling")
+        New-Item -ItemType Directory -Force -Path "build" | Out-Null
+        Set-Location "build"
+
+        conan install .. --output-folder=. --build=missing -s compiler.cppstd=17 -s arch=x86_64
+
+        cmake .. -DCMAKE_TOOLCHAIN_FILE="$PWD\conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release
+        cmake --build . --config Release
+
+        Set-Location $env:GITHUB_WORKSPACE
+      shell: pwsh
