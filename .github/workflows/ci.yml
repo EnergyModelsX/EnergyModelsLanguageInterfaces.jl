@@ -14,15 +14,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - version: '1'  # The latest point-release (Linux)
-            os: ubuntu-latest
-            arch: x64
-          - version: 'lts'  # The long term stable version (Linux) 
-            os: ubuntu-latest
-            arch: x64
-          - version: '1'
-            os: windows-latest
-            arch: x64
+          #- version: '1'  # The latest point-release (Linux)
+          #  os: ubuntu-latest
+          #  arch: x64
+          #- version: 'lts'  # The long term stable version (Linux) 
+          #  os: ubuntu-latest
+          #  arch: x64
+          #- version: '1'
+          #  os: windows-latest
+          #  arch: x64
           - version: 'lts'
             os: windows-latest
             arch: x64
@@ -53,6 +53,13 @@ jobs:
             ${{ runner.os }}-test-
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@v1
+      - name: Configure CA roots for Julia/OpenSSL (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ca = julia -e "using NetworkOptions; print(NetworkOptions.ca_roots_path())"
+          Add-Content $env:GITHUB_ENV "JULIA_SSL_CA_ROOTS_PATH=$ca"
+          Add-Content $env:GITHUB_ENV "SSL_CERT_FILE=$ca"
       - name: Run Julia tests inside the testenv-enviornment in Miniconda (Linux)
         if: runner.os == 'Linux'
         run: |
