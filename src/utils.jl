@@ -150,6 +150,8 @@ function pvgis_profile(time_start::DateTime, params::PVParameters;
     no_weather_years::Int = 1,
     remove_leap_day::Bool = true,
 )
+    @assert params.peakpower > 0 "Peak power must be positive."
+
     # Ensure the cache directory exists
     isdir(data_path) || mkpath(data_path)
 
@@ -163,9 +165,7 @@ function pvgis_profile(time_start::DateTime, params::PVParameters;
         end_year = start_year + no_weather_years
     end
     if start_year < 2005 || end_year > 2023
-        warning(
-            "PVGIS API currently only supports years between 2005 and 2023. Provided start year: $start_year",
-        )
+        @warn "PVGIS API currently only supports years between 2005 and 2023. Provided start year: $start_year"
     end
 
     # Create a sanitized file hint for the cache file name
@@ -217,7 +217,7 @@ function pvgis_profile(time_start::DateTime, params::PVParameters;
     resp = HTTP.get(
         url;
         headers = [
-            "User-Agent" => "PVGISProfiles.jl/0.1.0",
+            "User-Agent" => "EnergyModelsLanguageInterfaces.jl",
             "Accept" => "application/json",
         ],
     )

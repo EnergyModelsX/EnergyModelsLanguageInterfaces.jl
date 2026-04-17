@@ -4,8 +4,6 @@ abstract type AbstractParameters end
     PVParameters(; lat::Real, lon::Real, peakpower::Real = 1.0, loss::Real = 14.0, 
         pvtechchoice::String = "crystSi", mountingplace::String = "free", 
         optimalangles::Bool = true, usehorizon::Bool = true, 
-        data_path::String = "pvgis_cache", filename_hint::String = "", 
-        normalize::Bool = true, no_weather_years::Int = 1
     )
 
 A structure to hold parameters for photovoltaic (PV) power generation.
