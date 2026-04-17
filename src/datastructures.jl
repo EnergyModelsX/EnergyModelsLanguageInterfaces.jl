@@ -1,7 +1,8 @@
 abstract type AbstractParameters end
 
 """
-    PVParameters(; lat::Real, lon::Real, peakpower::Real = 1.0, loss::Real = 14.0, 
+    PVParameters
+    PVParameters(lat::Real, lon::Real; peakpower::Real = 1.0, loss::Real = 14.0, 
         pvtechchoice::String = "crystSi", mountingplace::String = "free", 
         optimalangles::Bool = true, usehorizon::Bool = true, 
     )
