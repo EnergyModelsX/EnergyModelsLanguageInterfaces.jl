@@ -14,15 +14,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #- version: '1'  # The latest point-release (Linux)
-          #  os: ubuntu-latest
-          #  arch: x64
-          #- version: 'lts'  # The long term stable version (Linux) 
-          #  os: ubuntu-latest
-          #  arch: x64
-          #- version: '1'
-          #  os: windows-latest
-          #  arch: x64
+          - version: '1'  # The latest point-release (Linux)
+            os: ubuntu-latest
+            arch: x64
+          - version: 'lts'  # The long term stable version (Linux) 
+            os: ubuntu-latest
+            arch: x64
+          - version: '1'
+            os: windows-latest
+            arch: x64
           - version: 'lts'
             os: windows-latest
             arch: x64
