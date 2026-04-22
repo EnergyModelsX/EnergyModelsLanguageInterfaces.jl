@@ -260,8 +260,8 @@ function get_pvgis_data(
 
     # Make the HTTP request with a custom User-Agent and Accept header to indicate we want JSON.
     @debug "Fetching PVGIS data for lat=$(params.lat), lon=$(params.lon), year=$(start_year) from PVGIS API..."
-    try
-        resp = HTTP.get(
+    resp = try
+        HTTP.get(
             url;
             headers = [
                 "User-Agent" => "EnergyModelsLanguageInterfaces.jl",
