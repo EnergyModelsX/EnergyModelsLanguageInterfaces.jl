@@ -18,6 +18,7 @@ EnergyModelsLanguageInterfaces.PVParameters
 EnergyModelsLanguageInterfaces.WindPower
 EnergyModelsLanguageInterfaces.PV
 EnergyModelsLanguageInterfaces.CSPandPV
+EnergyModelsLanguageInterfaces.Building
 EnergyModelsLanguageInterfaces.MultipleBuildingTypes
 EnergyModelsLanguageInterfaces.BioCHP
 ```
@@ -58,6 +59,25 @@ EnergyModelsLanguageInterfaces.CSPandPV(
     method::String = "Ninja",
     data_path::String = "",
     source::String = "NORA3",
+)
+EnergyModelsLanguageInterfaces.Building(
+    ::Any,
+    ::Dict{<:Resource,<:TimeProfile},
+    ::Dict{<:Resource,<:TimeProfile},
+    ::Dict{<:Resource,<:TimeProfile},
+    ::Dict{<:Resource,<:Real},
+    ::DateTime,
+    ::DateTime,
+    ::Real,
+    ::Real,
+    ::Resource,
+    ::Function;
+    data::Vector{<:Data} = Data[],
+    data_path::String = joinpath(tempdir(), "building"),
+    source::String = "NORA3",
+    reload::Bool = true,
+    save_csv::Bool = true,
+    use_cache::Bool = true,
 )
 EnergyModelsLanguageInterfaces.MultipleBuildingTypes(
     ::Any,

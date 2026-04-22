@@ -327,3 +327,158 @@ function get_pvgis_data(
     # WS10m [m/s] - Wind speed at 10m
     return DataFrame(rows)
 end
+
+"""
+    heat_demand_profile(time_start::DateTime, time_end::DateTime, lat::Float64, lon::Float64, 
+                       temp_to_demand::Function; data_path::String = "heat_data", 
+                       filename_hint::String = "", source::String = "NORA3", reload::Bool = true, 
+                       save_csv::Bool = true, use_cache::Bool = true)
+
+Generates a heat demand profile for a specified location and time period using temperature data 
+and a user-provided temperature-to-demand mapping function.
+
+The function retrieves temperature data for the given latitude and longitude from the specified
+data source (e.g., "NORA3" or "ERA5") and applies the `temp_to_demand` function to convert
+temperature values into heat demand.
+
+The data source is queried using the [`get_met_data`](@ref) function, which handles data retrieval, 
+caching, and storage.
+
+# Arguments
+- **`time_start::DateTime`**: Start of the time period for the demand profile.
+- **`time_end::DateTime`**: End of the time period for the demand profile.
+- **`lat::Float64`**: Latitude of the location.
+- **`lon::Float64`**: Longitude of the location.
+- **`temp_to_demand::Function`**: Function mapping temperature in Kelvin to demand.
+- **`data_path::String`**: Directory path to store or load temperature data (default: "heat_data").
+- **`filename_hint::String`**: Optional hint for naming the data file (default: "").
+- **`source::String`**: Data source for temperature (default: "NORA3").
+- **`reload::Bool`**: If true, reloads data even if cached data exists (default: true).
+- **`save_csv::Bool`**: If true, saves the generated profile to a CSV file (default: true).
+- **`use_cache::Bool`**: If true, uses cached data if available (default: true).
+"""
+function heat_demand_profile(
+    time_start::DateTime,
+    time_end::DateTime,
+    lat::Float64,
+    lon::Float64,
+    temp_to_demand::Function;
+    data_path::String = "metocean_api_data",
+    filename_hint::String = "",
+    source::String = "NORA3",
+    reload::Bool = true,
+    save_csv::Bool = true,
+    use_cache::Bool = true,
+)
+    if source == "NORA3"
+        product = "NORA3_atm_sub"
+        variables = ["air_temperature_2m"]
+    elseif source == "ERA5"
+        product = "ERA5"
+        variables = ["2m_temperature"]
+    else
+        error("Unsupported data source: $source. Use 'NORA3' or 'ERA5'.")
+    end
+    df = get_met_data(
+        time_start,
+        time_end,
+        lat,
+        lon,
+        product,
+        variables;
+        data_path,
+        filename_hint,
+        reload,
+        save_csv,
+        use_cache,
+    )
+    df.heat_demand = temp_to_demand.(df.air_temperature_2m)
+    return df
+end
+
+"""
+    get_met_data(time_start::DateTime, time_end::DateTime, lat::Float64, lon::Float64, 
+                 product::String, variables::Vector{String}; data_path::String, 
+                 filename_hint::String, reload::Bool, save_csv::Bool, use_cache::Bool)
+
+Fetches meteorological data for a specified time range and geographic location.
+
+# Arguments
+- `time_start::DateTime`: Start of the time range for data retrieval.
+- `time_end::DateTime`: End of the time range for data retrieval.
+- `lat::Float64`: Latitude of the location.
+- `lon::Float64`: Longitude of the location.
+- `product::String`: Name of the meteorological data product to use.
+- `variables::Vector{String}`: List of meteorological variables to retrieve.
+- `data_path::String`: Directory path where data files are stored or will be saved.
+- `filename_hint::String`: Hint for naming the output file.
+- `reload::Bool`: If `true`, forces re-download of data even if cached data exists.
+- `save_csv::Bool`: If `true`, saves the retrieved data as a CSV file.
+- `use_cache::Bool`: If `true`, uses cached data if available.
+
+# Notes
+- The function may download data from remote sources if not available locally or if `reload` is 
+  set to `true`.
+- If `save_csv` is enabled, the data will be saved to a CSV file in the specified `data_path`.
+- Caching behavior is controlled by the `use_cache` parameter.
+
+!!! note "Usage of the ERA5 data source"
+    For use of the "ERA5" data source, the user needs to register and obtain a CDS API key.
+    -  Perform step 1: https://cds.climate.copernicus.eu/how-to-api
+"""
+function get_met_data(
+    time_start::DateTime,
+    time_end::DateTime,
+    lat::Float64,
+    lon::Float64,
+    product::String,
+    variables::Vector{String};
+    data_path::String = "metocean_api_data",
+    filename_hint::String = "",
+    reload::Bool = true,
+    save_csv::Bool = true,
+    use_cache::Bool = true,
+)
+    # Ensure the cache directory exists
+    isdir(data_path) || mkpath(data_path)
+    csv_path = joinpath(
+        data_path,
+        product * "_" * Dates.format(time_start, "yyyymmdd") * "_" * filename_hint * ".csv",
+    )
+
+    if reload && isfile(csv_path) && filesize(csv_path) > 0
+        df = CSV.read(
+            csv_path,
+            DataFrame;
+            comment = "#",
+            dateformat = "yyyy-mm-dd HH:MM:SS",
+            types = Dict(:time => DateTime),
+        )
+        rename!(df, :time => :time_utc)
+        return df
+    else
+        ts = pyimport("metocean_api.ts")
+        ts_data = ts.TimeSeries(
+            lon = lon,
+            lat = lat,
+            start_time = Dates.format(time_start, "yyyy-mm-dd"),
+            end_time = Dates.format(time_end, "yyyy-mm-dd"),
+            product = product,
+            variable = variables,
+            datafile = nothing,
+        )
+        ts_data.datafile = csv_path
+        ts_data.import_data(save_csv = save_csv, save_nc = false, use_cache = use_cache)
+        idx_np = ts_data.data.index.to_numpy(copy = true)
+        time = DateTime(1970, 1, 1) .+ Nanosecond.(idx_np.astype("int64"))
+        data = ts_data.data.to_numpy(copy = true)
+        colnames = Symbol.(ts_data.data.columns.tolist())
+        df = DataFrame([time data], [:time_utc; colnames...])
+        # Ensure correct types
+        df.time_utc = DateTime.(df.time_utc)
+        for col ∈ colnames
+            df[!, col] = Float64.(df[!, col])
+        end
+        return df
+    end
+end

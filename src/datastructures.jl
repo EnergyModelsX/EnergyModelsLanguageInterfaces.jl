@@ -517,7 +517,14 @@ EMR.profile(n::CSPandPV, p::Resource) = n.profile[p]
 EMR.profile(n::CSPandPV, t, p::Resource) = n.profile[p][t]
 
 """
-    struct MultipleBuildingTypes <: EMB.Sink
+    abstract type AbstractBuildings <: EMB.Sink
+
+Abstract supertype for all building nodes.
+"""
+abstract type AbstractBuildings <: EMB.Sink end
+
+"""
+    struct Building <: AbstractBuildings
 
 A [`MultipleBuildingTypes`](@ref) node that creates sinks for all demand resources. The
 demand for each resources has a penalty for both surplus and deficit.
@@ -537,7 +544,128 @@ and deficit.
 !!! danger
     Investments are not available for this node.
 """
-struct MultipleBuildingTypes <: EMB.Sink
+struct Building <: AbstractBuildings
+    id::Any
+    cap::Dict{<:Resource,<:TimeProfile}
+    penalty_surplus::Dict{<:Resource,<:TimeProfile}
+    penalty_deficit::Dict{<:Resource,<:TimeProfile}
+    input::Dict{<:Resource,<:Real}
+    data::Vector{<:Data}
+end
+function Building(
+    id::Any,
+    cap::Dict{<:Resource,<:TimeProfile},
+    penalty_surplus::Dict{<:Resource,<:TimeProfile},
+    penalty_deficit::Dict{<:Resource,<:TimeProfile},
+    input::Dict{<:Resource,<:Real},
+)
+    return Building(id, cap, penalty_surplus, penalty_deficit, input, Data[])
+end
+
+"""
+    Building(
+        id::Any,
+        cap::Dict{<:Resource,<:TimeProfile},
+        time_start::DateTime,
+        time_end::DateTime,
+        locations::DataFrame,
+        penalty_surplus::Dict{<:Resource,<:TimeProfile},
+        penalty_deficit::Dict{<:Resource,<:TimeProfile},
+        heat_resource::Resource,
+        temp_to_demand::Function;
+        data::Vector{<:Data} = Data[],
+        data_path::String = joinpath(tempdir(), "building"),
+        source::String = "NORA3",
+        reload::Bool = true,
+        save_csv::Bool = true,
+        use_cache::Bool = true,
+    )
+
+Constructs a `Building` instance where the heat demand profile is generated from temperature data
+downloaded using hind cast data (see [`heat_demand_profile`](@ref) for details). 
+The temperature-to-demand mapping is provided by `temp_to_demand`.
+
+# Arguments
+- **`id`**: Identifier or name of the node.
+- **`cap`**: Demand dictionary for resources (no need to provide heat demand, it will be generated).
+- **`time_start`**, **`time_end`**: Start and end times as `DateTime` objects.
+- **`locations`**: DataFrame containing "lat" and "lon" columns for each location.
+- **`penalty_surplus`**, **`penalty_deficit`**: Penalty dictionaries for surplus and deficit, respectively.
+- **`heat_resource`**: `Resource` object representing heat demand in the model.
+- **`temp_to_demand`**: Function mapping temperature in Kelvin to demand.
+
+# Keyword Arguments
+- **`data`**: Additional data to be used.
+- **`data_path`**: Directory path for cached CSV files.
+- **`source`**: Data source, e.g., "NORA3" or "ERA5".
+- **`reload`**: Boolean flag to reload data from local CSV files.
+- **`save_csv`**: Boolean flag to save data to CSV files.
+- **`use_cache`**: Boolean flag to use local cache.
+"""
+function Building(
+    id::Any,
+    cap::Dict{<:Resource,<:TimeProfile},
+    penalty_surplus::Dict{<:Resource,<:TimeProfile},
+    penalty_deficit::Dict{<:Resource,<:TimeProfile},
+    input::Dict{<:Resource,<:Real},
+    time_start::DateTime,
+    time_end::DateTime,
+    lat::Real,
+    lon::Real,
+    heat_resource::Resource,
+    temp_to_demand::Function;
+    data::Vector{<:Data} = Data[],
+    data_path::String = joinpath(tempdir(), "building"),
+    source::String = "NORA3",
+    reload::Bool = true,
+    save_csv::Bool = true,
+    use_cache::Bool = true,
+)
+    df = heat_demand_profile(
+        time_start,
+        time_end,
+        lat,
+        lon,
+        temp_to_demand;
+        data_path = data_path,
+        source = source,
+        reload = reload,
+        save_csv = save_csv,
+        use_cache = use_cache,
+    )
+    if heat_resource ∈ keys(cap)
+        @warn "The provided capacity dictionary already contains a profile for the `heat_resource`. 
+        The generated heat demand profile will overwrite the existing profile."
+    end
+    # Copy to ensure we don't modify the original `cap` dictionary and have the correct key type
+    cap_ext::Dict{Resource,TimeProfile} = copy(cap)
+    cap_ext[heat_resource] = OperationalProfile(df.heat_demand)
+
+    return Building(id, cap_ext, penalty_surplus, penalty_deficit, input, data)
+end
+
+"""
+    struct MultipleBuildingTypes <: AbstractBuildings
+
+A [`MultipleBuildingTypes`](@ref) node that creates sinks for all demand resources. The
+demand for each resources has a penalty for both surplus and deficit.
+The penalties introduced in the field `penalty` affect the variable OPEX for both a surplus
+and deficit.
+
+# Fields
+- **`id`** is the name/identifier of the node.
+- **`cap::Dict{<:Resource,<:TimeProfile}`** is the demand.
+- **`penalty_surplus::Dict{<:Resource,<:TimeProfile}`** are the penalties for surplus.
+- **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** are the penalties for deficit.
+- **`input::Dict{<:Resource,<:Real}`** are the input
+  [`Resource`](@extref EnergyModelsBase.Resource)s with conversion value `Real`.
+- **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments). The field `data`
+  is conditional through usage of a constructor.
+
+!!! danger
+    Investments are not available for this node.
+"""
+struct MultipleBuildingTypes <: AbstractBuildings
     id::Any
     cap::Dict{<:Resource,<:TimeProfile}
     penalty_surplus::Dict{<:Resource,<:TimeProfile}
@@ -721,47 +849,47 @@ function MultipleBuildingTypes(
 end
 
 """
-    EMB.capacity(n::MultipleBuildingTypes)
-    EMB.capacity(n::MultipleBuildingTypes, p::Resource)
-    EMB.capacity(n::MultipleBuildingTypes, t, p::Resource)
+    EMB.capacity(n::AbstractBuildings)
+    EMB.capacity(n::AbstractBuildings, p::Resource)
+    EMB.capacity(n::AbstractBuildings, t, p::Resource)
 
-Returns the capacity of a MultipleBuildingTypes `n` as a `Dictionary` or of resource `p` as `TimeProfile`
+Returns the capacity of an AbstractBuildings `n` as a `Dictionary` or of resource `p` as `TimeProfile`
 or in operational period `t`.
 """
-EMB.capacity(n::MultipleBuildingTypes) = n.cap
-EMB.capacity(n::MultipleBuildingTypes, p::Resource) = n.cap[p]
-EMB.capacity(n::MultipleBuildingTypes, t, p::Resource) = n.cap[p][t]
+EMB.capacity(n::AbstractBuildings) = n.cap
+EMB.capacity(n::AbstractBuildings, p::Resource) = n.cap[p]
+EMB.capacity(n::AbstractBuildings, t, p::Resource) = n.cap[p][t]
 
 """
-    EMB.has_capacity(n::MultipleBuildingTypes)
+    EMB.has_capacity(n::AbstractBuildings)
 
-A MultipleBuildingTypes has capacity for all its resources but not in a EMB sense.
+An AbstractBuildings has capacity for all its resources but not in a EMB sense.
 """
-EMB.has_capacity(n::MultipleBuildingTypes) = false
+EMB.has_capacity(n::AbstractBuildings) = false
 
 """
-    EMB.surplus_penalty(n::MultipleBuildingTypes)
-    EMB.surplus_penalty(n::MultipleBuildingTypes, p::Resource)
-    EMB.surplus_penalty(n::MultipleBuildingTypes, t, p::Resource)
+    EMB.surplus_penalty(n::AbstractBuildings)
+    EMB.surplus_penalty(n::AbstractBuildings, p::Resource)
+    EMB.surplus_penalty(n::AbstractBuildings, t, p::Resource)
 
-Returns the surplus penalty of MultipleBuildingTypes `n` as a `Dictionary` or of resource `p` as `TimeProfile`
+Returns the surplus penalty of AbstractBuildings `n` as a `Dictionary` or of resource `p` as `TimeProfile`
 or in operational period `t`.
 """
-EMB.surplus_penalty(n::MultipleBuildingTypes) = n.penalty_surplus
-EMB.surplus_penalty(n::MultipleBuildingTypes, p::Resource) = n.penalty_surplus[p]
-EMB.surplus_penalty(n::MultipleBuildingTypes, t, p::Resource) = n.penalty_surplus[p][t]
+EMB.surplus_penalty(n::AbstractBuildings) = n.penalty_surplus
+EMB.surplus_penalty(n::AbstractBuildings, p::Resource) = n.penalty_surplus[p]
+EMB.surplus_penalty(n::AbstractBuildings, t, p::Resource) = n.penalty_surplus[p][t]
 
 """
-    EMB.deficit_penalty(n::MultipleBuildingTypes)
-    EMB.deficit_penalty(n::MultipleBuildingTypes, p::Resource)
-    EMB.deficit_penalty(n::MultipleBuildingTypes, t, p::Resource)
+    EMB.deficit_penalty(n::AbstractBuildings)
+    EMB.deficit_penalty(n::AbstractBuildings, p::Resource)
+    EMB.deficit_penalty(n::AbstractBuildings, t, p::Resource)
 
-Returns the deficit penalty of MultipleBuildingTypes `n` as a `Dictionary` or of resource `p` as `TimeProfile`
+Returns the deficit penalty of AbstractBuildings `n` as a `Dictionary` or of resource `p` as `TimeProfile`
 or in operational period `t`.
 """
-EMB.deficit_penalty(n::MultipleBuildingTypes) = n.penalty_deficit
-EMB.deficit_penalty(n::MultipleBuildingTypes, p::Resource) = n.penalty_deficit[p]
-EMB.deficit_penalty(n::MultipleBuildingTypes, t, p::Resource) = n.penalty_deficit[p][t]
+EMB.deficit_penalty(n::AbstractBuildings) = n.penalty_deficit
+EMB.deficit_penalty(n::AbstractBuildings, p::Resource) = n.penalty_deficit[p]
+EMB.deficit_penalty(n::AbstractBuildings, t, p::Resource) = n.penalty_deficit[p][t]
 
 """
     ResourceBio{T<:Real} <: Resource

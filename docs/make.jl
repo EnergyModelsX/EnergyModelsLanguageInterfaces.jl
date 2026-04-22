@@ -45,7 +45,7 @@ makedocs(
             "WindPower"=>"nodes/windpower.md",
             "PV"=>"nodes/pv.md",
             "PVandCSP"=>"nodes/pvandcsp.md",
-            "MultipleBuildingTypes"=>"nodes/multiplebuildingtypes.md",
+            "Buildings"=>"nodes/multiplebuildingtypes.md",
         ],
         "Resources" => Any["ResourceBio"=>"resources/resourcebio.md"],
         "Utility functions" => Any["Reference"=>"util-fun/reference.md"],
@@ -55,6 +55,7 @@ makedocs(
         "Library" => Any[
             "Public"=>"library/public.md",
             "Internals"=>String[
+                "library/internals/types-EMLI.md",
                 "library/internals/methods-EMLI.md",
                 "library/internals/methods-EMB.md",
                 "library/internals/methods-EMR.md",

@@ -218,6 +218,88 @@ function simple_graph_buildings(; cap_p = nothing,
     return case, modeltype, create_model(case, modeltype)
 end
 
+function simple_graph_building(; cap_p = nothing,
+    penalty_surplus = Dict(HeatHT=>FixedProfile(0.5), Power=>FixedProfile(0.5)),
+    penalty_deficit = Dict(HeatHT=>FixedProfile(0.5), Power=>FixedProfile(0.5)),
+    input = Dict(HeatHT=>1.0, Power=>1.0))
+    # Creation of the initial problem with the NonDisRES node
+    time_start_str = "2019-01-01"
+    time_end_str = "2019-01-01"
+    op_duration = 1
+    op_number = 24 * (Dates.value(Date(time_end_str) - Date(time_start_str)) + 1)
+    operational_periods = SimpleTimes(op_number, op_duration)
+
+    sp_duration = [1, 2, 10]
+    T = TwoLevel(sp_duration, operational_periods; op_per_strat = 8760.0)
+
+    time_start = DateTime(time_start_str * "T00:00:00")
+    time_end = DateTime(time_end_str * "T23:00:00")
+
+    building_res = [Power, HeatHT]
+    products = [building_res..., CO2]
+
+    sources = [
+        RefSource(
+            "Source for " * resource.id,
+            FixedProfile(150e6),
+            FixedProfile(120),
+            FixedProfile(0),
+            Dict(resource => 1.0),
+        ) for resource ∈ building_res
+    ]
+    if isnothing(cap_p)
+        penalty_surplus = Dict{Resource,TimeProfile}(
+            resource => FixedProfile(100) for resource ∈ building_res
+        )
+        penalty_deficit = Dict{Resource,TimeProfile}(
+            resource => FixedProfile(1e4) for resource ∈ building_res
+        )
+        # Example temp_to_demand function (replace with your actual function)
+        temp_to_demand(temp) = max(0, 20 - (temp - 273.15))
+        # Example location (replace with actual values or make it an argument)
+        lat, lon = 59.91, 10.75  # Oslo coordinates as example
+        cap = Dict(
+            resource => FixedProfile(120) for resource ∈ building_res if resource != HeatHT
+        )
+        building = Building(
+            "Building",
+            cap,
+            penalty_surplus,
+            penalty_deficit,
+            input,
+            time_start,
+            time_end,
+            lat,
+            lon,
+            HeatHT,
+            temp_to_demand;
+            data_path = joinpath(pkgdir(EMLI), "test", "data", "building"),
+            source = "NORA3",
+            reload = true,
+            save_csv = true,
+            use_cache = true,
+        )
+    else
+        building = Building(
+            "Buildings",
+            cap_p,
+            penalty_surplus,
+            penalty_deficit,
+            input,
+        )
+    end
+
+    nodes = [building, sources...]
+    links = [Direct(node.id * "-Buildings", node, building, Linear()) for node ∈ sources]
+
+    case = Case(T, products, [nodes, links], [[get_nodes, get_links]])
+
+    em_limits = Dict(CO2 => FixedProfile(1e10))   # Emission cap for CO₂ in t/year
+    em_cost = Dict(CO2 => FixedProfile(71.0))    # Emission price for CO₂ in €/t
+    modeltype = OperationalModel(em_limits, em_cost, CO2)
+    return case, modeltype, create_model(case, modeltype)
+end
+
 function simple_graph_csp_pv(; cap_p = nothing,
     profile = Dict(Power=>FixedProfile(0.8), CSPHeat=>FixedProfile(0.7)),
     opex_var_p = Dict(Power=>FixedProfile(0.1), CSPHeat=>FixedProfile(0.2)),

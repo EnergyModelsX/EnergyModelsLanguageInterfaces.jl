@@ -1,13 +1,13 @@
 """
-    EMB.variables_node(m, 𝒩::Vector{MultipleBuildingTypes}, 𝒯, ::EnergyModel)
+    EMB.variables_node(m, 𝒩::Vector{AbstractBuildings}, 𝒯, ::EnergyModel)
 
-For a [`MultipleBuildingTypes`](@ref) node, the following variables are created:
+For a [`AbstractBuildings`](@ref) node, the following variables are created:
 - `buildings_surplus[n, t, p]` is the surplus of node `n` with resource `p` in operational
   period `t`.
 - `buildings_deficit[n, t, p]` is the surplus of node `n` with resource `p` in operational
   period `t`.
 """
-function EMB.variables_node(m, 𝒩::Vector{MultipleBuildingTypes}, 𝒯, ::EnergyModel)
+function EMB.variables_node(m, 𝒩::Vector{AbstractBuildings}, 𝒯, ::EnergyModel)
 
     # Declaration of the required subsets.
     𝒫 = unique([p for n ∈ 𝒩 for p ∈ inputs(n)])

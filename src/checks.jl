@@ -35,9 +35,9 @@ function EMB.check_node(
 end
 
 """
-    EMB.check_node(n::MultipleBuildingTypes, 𝒯, ::EnergyModel, ::Bool)
+    EMB.check_node(n::AbstractBuildings, 𝒯, ::EnergyModel, ::Bool)
 
-This method checks that the [`MultipleBuildingTypes`](@ref) node is valid.
+This method checks that the [`AbstractBuildings`](@ref) node is valid.
 
 ## Checks
 - The field `cap_p` is required to be non-negative for all resources `p`.
@@ -45,7 +45,7 @@ This method checks that the [`MultipleBuildingTypes`](@ref) node is valid.
 - The sum of the fields `penalty_surplus` and `penalty_deficit` has to be
   non-negative to avoid an infeasible model.
 """
-function EMB.check_node(n::MultipleBuildingTypes, 𝒯, ::EnergyModel, ::Bool)
+function EMB.check_node(n::AbstractBuildings, 𝒯, ::EnergyModel, ::Bool)
     𝒫 = inputs(n)
     for p ∈ 𝒫
         @assert_or_log(

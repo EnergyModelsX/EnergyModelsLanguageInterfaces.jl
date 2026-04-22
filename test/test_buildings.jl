@@ -92,3 +92,68 @@
         @test EMB.has_capacity(buildings) == false
     end
 end
+
+@testset "Building" begin
+    for _ ∈ 1:2 # Run the test two times to also test running from stored files (from first run)
+        case, modeltype, m = simple_graph_building()
+
+        # Run the model
+        m = EMB.run_model(case, modeltype, OPTIMIZER)
+
+        building = get_node(case, "Building")
+        sink = get_node(case, "Source for HeatHT")
+        products = get_products(case)
+        building_res = products[1:(end-1)]  # All resources except CO2
+        HeatHT = products[2]
+
+        # Extraction of the time structure
+        𝒯 = get_time_struct(case)
+
+        # Run of the general tests
+        general_tests(m)
+
+        # Test that the source data is the same
+        ref_values = OperationalProfile([
+            15.0,
+            15.61,
+            16.37,
+            16.45,
+            16.78,
+            17.70,
+            17.80,
+            17.91,
+            17.90,
+            17.0,
+            14.91,
+            14.02,
+            14.01,
+            14.45,
+            14.91,
+            15.01,
+            15.87,
+            16.67,
+            16.58,
+            17.04,
+            17.57,
+            17.26,
+            17.76,
+            18.03,
+        ])
+
+        @test all(
+            isapprox(
+                value.(m[:flow_out][sink, t, HeatHT]),
+                ref_values[t];
+                atol = TEST_ATOL,
+            ) for t ∈ 𝒯
+        )
+        @test all(
+            value.(m[:buildings_surplus][building, t, p]) == 0.0 for
+            t ∈ 𝒯, p ∈ building_res
+        )
+        @test all(
+            value.(m[:buildings_deficit][building, t, p]) == 0.0 for
+            t ∈ 𝒯, p ∈ building_res
+        )
+    end
+end
