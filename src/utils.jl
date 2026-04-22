@@ -207,7 +207,7 @@ function pvgis_profile(time_start::DateTime, params::PVParameters;
 
     # Build url
     qs = join(
-        map(kv -> string(first(kv), "=", HTTP.escapeuri(last(kv))), collect(query)),
+        [string(k, "=", HTTP.escapeuri(v)) for (k,v) ∈ query],
         "&",
     )
     url = string(base, "?", qs)

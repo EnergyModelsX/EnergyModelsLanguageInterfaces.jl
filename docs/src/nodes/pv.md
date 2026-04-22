@@ -1,11 +1,11 @@
 # [PV power source node](@id nodes-PV)
 
 PV (photovoltaic) power sources generate electricity from solar energy.
-The implementation of the node is identical to that of [NonDisRES](@extref EnergyModelsRenewableProducers nodes-nondisres) and is here used to enable a specialized constructor that samples the [PVGIS](https://ec.europa.eu/jrc/en/pvgis) service for solar generation profiles.
+The implementation of the node is identical to that of [`NonDisRES`](@extref EnergyModelsRenewableProducers nodes-nondisres) and is here used to enable a specialized constructor that samples the [PVGIS](https://ec.europa.eu/jrc/en/pvgis) service for solar generation profiles.
 
 ## [Introduced type and its field](@id nodes-PV-fields)
 
-The [`PV`](@ref) is a subtype of [`AbstractNonDisRES`](@extref EnergyModelsRenewableProducers.AbstractNonDisRES) (the same is the case for [NonDisRES](@extref EnergyModelsRenewableProducers nodes-nondisres)) and is thus implemented as equivalent to a [`RefSource`](@extref EnergyModelsBase.RefSource).
+The [`PV`](@ref) is a subtype of [`AbstractNonDisRES`](@extref EnergyModelsRenewableProducers.AbstractNonDisRES) (the same is the case for [`NonDisRES`](@extref EnergyModelsRenewableProducers nodes-nondisres)) and is thus implemented as equivalent to a [`RefSource`](@extref EnergyModelsBase.RefSource).
 Hence, it utilizes the same functions declared in `EnergyModelsBase`.
 
 ### [Standard fields](@id nodes-PV-fields-stand)
