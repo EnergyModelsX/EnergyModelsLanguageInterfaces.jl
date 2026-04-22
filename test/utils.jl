@@ -306,7 +306,7 @@ function simple_graph_pv(;
 )
     # Creation of the initial problem with the NonDisRES node
     time_start_str = "2019-01-01"
-    time_end_str = "2019-01-07"
+    time_end_str = "2019-01-01"
     op_duration = 1
     op_number = 24 * (Dates.value(Date(time_end_str) - Date(time_start_str)) + 1)
     operational_periods = SimpleTimes(op_number, op_duration)
@@ -341,11 +341,11 @@ function simple_graph_pv(;
         pv_plant = PV(
             "PV plant",
             cap,
-            time_start,
-            time_start + Hour(op_number - 1),
             opex_var,
             opex_fixed,
             output,
+            time_start,
+            time_start + Hour(op_number - 1),
             pv_params;
             data_path = joinpath(pkgdir(EMLI), "test", "data", "PV"),
             filename_hint = "",

@@ -40,7 +40,7 @@ The standard fields (of a [`AbstractNonDisRES`](@extref EnergyModelsRenewablePro
   In the current version, it is only relevant for additional investment data when [`EnergyModelsInvestments`](https://energymodelsx.github.io/EnergyModelsInvestments.jl/stable/) is used.
 
   !!! note "Constructor for `PV`"
-    The field `data` is not required as we include a constructor when the value is excluded.
+      The field `data` is not required as we include a constructor when the value is excluded.
 
 ### [Additional fields](@id nodes-PV-fields-new)
 
@@ -77,9 +77,9 @@ The variables include:
   It is currently only used in the calculation, but not with a cost.
 
 !!! note
-  Non-dispatchable renewable energy source nodes are not compatible with `CaptureData`.
-  Hence, you can only provide [`EmissionsProcess`](@extref EnergyModelsBase.EmissionsProcess) to the node.
-  It is our aim to include the potential for construction emissions in a later stage.
+    Non-dispatchable renewable energy source nodes are not compatible with `CaptureData`.
+    Hence, you can only provide [`EmissionsProcess`](@extref EnergyModelsBase.EmissionsProcess) to the node.
+    It is our aim to include the potential for construction emissions in a later stage.
 
 #### [Additional variables](@id nodes-PV-math-add)
 
@@ -103,8 +103,8 @@ These standard constraints are:
   ```
 
   !!! tip "Using investments"
-    The function `constraints_capacity_installed` is also used in [`EnergyModelsInvestments`](https://energymodelsx.github.io/EnergyModelsInvestments.jl/stable/) to incorporate the potential for investment.
-    Nodes with investments are then no longer constrained by the parameter capacity.
+      The function `constraints_capacity_installed` is also used in [`EnergyModelsInvestments`](https://energymodelsx.github.io/EnergyModelsInvestments.jl/stable/) to incorporate the potential for investment.
+      Nodes with investments are then no longer constrained by the parameter capacity.
 
 - `constraints_flow_out`:
 
@@ -121,8 +121,8 @@ These standard constraints are:
   ```
 
   !!! tip "Why do we use `first()`"
-    The variables ``\texttt{cap\_inst}`` are declared over all operational periods (see the section on *[Capacity variables](@extref EnergyModelsBase man-opt_var-cap)* for further explanations).
-    Hence, we use the function ``first(t_{inv})`` to retrieve the installed capacities in the first operational period of a given strategic period ``t_{inv}`` in the function `constraints_opex_fixed`.
+      The variables ``\texttt{cap\_inst}`` are declared over all operational periods (see the section on *[Capacity variables](@extref EnergyModelsBase man-opt_var-cap)* for further explanations).
+      Hence, we use the function ``first(t_{inv})`` to retrieve the installed capacities in the first operational period of a given strategic period ``t_{inv}`` in the function `constraints_opex_fixed`.
 
 - `constraints_opex_var`:
 
@@ -131,8 +131,8 @@ These standard constraints are:
   ```
 
   !!! tip "The function `scale_op_sp`"
-    The function [``scale\_op\_sp(t_{inv}, t)``](@extref EnergyModelsBase.scale_op_sp) calculates the scaling factor between operational and strategic periods.
-    It also takes into account potential operational scenarios and their probability as well as representative periods.
+      The function [``scale\_op\_sp(t_{inv}, t)``](@extref EnergyModelsBase.scale_op_sp) calculates the scaling factor between operational and strategic periods.
+      It also takes into account potential operational scenarios and their probability as well as representative periods.
 
 - `constraints_data`:\
   This function is only called for specified data of the non-dispatchable renewable energy source, see above.

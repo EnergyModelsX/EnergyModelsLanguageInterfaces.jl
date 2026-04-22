@@ -105,15 +105,25 @@ end
         remove_leap_day::Bool = true,
     )
 
-Fetches hourly photovoltaic (PV) power output data for a specified start time (`time_start`), PV system parameters (`params`), and additional options,
-using the PVGIS `seriescalc` API. The function caches the results locally in a CSV file to optimize subsequent calls.
+Fetches hourly photovoltaic (PV) power output data for a specified start time
+(`time_start`), PV system parameters (`params`), and additional options, using the
+PVGIS `seriescalc` API. The function caches the results locally in a CSV file to
+optimize subsequent calls.
+
+The actual call to the PVGIS API is handled by the helper function `get_pvgis_data`
+see [`get_pvgis_data`](@ref) for details.
 
 # Arguments
-- **`time_start::DateTime`**: The start of the time range for which the PV output data is requested.
-- **`params::PVParameters`**: Struct containing PV system and location parameters (e.g., latitude, longitude, peak power, technology, etc.).
-- **`data_path::String="pvgis_cache"`**: Directory where the cached CSV file will be stored.
-- **`filename_hint::String=""`**: Optional string to include in the cache file name for identification.
-- **`normalize::Bool=true`**: Whether to normalize the power output by the peak power (i.e., return values between 0 and 1).
+- **`time_start::DateTime`**: The start of the time range for which the PV output data
+  is requested.
+- **`params::PVParameters`**: Struct containing PV system and location parameters
+  (e.g., latitude, longitude, peak power, technology, etc.).
+- **`data_path::String="pvgis_cache"`**: Directory where the cached CSV file will be
+  stored.
+- **`filename_hint::String=""`**: Optional string to include in the cache file name for
+  identification.
+- **`normalize::Bool=true`**: Whether to normalize the power output by the peak power
+  (i.e., return values between 0 and 1).
 - **`no_weather_years::Int=1`**: Number of years of weather data to fetch.
 - **`remove_leap_day::Bool=true`**: Whether to remove February 29th from the results.
 
@@ -121,27 +131,6 @@ using the PVGIS `seriescalc` API. The function caches the results locally in a C
 A `DataFrame` containing the following columns:
 - **`:time_utc`**: Timestamps in UTC, rounded to the nearest hour.
 - **`:pv`**: PV power output in kilowatts (kW), normalized if requested.
-
-# Details
-The function queries the PVGIS `seriescalc` API, which provides hourly PV power output data based on the specified
-location, system parameters, and meteorological data. The API calculates the power output using the following inputs:
-- Solar radiation data.
-- PV system parameters (e.g., peak power, technology, mounting type).
-- Meteorological data (e.g., air temperature, wind speed).
-
-The response includes hourly data for the specified years, which is parsed and processed into a `DataFrame`. The power
-output is converted from watts (W) to kilowatts (kW) for better readability. The function also handles special cases
-such as leap years by removing February 29 data if requested.
-
-# Caching
-The results are cached locally in a CSV file to avoid redundant API calls. The cache file is stored in the specified
-`data_path` directory, and its name includes the date, number of years, and an optional `filename_hint`.
-
-!!! note
-    The PVGIS API documentation is available at: https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/getting-started-pvgis/pvgis-user-manual_en
-
-!!! note
-    Due to current limitations on PVGIS, only dates within the years 2005 to 2023 can be queried.
 """
 function pvgis_profile(time_start::DateTime, params::PVParameters;
     data_path::String = "pvgis_cache",
@@ -150,8 +139,6 @@ function pvgis_profile(time_start::DateTime, params::PVParameters;
     no_weather_years::Int = 1,
     remove_leap_day::Bool = true,
 )
-    @assert params.peakpower > 0 "Peak power must be positive."
-
     # Ensure the cache directory exists
     isdir(data_path) || mkpath(data_path)
 
@@ -164,29 +151,88 @@ function pvgis_profile(time_start::DateTime, params::PVParameters;
     else
         end_year = start_year + no_weather_years
     end
-    if start_year < 2005 || end_year > 2023
-        @warn "PVGIS API currently only supports years between 2005 and 2023. Provided start year: $start_year"
-    end
 
     # Create a sanitized file hint for the cache file name
-    filehint =
-        isempty(filename_hint) ? "" :
-        "_" * replace(filename_hint, r"[^\w\.-]" => "_")
+    if isempty(filename_hint)
+        filehint = ""
+    else
+        filehint = "_" * replace(filename_hint, r"[^\w\.-]" => "_")
+    end
 
     csv_path = joinpath(
         data_path,
-        @sprintf(
-            "pvgis_%s_%s%s.csv",
-            Dates.format(time_start, "yyyymmdd"),
-            no_weather_years,
-            filehint
-        )
+        "pvgis_$(Dates.format(time_start, "yyyymmdd"))_$(no_weather_years)$(filehint).csv",
     )
 
     if isfile(csv_path) && filesize(csv_path) > 0
         return CSV.read(csv_path, DataFrame)
-    end
 
+    else
+        df = get_pvgis_data(start_year, end_year, params, normalize)
+
+        if remove_leap_day
+            # Remove special case of Feb 29 in non-leap years
+            df = filter(r -> !(month(r[:time]) == 2 && day(r[:time]) > 28), df)
+        end
+
+        # Keep only the relevant columns (time and power), and rename time.
+        select!(df, [:time, :P])
+
+        # Rename time column to be more descriptive.
+        rename!(df, :time => :time_utc)
+        rename!(df, :P => :pv)
+
+        # Cache the results to CSV for future use.
+        CSV.write(csv_path, df)
+
+        return df
+    end
+end
+
+"""
+    get_pvgis_data(start_year::Int64, end_year::Int64, params::PVParameters, normalize::Bool)
+
+# Arguments
+- **`start_year::Int64`**: The starting year for the PVGIS data request.
+- **`end_year::Int64`**: The ending year for the PVGIS data request.
+- **`params::PVParameters`**: Struct containing PV system and location parameters
+  (e.g., latitude, longitude, peak power, technology, etc.).
+- **`normalize::Bool`**: Whether to normalize the power output by the peak power.
+
+Fetches hourly photovoltaic (PV) power output data for the specified years and PV system 
+parameters using the PVGIS `seriescalc` API.
+
+# Details
+The function queries the PVGIS `seriescalc` API, which provides hourly PV power output
+data based on the specified location, system parameters, and meteorological data. The
+API calculates the power output using the following inputs:
+- Solar radiation data.
+- PV system parameters (e.g., peak power, technology, mounting type).
+- Meteorological data (e.g., air temperature, wind speed).
+
+The response includes hourly data for the specified years, which is parsed and
+processed into a `DataFrame`. The power output is converted from watts (W) to
+kilowatts (kW) for better readability. 
+
+# Caching
+The results are cached locally in a CSV file to avoid redundant API calls. The cache
+file is stored in the specified `data_path` directory, and its name includes the date,
+number of years, and an optional `filename_hint`.
+
+!!! note
+    The PVGIS API documentation is available at:
+    https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/getting-started-pvgis/pvgis-user-manual_en
+
+!!! note
+    Due to current limitations on PVGIS, only dates within the years 2005 to 2023 can
+    be queried.
+"""
+function get_pvgis_data(
+    start_year::Int64,
+    end_year::Int64,
+    params::PVParameters,
+    normalize::Bool,
+)
     base = "https://re.jrc.ec.europa.eu/api/seriescalc"
 
     query = Dict(
@@ -207,42 +253,54 @@ function pvgis_profile(time_start::DateTime, params::PVParameters;
 
     # Build url
     qs = join(
-        [string(k, "=", HTTP.escapeuri(v)) for (k,v) ∈ query],
+        [string(k, "=", HTTP.escapeuri(v)) for (k, v) ∈ query],
         "&",
     )
     url = string(base, "?", qs)
 
     # Make the HTTP request with a custom User-Agent and Accept header to indicate we want JSON.
-    @info "Fetching PVGIS data for lat=$(params.lat), lon=$(params.lon), year=$(start_year) from PVGIS API..."
-    resp = HTTP.get(
-        url;
-        headers = [
-            "User-Agent" => "EnergyModelsLanguageInterfaces.jl",
-            "Accept" => "application/json",
-        ],
-    )
-
-    if resp.status != 200
-        error("PVGIS request failed with status $(resp.status): $(String(resp.body))")
+    @debug "Fetching PVGIS data for lat=$(params.lat), lon=$(params.lon), year=$(start_year) from PVGIS API..."
+    try
+        resp = HTTP.get(
+            url;
+            headers = [
+                "User-Agent" => "EnergyModelsLanguageInterfaces.jl",
+                "Accept" => "application/json",
+            ],
+        )
+    catch e
+        if isa(e, HTTP.Exceptions.StatusError)
+            # Try to extract error message from response body if available
+            body = String(e.response.body)
+            msg = try
+                parsed = JSON.parse(body)
+                haskey(parsed, "message") ? parsed["message"] : body
+            catch
+                body
+            end
+            error("PVGIS request failed with status $(e.status): $msg \n URL: $url")
+        else
+            rethrow(e)
+        end
     end
 
     # Parse the JSON response. We expect a structure with `outputs.hourly` containing the data.
-    parsed = JSON3.read(resp.body)
+    parsed = JSON.parse(String(resp.body))
 
     if !haskey(parsed, :outputs) || !haskey(parsed.outputs, :hourly)
         error("Missing `outputs.hourly` in PVGIS response.")
     end
 
     # Extract the hourly data, which should be an array of records. Each record is expected to have a `time` field and a `P` field for power output, among others.
-    hourly = Vector{Any}(parsed.outputs.hourly)
+    hourly = parsed["outputs"]["hourly"]
 
     rows = Vector{Dict{Symbol,Any}}(undef, length(hourly))
-    for (i, rec) ∈ enumerate(hourly)
+    for (i, rec) ∈ pairs(hourly)
         d = Dict{Symbol,Any}()
-        for (k, v) ∈ pairs(rec)
-            if k == :time
+        for (k, v) ∈ rec
+            if k == "time"
                 d[:time] = round(DateTime(v, dateformat"yyyymmdd:HHMM"), Dates.Hour)
-            elseif k == :P
+            elseif k == "P"
                 d[:P] = v / 1000  # Convert power from W to kW
                 if normalize
                     d[:P] /= params.peakpower  # Normalize by peak power if requested
@@ -262,22 +320,5 @@ function pvgis_profile(time_start::DateTime, params::PVParameters;
     # H_sun [°] - Sun height (elevation)
     # T2m [°C] - Air temperature
     # WS10m [m/s] - Wind speed at 10m
-    df = DataFrame(rows)
-
-    if remove_leap_day
-        # Remove special case of Feb 29 in non-leap years
-        df = filter(r -> !(month(r[:time]) == 2 && day(r[:time]) > 28), df)
-    end
-
-    # Keep only the relevant columns (time and power), and rename time.
-    select!(df, [:time, :P])
-
-    # Rename time column to be more descriptive.
-    rename!(df, :time => :time_utc)
-    rename!(df, :P => :pv)
-
-    # Cache the results to CSV for future use.
-    CSV.write(csv_path, df)
-
-    return df
+    return DataFrame(rows)
 end

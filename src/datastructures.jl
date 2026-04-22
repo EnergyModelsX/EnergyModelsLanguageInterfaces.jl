@@ -33,6 +33,35 @@ struct PVParameters <: AbstractParameters
     mountingplace::String
     optimalangles::Bool
     usehorizon::Bool
+    function PVParameters(
+        lat::Real,
+        lon::Real,
+        peakpower::Real,
+        loss::Real,
+        pvtechchoice::String,
+        mountingplace::String,
+        optimalangles::Bool,
+        usehorizon::Bool,
+    )
+        peakpower > 0 || throw(ArgumentError("Peak power must be positive."))
+        loss >= 0 || throw(ArgumentError("Loss must be non-negative."))
+        pvtechs = ("crystSi", "CIS", "CdTe")
+        pvtechchoice in pvtechs ||
+            throw(ArgumentError("pvtechchoice must be one of $(pvtechs)."))
+        mountings = ("free", "building")
+        mountingplace in mountings ||
+            throw(ArgumentError("mountingplace must be one of $(mountings)."))
+        return new(
+            lat,
+            lon,
+            peakpower,
+            loss,
+            pvtechchoice,
+            mountingplace,
+            optimalangles,
+            usehorizon,
+        )
+    end
 end
 function PVParameters(
     lat::Real,
@@ -213,11 +242,11 @@ end
     PV(
         id::Any,
         cap::TimeProfile,
-        time_start::DateTime,
-        time_end::DateTime,
         opex_var::TimeProfile,
         opex_fixed::TimeProfile,
         output::Dict{<:Resource,<:Real},
+        time_start::DateTime,
+        time_end::DateTime,
         params::PVParameters;
         data::Vector{<:Data} = Data[],
         data_path::String = "pvgis_cache",
@@ -230,12 +259,12 @@ the PVGIS API.
 # Arguments
 - **`id`**: The name or identifier of the node.
 - **`cap`**: The installed capacity.
-- **`time_start::DateTime`**: The start of the time range for which the PV output data is requested.
-- **`time_end::DateTime`**: The end of the time range for which the PV output data is requested.
 - **`opex_var`**: The variable operating expense per energy unit produced.
 - **`opex_fixed`**: The fixed operating expense.
 - **`output`**: The generated `Resource`s, normally Power, with conversion value `Real`.
-- **`params::PVParameters`**: Parameters for the PV system.
+- **`time_start::DateTime`**: The start of the time range for which the PV output data is requested.
+- **`time_end::DateTime`**: The end of the time range for which the PV output data is requested.
+- **`params::PVParameters`**: Parameters for the PV system. See [`PVParameters`](@ref) for details.
 
 # Keyword arguments
 - **`data`**: Additional data (e.g., for investments). Default is no `data`.
@@ -245,11 +274,11 @@ the PVGIS API.
 function PV(
     id::Any,
     cap::TimeProfile,
-    time_start::DateTime,
-    time_end::DateTime,
     opex_var::TimeProfile,
     opex_fixed::TimeProfile,
     output::Dict{<:Resource,<:Real},
+    time_start::DateTime,
+    time_end::DateTime,
     params::PVParameters;
     data::Vector{<:Data} = Data[],
     data_path::String = "pvgis_cache",

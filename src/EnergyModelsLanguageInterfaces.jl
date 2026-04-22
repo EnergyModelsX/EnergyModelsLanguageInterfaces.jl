@@ -15,10 +15,9 @@ using YAML
 
 # The following packages are needed for PVGIS
 using HTTP
-using JSON3
+using JSON
 using CSV
 using DataFrames
-using Printf
 
 const EMB = EnergyModelsBase
 const EMR = EnergyModelsRenewableProducers

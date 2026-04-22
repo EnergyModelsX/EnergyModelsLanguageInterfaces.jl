@@ -43,6 +43,7 @@ makedocs(
         "Nodes" => Any[
             "BioCHP"=>"nodes/biochp.md",
             "WindPower"=>"nodes/windpower.md",
+            "PV"=>"nodes/pv.md",
             "PVandCSP"=>"nodes/pvandcsp.md",
             "MultipleBuildingTypes"=>"nodes/multiplebuildingtypes.md",
         ],

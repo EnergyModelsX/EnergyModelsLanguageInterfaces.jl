@@ -38,11 +38,11 @@ EnergyModelsLanguageInterfaces.WindPower(
 EnergyModelsLanguageInterfaces.PV(
     ::Any,
     ::TimeProfile,
-    ::DateTime,
-    ::DateTime,
     ::TimeProfile,
     ::TimeProfile,
     ::Dict{<:Resource,<:Real},
+    ::DateTime,
+    ::DateTime,
     ::PVParameters;
     data::Vector{<:Data} = Data[],
     data_path::String = "pvgis_cache",
