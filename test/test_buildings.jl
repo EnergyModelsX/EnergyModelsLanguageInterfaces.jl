@@ -104,7 +104,7 @@ end
         sink = get_node(case, "Source for HeatHT")
         products = get_products(case)
         building_res = products[1:(end-1)]  # All resources except CO2
-        HeatHT = products[2]
+        HeatHT = fetch_element(products, "HeatHT")
 
         # Extraction of the time structure
         𝒯 = get_time_struct(case)

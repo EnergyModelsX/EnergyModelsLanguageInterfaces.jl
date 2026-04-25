@@ -14,6 +14,18 @@ the temperature at a single location and a user-defined temperature-to-demand fu
 !!! note "Sampling Tecnalia_Building-Stock-Energy-Model module"
     To use the [constructor](@ref lib-pub-sampling_constructors) for [`MultipleBuildingTypes`](@ref) that samples the [`Tecnalia_Building-Stock-Energy-Model`](https://github.com/iDesignRES/Tecnalia_Building-Stock-Energy-Model) module, follow the installation in the [Use nodes](@ref how_to-utilize-use_nodes) section.
 
+!!! note "Using the sampling constructor for `Building` nodes"
+    The sampling [constructor](@ref lib-pub-sampling_constructors) for [`Building`](@ref) node requires the installation of the python package `metocean_api` which can be done with
+
+    ```bash
+    pip install metocean_api
+    ```
+
+    Enable this package in julia by following the instructions in the [Enable python modules](@ref how_to-utilize-use_nodes-enable_python_modules) section.
+
+    Note that this package is already available if the module wind_power_timeseries is installed as described in the [Install python modules](@ref how_to-utilize-use_nodes) section.
+
+
 !!! danger
     Investments are currently not available for these nodes.
 
@@ -82,12 +94,12 @@ with parantheses.
 - [``\texttt{opex\_fixed}``](@extref EnergyModelsBase man-opt_var-opex)
 - [``\texttt{flow\_in}``](@extref EnergyModelsBase man-opt_var-flow)
 - [``\texttt{sink\_surplus}``](@extref EnergyModelsBase man-opt_var-sink): Declared as the total surplus aggregated across all resources.
-- [``\texttt{sink\_deficit}``](@extref EnergyModelsBase man-opt_var-sink): Declared as the total surplus aggregated across all resources.
+- [``\texttt{sink\_deficit}``](@extref EnergyModelsBase man-opt_var-sink): Declared as the total deficit aggregated across all resources.
 - [``\texttt{emissions\_node}``](@extref EnergyModelsBase man-opt_var-emissions) if `EmissionsData` is added to the field `data`
 
 !!! note "cap\_use and cap\_inst"
     [`EMLI.AbstractBuildings`](@ref) nodes have an individual capacity for all their resources, that is each `Resource` has its own capacity which must be satisfied.
-    As a consequence, the standard variables [``\texttt{cap\_use}``](@extref EnergyModelsBase man-opt_var-cap) and  [``\texttt{cap\_use}``](@extref EnergyModelsBase man-opt_var-cap) are not defined for [`EMLI.AbstractBuildings`](@ref) nodes through a new method for the function [`has_capacity`](@ref EnergyModelsBase.capacity).
+    As a consequence, the standard variables [``\texttt{cap\_use}``](@extref EnergyModelsBase man-opt_var-cap) and [``\texttt{cap\_inst}``](@extref EnergyModelsBase man-opt_var-cap) are not defined for [`EMLI.AbstractBuildings`](@ref) nodes through a new method for the function [`has_capacity`](@ref EnergyModelsBase.capacity).
 
 #### [Additional variables](@id nodes-AbstractBuildings-math-add)
 

@@ -589,25 +589,25 @@ downloaded using hindcast data (see [`heat_demand_profile`](@ref) for details).
 The temperature-to-demand mapping is provided by `temp_to_demand`.
 
 # Arguments
-- **`id`**: Identifier or name of the node.
-- **`cap`**: Demand dictionary for resources (no need to provide heat demand, it will be generated).
-- **`penalty_surplus`**: Penalty dictionaries for surplus.
-- **`penalty_deficit`**: Penalty dictionaries for deficit.
-- **`input`**: Dictionary of input resources with conversion values.
-- **`time_start`**: Start time for the demand profile as a `DateTime` object.
-- **`time_end`**: End time for the demand profile as a `DateTime` object.
-- **`lat`**: Latitude of the building location.
-- **`lon`**: Longitude of the building location.
-- **`heat_resource`**: `Resource` object representing heat demand in the model.
-- **`temp_to_demand`**: Function mapping temperature in Kelvin to demand.
+- **`id`** is the name/identifier of the node.
+- **`cap::Dict{<:Resource,<:TimeProfile}`** is the demand (no need to provide heat demand, it will be generated).
+- **`penalty_surplus::Dict{<:Resource,<:TimeProfile}`** are the penalties for surplus.
+- **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** are the penalties for deficit.
+- **`input::Dict{<:Resource,<:Real}`** are the input [`Resource`](@extref EnergyModelsBase.Resource)s with conversion value `Real`.
+- **`time_start::DateTime`** is the start time for the demand profile.
+- **`time_end::DateTime`** is the end time for the demand profile.
+- **`lat::Real`** is the latitude of the building location.
+- **`lon::Real`** is the longitude of the building location.
+- **`heat_resource::Resource`** is the `Resource` object representing heat demand in the model.
+- **`temp_to_demand::Function`** is the function mapping temperature in Kelvin to demand.
 
-# Keyword Arguments
-- **`data`**: Additional data to be used.
-- **`data_path`**: Directory path for cached CSV files.
-- **`source`**: Data source, e.g., "NORA3" or "ERA5".
-- **`reload`**: Boolean flag to reload data from local CSV files.
-- **`save_csv`**: Boolean flag to save data to CSV files.
-- **`use_cache`**: Boolean flag to use local cache.
+# Keyword arguments
+- **`data::Vector{<:Data}`** is the additional data to be used.
+- **`data_path::String`** is the directory path for cached CSV files.
+- **`source::String`** is the data source, e.g., "NORA3" or "ERA5".
+- **`reload::Bool`** is a boolean flag to reload data from local CSV files.
+- **`save_csv::Bool`** is a boolean flag to save data to CSV files.
+- **`use_cache::Bool`** is a boolean flag to use local cache.
 """
 function Building(
     id::Any,
@@ -755,15 +755,15 @@ Constructs a `MultipleBuildingTypes` instance where the demand profiles are samp
       "Heat|Solar" => SolarHeat,
   )
   ```
-- **`T`** is the TimeStructure used in the model.
+- **`T::TimeStructure`** is the TimeStructure used in the model.
 - **`penalty_surplus::Dict{<:Resource,<:TimeProfile}`** is the penalties for surplus.
 - **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** is the penalties for deficit.
 
 # Keyword arguments
-- **`data`** is the additional data (*e.g.*, for investments). The default value is no `data`.
-- **`data_location`** is the location where the data is saved. The default value is in the
+- **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments). The default value is no `data`.
+- **`data_location::String`** is the location where the data is saved. The default value is in the
   temporary directory.
-- **`overwrite_saved_data`** is a boolean that determines if the stored data should be
+- **`overwrite_saved_data::Bool`** is a boolean that determines if the stored data should be
   overwritten (in which case the building_energy_process is called). The default value is
   `false`.
 
