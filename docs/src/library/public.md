@@ -3,30 +3,30 @@
 ## [New resource types](@id lib-pub-resource_types)
 
 ```@docs
-EnergyModelsLanguageInterfaces.ResourceBio
+EMLI.ResourceBio
 ```
 
 ## [New parameter types](@id lib-pub-parameter_types)
 
 ```@docs
-EnergyModelsLanguageInterfaces.PVParameters
+EMLI.PVParameters
 ```
 
 ## [New nodal types](@id lib-pub-nodal_types)
 
 ```@docs
-EnergyModelsLanguageInterfaces.WindPower
-EnergyModelsLanguageInterfaces.PV
-EnergyModelsLanguageInterfaces.CSPandPV
-EnergyModelsLanguageInterfaces.Building
-EnergyModelsLanguageInterfaces.MultipleBuildingTypes
-EnergyModelsLanguageInterfaces.BioCHP
+EMLI.WindPower
+EMLI.PV
+EMLI.CSPandPV
+EMLI.Building
+EMLI.MultipleBuildingTypes
+EMLI.BioCHP
 ```
 
 ## [Sampling constructors](@id lib-pub-sampling_constructors)
 
 ```@docs
-EnergyModelsLanguageInterfaces.WindPower(
+EMLI.WindPower(
     ::Any,
     ::TimeStruct.TimeProfile,
     ::Dict,
@@ -36,7 +36,7 @@ EnergyModelsLanguageInterfaces.WindPower(
     ::TimeStruct.TimeProfile,
     ::Dict{<:EnergyModelsBase.Resource,<:Real},
 )
-EnergyModelsLanguageInterfaces.PV(
+EMLI.PV(
     ::Any,
     ::TimeProfile,
     ::TimeProfile,
@@ -49,7 +49,7 @@ EnergyModelsLanguageInterfaces.PV(
     data_path::String = "pvgis_cache",
     filename_hint::String = "",
 )
-EnergyModelsLanguageInterfaces.CSPandPV(
+EMLI.CSPandPV(
     ::Any,
     ::Dict,
     ::DateTime,
@@ -60,7 +60,7 @@ EnergyModelsLanguageInterfaces.CSPandPV(
     data_path::String = "",
     source::String = "NORA3",
 )
-EnergyModelsLanguageInterfaces.Building(
+EMLI.Building(
     ::Any,
     ::Dict{<:Resource,<:TimeProfile},
     ::Dict{<:Resource,<:TimeProfile},
@@ -79,7 +79,7 @@ EnergyModelsLanguageInterfaces.Building(
     save_csv::Bool = true,
     use_cache::Bool = true,
 )
-EnergyModelsLanguageInterfaces.MultipleBuildingTypes(
+EMLI.MultipleBuildingTypes(
     ::Any,
     ::Dict,
     ::DateTime,
@@ -93,10 +93,10 @@ EnergyModelsLanguageInterfaces.MultipleBuildingTypes(
     data_location::String = joinpath(tempdir(), "buildings"),
     overwrite_saved_data::Bool = false,
 )
-EnergyModelsLanguageInterfaces.BioCHP(
+EMLI.BioCHP(
     ::Any,
     ::TimeStruct.TimeProfile,
-    ::Dict{<:EnergyModelsLanguageInterfaces.ResourceBio,<:Real},
+    ::Dict{<:EMLI.ResourceBio,<:Real},
     ::Dict{<:EnergyModelsHeat.ResourceHeat,<:Real},
     ::EnergyModelsBase.Resource;
     data::Vector{<:ExtensionData} = ExtensionData[],
@@ -107,6 +107,6 @@ EnergyModelsLanguageInterfaces.BioCHP(
 ## [Utility functions](@id lib-pub-util_fun)
 
 ```@docs
-EnergyModelsLanguageInterfaces.call_python_function
-EnergyModelsLanguageInterfaces.fetch_element
+EMLI.call_python_function
+EMLI.fetch_element
 ```

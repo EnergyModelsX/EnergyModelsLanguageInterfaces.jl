@@ -337,8 +337,8 @@ end
     heat_demand_profile(
         time_start::DateTime,
         time_end::DateTime,
-        lat::Float64,
-        lon::Float64,
+        lat::Real,
+        lon::Real,
         temp_to_demand::Function;
         data_path::String = "metocean_api_data",
         filename_hint::String = "",
@@ -359,23 +359,23 @@ The data source is queried using the [`get_met_data`](@ref) function, which hand
 caching, and storage.
 
 # Arguments
-- **`time_start::DateTime`**: Start of the time period for the demand profile.
-- **`time_end::DateTime`**: End of the time period for the demand profile.
-- **`lat::Float64`**: Latitude of the location.
-- **`lon::Float64`**: Longitude of the location.
-- **`temp_to_demand::Function`**: Function mapping temperature in Kelvin to demand.
-- **`data_path::String`**: Directory path to store or load temperature data (default: "metocean_api_data").
-- **`filename_hint::String`**: Optional hint for naming the data file (default: "").
-- **`source::String`**: Data source for temperature (default: "NORA3").
-- **`reload_csv::Bool`**: If true, reloads CSV data if available (default: true).
-- **`save_csv::Bool`**: If true, saves the generated profile to a CSV file (default: true).
-- **`use_cache::Bool`**: If true, uses cached data if available (default: true).
+- **`time_start::DateTime`** is the start of the time period for the demand profile.
+- **`time_end::DateTime`** is the end of the time period for the demand profile.
+- **`lat::Real`** is the latitude of the location.
+- **`lon::Real`** is the longitude of the location.
+- **`temp_to_demand::Function`** is a function mapping temperature in Kelvin to demand.
+- **`data_path::String`** is the directory path to store or load temperature data (default: "metocean_api_data").
+- **`filename_hint::String`** is an optional hint for naming the data file (default: "").
+- **`source::String`** is the data source for temperature (default: "NORA3").
+- **`reload_csv::Bool`** is a flag indicating whether to reload CSV data if available (default: true).
+- **`save_csv::Bool`** is a flag indicating whether to save the generated profile to a CSV file (default: true).
+- **`use_cache::Bool`** is a flag indicating whether to use cached data if available (default: true).
 """
 function heat_demand_profile(
     time_start::DateTime,
     time_end::DateTime,
-    lat::Float64,
-    lon::Float64,
+    lat::Real,
+    lon::Real,
     temp_to_demand::Function;
     data_path::String = "metocean_api_data",
     filename_hint::String = "",
@@ -406,9 +406,9 @@ function heat_demand_profile(
         save_csv,
         use_cache,
     )
-    temperature_column = Symbol(variables[1])
-    if !hasproperty(df, temperature_column)
-        error("Temperature column $(variables[1]) not found in meteorological data.")
+    temperature_column = variables[1]
+    if !(temperature_column in names(df))
+        error("Temperature column $temperature_column not found in meteorological data.")
     end
     df.heat_demand = temp_to_demand.(df[!, temperature_column])
     return df
@@ -418,8 +418,8 @@ end
     get_met_data(
         time_start::DateTime, 
         time_end::DateTime, 
-        lat::Float64, 
-        lon::Float64, 
+        lat::Real, 
+        lon::Real, 
         product::String, 
         variables::Vector{String}; 
         data_path::String = "metocean_api_data", 
@@ -434,8 +434,8 @@ Fetches meteorological data for a specified time range and geographic location.
 # Arguments
 - **`time_start::DateTime`**: Start of the time range for data retrieval.
 - **`time_end::DateTime`**: End of the time range for data retrieval.
-- **`lat::Float64`**: Latitude of the location.
-- **`lon::Float64`**: Longitude of the location.
+- **`lat::Real`**: Latitude of the location.
+- **`lon::Real`**: Longitude of the location.
 - **`product::String`**: Name of the meteorological data product to use.
 - **`variables::Vector{String}`**: List of meteorological variables to retrieve.
 - **`data_path::String`**: Directory path where data files are stored or will be saved.
@@ -456,8 +456,8 @@ Fetches meteorological data for a specified time range and geographic location.
 function get_met_data(
     time_start::DateTime,
     time_end::DateTime,
-    lat::Float64,
-    lon::Float64,
+    lat::Real,
+    lon::Real,
     product::String,
     variables::Vector{String};
     data_path::String = "metocean_api_data",
