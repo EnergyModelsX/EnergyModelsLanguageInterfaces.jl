@@ -21,7 +21,7 @@ const EMLI = EnergyModelsLanguageInterfaces
         mass_fractions::Dict{<:ResourceBio,<:Real},
         heat_output_ratios::Dict{<:ResourceHeat,<:Real},
         electricity_resource::Resource;
-        data::Vector{Data} = Data[],
+        data::Vector{<:ExtensionData} = ExtensionData[],
         libpath::String = joinpath(
             @__DIR__,
             "..",
@@ -50,7 +50,7 @@ library file located at `libpath`. The BioCHP has electricity production of the 
 - **`electricity_resource`** is the `Resource` for the electricity.
 
 # Keyword arguments
-- **`data::Vector{Data}`** is the additional data (*e.g.*, for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.*, for investments). The field `data`
   is conditional through usage of a constructor.
 - **`libpath`** is the absolute path of the `CHP_modelling` library file.
 
@@ -65,7 +65,7 @@ function EMLI.BioCHP(
     mass_fractions::Dict{<:ResourceBio,<:Real},
     heat_output_ratios::Dict{<:ResourceHeat,<:Real},
     electricity_resource::Resource;
-    data::Vector{Data} = Data[],
+    data::Vector{<:ExtensionData} = ExtensionData[],
     libpath::String = joinpath(
         @__DIR__,
         "..",

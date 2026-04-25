@@ -269,9 +269,6 @@ function simple_graph_building(; cap_p = nothing,
             temp_to_demand;
             data_path = joinpath(pkgdir(EMLI), "test", "data", "building"),
             source = "NORA3",
-            reload = true,
-            save_csv = true,
-            use_cache = true,
         )
     else
         building = Building(

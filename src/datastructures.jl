@@ -93,7 +93,7 @@ sampling the profile from a Python code through a constructor.
 - **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
 - **`opex_fixed::TimeProfile`** is the fixed operating expense.
 - **`output::Dict{Resource, Real}`** are the generated `Resource`s, normally Power.
-- **`data::Vector{<:Data}`** is the additional data (e.g. for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (e.g. for investments). The field `data`
   is conditional through usage of a constructor.
 """
 struct WindPower <: AbstractNonDisRES
@@ -103,7 +103,7 @@ struct WindPower <: AbstractNonDisRES
     opex_var::TimeProfile
     opex_fixed::TimeProfile
     output::Dict{<:Resource,<:Real}
-    data::Vector{<:Data}
+    data::Vector{<:ExtensionData}
 end
 function WindPower(
     id::Any,
@@ -113,7 +113,7 @@ function WindPower(
     opex_fixed::TimeProfile,
     output::Dict{<:Resource,<:Real},
 )
-    return WindPower(id, cap, profile, opex_var, opex_fixed, output, Data[])
+    return WindPower(id, cap, profile, opex_var, opex_fixed, output, ExtensionData[])
 end
 
 """
@@ -126,7 +126,7 @@ end
         opex_var::TimeProfile,
         opex_fixed::TimeProfile,
         output::Dict{<:Resource,<:Real};
-        data::Vector{<:Data} = Data[],
+        data::Vector{<:ExtensionData} = ExtensionData[],
         method::String = "Ninja",
         data_path::String = "",
         source::String = "NORA3",
@@ -182,7 +182,7 @@ function WindPower(
     opex_var::TimeProfile,
     opex_fixed::TimeProfile,
     output::Dict{<:Resource,<:Real};
-    data::Vector{<:Data} = Data[],
+    data::Vector{<:ExtensionData} = ExtensionData[],
     method::String = "Ninja",
     data_path::String = "",
     source::String = "NORA3",
@@ -217,7 +217,7 @@ through a constructor.
 - **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
 - **`opex_fixed::TimeProfile`** is the fixed operating expense.
 - **`output::Dict{Resource, Real}`** are the generated `Resource`s, normally Power.
-- **`data::Vector{<:Data}`** is the additional data (e.g. for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (e.g. for investments). The field `data`
   is conditional through usage of a constructor.
 """
 struct PV <: AbstractNonDisRES
@@ -227,7 +227,7 @@ struct PV <: AbstractNonDisRES
     opex_var::TimeProfile
     opex_fixed::TimeProfile
     output::Dict{<:Resource,<:Real}
-    data::Vector{<:Data}
+    data::Vector{<:ExtensionData}
 end
 function PV(
     id::Any,
@@ -237,7 +237,7 @@ function PV(
     opex_fixed::TimeProfile,
     output::Dict{<:Resource,<:Real},
 )
-    return PV(id, cap, profile, opex_var, opex_fixed, output, Data[])
+    return PV(id, cap, profile, opex_var, opex_fixed, output, ExtensionData[])
 end
 
 """
@@ -250,28 +250,28 @@ end
         time_start::DateTime,
         time_end::DateTime,
         params::PVParameters;
-        data::Vector{<:Data} = Data[],
+        data::Vector{<:ExtensionData} = ExtensionData[],
         data_path::String = "pvgis_cache",
         filename_hint::String = "",
     )
 
-Constructs a [`PV`](@ref) instance where the power production profile is sampled from
-the PVGIS API.
+A PV source producing power. It extends the existing `AbstractNonDisRES` node by extracting
+data from the PVGIS tool from the EU Science Hub (available at https://re.jrc.ec.europa.eu/pvg_tools)
+through a constructor.
 
-# Arguments
-- **`id`**: The name or identifier of the node.
-- **`cap`**: The installed capacity.
-- **`opex_var`**: The variable operating expense per energy unit produced.
-- **`opex_fixed`**: The fixed operating expense.
-- **`output`**: The generated `Resource`s, normally Power, with conversion value `Real`.
-- **`time_start::DateTime`**: The start of the time range for which the PV output data is requested.
-- **`time_end::DateTime`**: The end of the time range for which the PV output data is requested.
-- **`params::PVParameters`**: Parameters for the PV system. See [`PVParameters`](@ref) for details.
-
-# Keyword arguments
-- **`data`**: Additional data (e.g., for investments). Default is no `data`.
-- **`data_path`**: Directory where the cached CSV file will be stored. Default is `"pvgis_cache"`.
-- **`filename_hint`**: Optional string to include in the cache file name for identification. Default is `""`.
+# Fields
+- **`id`** is the name/identifier of the node.
+- **`cap::TimeProfile`** is the installed capacity.
+- **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
+- **`opex_fixed::TimeProfile`** is the fixed operating expense.
+- **`output::Dict{<:Resource,<:Real}`** are the generated `Resource`s, normally Power.
+- **`time_start::DateTime`** is the start of the time range for which the PV output data is requested.
+- **`time_end::DateTime`** is the end of the time range for which the PV output data is requested.
+- **`params::PVParameters`** are the parameters for the PV system. See [`PVParameters`](@ref) for details.
+- **`data::Vector{<:ExtensionData}`** is the additional data (e.g., for investments). 
+  The field `data` is conditional through usage of a constructor.
+- **`data_path::String`** is the directory where the cached CSV file will be stored. Default is `"pvgis_cache"`.
+- **`filename_hint::String`** is an optional string to include in the cache file name for identification. Default is `""`.
 """
 function PV(
     id::Any,
@@ -282,7 +282,7 @@ function PV(
     time_start::DateTime,
     time_end::DateTime,
     params::PVParameters;
-    data::Vector{<:Data} = Data[],
+    data::Vector{<:ExtensionData} = ExtensionData[],
     data_path::String = "pvgis_cache",
     filename_hint::String = "",
 )
@@ -313,7 +313,7 @@ the strategic level.
 - **`opex_fixed::Dict{<:Resource,<:TimeProfile}`** is the fixed operating expense (for all
   resources in a Dict).
 - **`output::Dict{Resource, Real}`** are the generated `Resource`s, normally Power.
-- **`data::Vector{<:Data}`** is the additional data (e.g. for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (e.g. for investments). The field `data`
   is conditional through usage of a constructor.
 
 !!! danger
@@ -326,7 +326,7 @@ struct CSPandPV <: AbstractNonDisRES
     opex_var::Dict{<:Resource,<:TimeProfile}
     opex_fixed::Dict{<:Resource,<:TimeProfile}
     output::Dict{<:Resource,<:Real}
-    data::Vector{<:Data}
+    data::Vector{<:ExtensionData}
 end
 function CSPandPV(
     id::Any,
@@ -336,7 +336,7 @@ function CSPandPV(
     opex_fixed::Dict{<:Resource,<:TimeProfile},
     output::Dict{<:Resource,<:Real},
 )
-    return CSPandPV(id, cap, profile, opex_var, opex_fixed, output, Data[])
+    return CSPandPV(id, cap, profile, opex_var, opex_fixed, output, ExtensionData[])
 end
 
 """
@@ -346,7 +346,7 @@ end
         time_start::DateTime,
         time_end::DateTime,
         resources_map::Dict{String,<:Resource};
-        data::Vector{<:Data} = Data[],
+        data::Vector{<:ExtensionData} = ExtensionData[],
         data_location::String = joinpath(tempdir(), "CSPandPV"),
         overwrite_saved_data::Bool = false,
     )
@@ -396,7 +396,7 @@ function CSPandPV(
     time_start::DateTime,
     time_end::DateTime,
     resources_map::Dict{String,<:Resource};
-    data::Vector{<:Data} = Data[],
+    data::Vector{<:ExtensionData} = ExtensionData[],
     data_location::String = joinpath(tempdir(), "CSPandPV"),
     overwrite_saved_data::Bool = false,
 )
@@ -539,7 +539,7 @@ variable OPEX for surplus and deficit, respectively.
 - **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** are the penalties for deficit.
 - **`input::Dict{<:Resource,<:Real}`** are the input
   [`Resource`](@extref EnergyModelsBase.Resource)s with conversion value `Real`.
-- **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.*, for investments). The field `data`
   is conditional through usage of a constructor.
 
 !!! danger
@@ -551,7 +551,7 @@ struct Building <: AbstractBuildings
     penalty_surplus::Dict{<:Resource,<:TimeProfile}
     penalty_deficit::Dict{<:Resource,<:TimeProfile}
     input::Dict{<:Resource,<:Real}
-    data::Vector{<:Data}
+    data::Vector{<:ExtensionData}
 end
 function Building(
     id::Any,
@@ -560,7 +560,7 @@ function Building(
     penalty_deficit::Dict{<:Resource,<:TimeProfile},
     input::Dict{<:Resource,<:Real},
 )
-    return Building(id, cap, penalty_surplus, penalty_deficit, input, Data[])
+    return Building(id, cap, penalty_surplus, penalty_deficit, input, ExtensionData[])
 end
 
 """
@@ -576,10 +576,10 @@ end
         lon::Real,
         heat_resource::Resource,
         temp_to_demand::Function;
-        data::Vector{<:Data} = Data[],
+        data::Vector{<:ExtensionData} = ExtensionData[],
         data_path::String = joinpath(tempdir(), "building"),
         source::String = "NORA3",
-        reload::Bool = true,
+        reload_csv::Bool = true,
         save_csv::Bool = true,
         use_cache::Bool = true,
     )
@@ -593,7 +593,8 @@ The temperature-to-demand mapping is provided by `temp_to_demand`.
 - **`cap::Dict{<:Resource,<:TimeProfile}`** is the demand (no need to provide heat demand, it will be generated).
 - **`penalty_surplus::Dict{<:Resource,<:TimeProfile}`** are the penalties for surplus.
 - **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** are the penalties for deficit.
-- **`input::Dict{<:Resource,<:Real}`** are the input [`Resource`](@extref EnergyModelsBase.Resource)s with conversion value `Real`.
+- **`input::Dict{<:Resource,<:Real}`** are the input [`Resource`](@extref EnergyModelsBase.Resource)s 
+  with conversion value `Real`.
 - **`time_start::DateTime`** is the start time for the demand profile.
 - **`time_end::DateTime`** is the end time for the demand profile.
 - **`lat::Real`** is the latitude of the building location.
@@ -602,10 +603,10 @@ The temperature-to-demand mapping is provided by `temp_to_demand`.
 - **`temp_to_demand::Function`** is the function mapping temperature in Kelvin to demand.
 
 # Keyword arguments
-- **`data::Vector{<:Data}`** is the additional data to be used.
+- **`data::Vector{<:ExtensionData}`** is the additional data to be used.
 - **`data_path::String`** is the directory path for cached CSV files.
 - **`source::String`** is the data source, e.g., "NORA3" or "ERA5".
-- **`reload::Bool`** is a boolean flag to reload data from local CSV files.
+- **`reload_csv::Bool`** is a boolean flag to reload data from local CSV files if available (default: true).
 - **`save_csv::Bool`** is a boolean flag to save data to CSV files.
 - **`use_cache::Bool`** is a boolean flag to use local cache.
 """
@@ -621,10 +622,10 @@ function Building(
     lon::Real,
     heat_resource::Resource,
     temp_to_demand::Function;
-    data::Vector{<:Data} = Data[],
+    data::Vector{<:ExtensionData} = ExtensionData[],
     data_path::String = joinpath(tempdir(), "building"),
     source::String = "NORA3",
-    reload::Bool = true,
+    reload_csv::Bool = true,
     save_csv::Bool = true,
     use_cache::Bool = true,
 )
@@ -636,7 +637,7 @@ function Building(
         temp_to_demand;
         data_path = data_path,
         source = source,
-        reload = reload,
+        reload_csv = reload_csv,
         save_csv = save_csv,
         use_cache = use_cache,
     )
@@ -667,7 +668,7 @@ and deficit.
 - **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** are the penalties for deficit.
 - **`input::Dict{<:Resource,<:Real}`** are the input
   [`Resource`](@extref EnergyModelsBase.Resource)s with conversion value `Real`.
-- **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.*, for investments). The field `data`
   is conditional through usage of a constructor.
 
 !!! danger
@@ -679,7 +680,7 @@ struct MultipleBuildingTypes <: AbstractBuildings
     penalty_surplus::Dict{<:Resource,<:TimeProfile}
     penalty_deficit::Dict{<:Resource,<:TimeProfile}
     input::Dict{<:Resource,<:Real}
-    data::Vector{<:Data}
+    data::Vector{<:ExtensionData}
 end
 function MultipleBuildingTypes(
     id::Any,
@@ -688,7 +689,14 @@ function MultipleBuildingTypes(
     penalty_deficit::Dict{<:Resource,<:TimeProfile},
     input::Dict{<:Resource,<:Real},
 )
-    return MultipleBuildingTypes(id, cap, penalty_surplus, penalty_deficit, input, Data[])
+    return MultipleBuildingTypes(
+        id,
+        cap,
+        penalty_surplus,
+        penalty_deficit,
+        input,
+        ExtensionData[],
+    )
 end
 
 """
@@ -702,7 +710,7 @@ end
         T::TimeStructure,
         penalty_surplus::Dict{<:Resource,<:TimeProfile},
         penalty_deficit::Dict{<:Resource,<:TimeProfile};
-        data::Vector{<:Data} = Data[],
+        data::Vector{<:ExtensionData} = ExtensionData[],
         data_location::String = joinpath(tempdir(), "buildings"),
         overwrite_saved_data::Bool = false,
     )
@@ -760,7 +768,7 @@ Constructs a `MultipleBuildingTypes` instance where the demand profiles are samp
 - **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** is the penalties for deficit.
 
 # Keyword arguments
-- **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments). The default value is no `data`.
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.*, for investments). The default value is no `data`.
 - **`data_location::String`** is the location where the data is saved. The default value is in the
   temporary directory.
 - **`overwrite_saved_data::Bool`** is a boolean that determines if the stored data should be
@@ -795,7 +803,7 @@ function MultipleBuildingTypes(
     T::TimeStructure,
     penalty_surplus::Dict{<:Resource,<:TimeProfile},
     penalty_deficit::Dict{<:Resource,<:TimeProfile};
-    data::Vector{<:Data} = Data[],
+    data::Vector{<:ExtensionData} = ExtensionData[],
     data_location::String = joinpath(tempdir(), "buildings"),
     overwrite_saved_data::Bool = false,
 )
@@ -961,7 +969,7 @@ The capacity is hereby normalized to a conversion value of 1 in the fields `inpu
   value `Real`.
 - **`output::Dict{<:Resource,<:Real}`** are the generated [`Resource`](@extref EnergyModelsBase.Resource)s with
   conversion value `Real`.
-- **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.*, for investments). The field `data`
   is conditional through usage of a constructor.
 """
 struct BioCHP <: NetworkNode
@@ -972,7 +980,7 @@ struct BioCHP <: NetworkNode
     opex_fixed::TimeProfile
     input::Dict{<:ResourceBio,<:Real}
     output::Dict{<:Resource,<:Real}
-    data::Vector{<:Data}
+    data::Vector{<:ExtensionData}
 end
 function BioCHP(
     id,
@@ -1002,7 +1010,7 @@ end
         mass_fractions::Dict{<:ResourceBio,<:Real},
         heat_output_ratios::Dict{<:ResourceHeat,<:Real},
         electricity_resource::Resource;
-        data::Vector{<:Data} = Data[],
+        data::Vector{<:ExtensionData} = ExtensionData[],
         libpath::String = joinpath(
             @__DIR__,
             "..",
@@ -1029,7 +1037,7 @@ library file located at `libpath`. The BioCHP has electricity production of the 
 - **`electricity_resource`** is the `Resource` for the electricity.
 
 # Keyword arguments
-- **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments).
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.*, for investments).
 - **`libpath`** is the absolute path of the `CHP_modelling` library file.
 
 !!! note "EmissionsEnergy"
@@ -1044,7 +1052,7 @@ function BioCHP(
     mass_fractions::Dict{<:ResourceBio,<:Real},
     heat_output_ratios::Dict{<:ResourceHeat,<:Real},
     electricity_resource::Resource;
-    data::Vector{<:Data} = Data[],
+    data::Vector{<:ExtensionData} = ExtensionData[],
     libpath::String = joinpath(
         @__DIR__,
         "..",
@@ -1080,7 +1088,7 @@ function BioCHP(
     mass_fractions::Dict{<:ResourceBio,<:Real},
     heat_output_ratios::Dict{<:ResourceHeat,<:Real},
     electricity_resource::Resource,
-    data::Vector{<:Data},
+    data::Vector{<:ExtensionData},
     libpath::String,
 )
     # Get the capacity

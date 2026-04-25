@@ -27,7 +27,7 @@ Standard fields (of an [`AbstractNonDisRES`](@extref EnergyModelsRenewableProduc
   The field `output` includes [`Resource`](@extref EnergyModelsBase.Resource)s with their corresponding conversion factors as dictionaries.
   In the case of a PV and CSP energy source, `output` should always include your *electricity* resource and a *heat* resource. In practice, you should use a value of 1.\
   All values have to be non-negative.
-- **`data::Vector{Data}`**:\
+- **`data::Vector{<:ExtensionData}`**:\
   An entry for providing additional data to the model.
   In the current version, it is not applicable. We intend to change this in future releases to enable investments.
 

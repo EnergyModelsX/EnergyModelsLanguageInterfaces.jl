@@ -44,7 +44,7 @@ Standard fields of [`EMLI.AbstractBuildings`](@ref) nodes are given as:
 - **`input::Dict{<:Resource, <:Real}`**:\
   The field `input` includes [`Resource`](@extref EnergyModelsBase.Resource)s with their corresponding conversion factors as dictionaries.
   All values have to be non-negative.
-- **`data::Vector{Data}`**:\
+- **`data::Vector{<:ExtensionData}`**:\
   An entry for providing additional data to the model.
   In the current version, it is not applicable. We intend to change this in future releases to enable investments.
 

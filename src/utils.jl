@@ -343,7 +343,7 @@ end
         data_path::String = "metocean_api_data",
         filename_hint::String = "",
         source::String = "NORA3",
-        reload::Bool = true,
+        reload_csv::Bool = true,
         save_csv::Bool = true,
         use_cache::Bool = true,
     )
@@ -367,7 +367,7 @@ caching, and storage.
 - **`data_path::String`**: Directory path to store or load temperature data (default: "metocean_api_data").
 - **`filename_hint::String`**: Optional hint for naming the data file (default: "").
 - **`source::String`**: Data source for temperature (default: "NORA3").
-- **`reload::Bool`**: If true, reloads CSV data even if cached data exists (default: true).
+- **`reload_csv::Bool`**: If true, reloads CSV data if available (default: true).
 - **`save_csv::Bool`**: If true, saves the generated profile to a CSV file (default: true).
 - **`use_cache::Bool`**: If true, uses cached data if available (default: true).
 """
@@ -380,7 +380,7 @@ function heat_demand_profile(
     data_path::String = "metocean_api_data",
     filename_hint::String = "",
     source::String = "NORA3",
-    reload::Bool = true,
+    reload_csv::Bool = true,
     save_csv::Bool = true,
     use_cache::Bool = true,
 )
@@ -402,7 +402,7 @@ function heat_demand_profile(
         variables;
         data_path,
         filename_hint,
-        reload,
+        reload_csv,
         save_csv,
         use_cache,
     )
@@ -415,9 +415,19 @@ function heat_demand_profile(
 end
 
 """
-    get_met_data(time_start::DateTime, time_end::DateTime, lat::Float64, lon::Float64, 
-                 product::String, variables::Vector{String}; data_path::String, 
-                 filename_hint::String, reload::Bool, save_csv::Bool, use_cache::Bool)
+    get_met_data(
+        time_start::DateTime, 
+        time_end::DateTime, 
+        lat::Float64, 
+        lon::Float64, 
+        product::String, 
+        variables::Vector{String}; 
+        data_path::String = "metocean_api_data", 
+        filename_hint::String = "", 
+        reload_csv::Bool = true, 
+        save_csv::Bool = true, 
+        use_cache::Bool = true,
+    )
 
 Fetches meteorological data for a specified time range and geographic location.
 
@@ -430,7 +440,7 @@ Fetches meteorological data for a specified time range and geographic location.
 - **`variables::Vector{String}`**: List of meteorological variables to retrieve.
 - **`data_path::String`**: Directory path where data files are stored or will be saved.
 - **`filename_hint::String`**: Hint for naming the output file.
-- **`reload::Bool`**: If true, reloads CSV data even if cached data exists (default: true).
+- **`reload_csv::Bool`**: If true, reloads CSV data if available (default: true).
 - **`save_csv::Bool`**: If `true`, saves the retrieved data as a CSV file (default: true).
 - **`use_cache::Bool`**: If `true`, uses cached data if available (default: true).
 
@@ -452,7 +462,7 @@ function get_met_data(
     variables::Vector{String};
     data_path::String = "metocean_api_data",
     filename_hint::String = "",
-    reload::Bool = true,
+    reload_csv::Bool = true,
     save_csv::Bool = true,
     use_cache::Bool = true,
 )
@@ -469,7 +479,7 @@ function get_met_data(
         string(lon) * filehint * ".csv",
     )
 
-    if reload && isfile(csv_path) && filesize(csv_path) > 0
+    if reload_csv && isfile(csv_path) && filesize(csv_path) > 0
         df = CSV.read(
             csv_path,
             DataFrame;
