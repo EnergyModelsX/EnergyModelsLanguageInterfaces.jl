@@ -567,11 +567,13 @@ end
     Building(
         id::Any,
         cap::Dict{<:Resource,<:TimeProfile},
-        time_start::DateTime,
-        time_end::DateTime,
-        locations::DataFrame,
         penalty_surplus::Dict{<:Resource,<:TimeProfile},
         penalty_deficit::Dict{<:Resource,<:TimeProfile},
+        input::Dict{<:Resource,<:Real},
+        time_start::DateTime,
+        time_end::DateTime,
+        lat::Real,
+        lon::Real,
         heat_resource::Resource,
         temp_to_demand::Function;
         data::Vector{<:Data} = Data[],
@@ -583,15 +585,19 @@ end
     )
 
 Constructs a [`Building`](@ref) instance where the heat demand profile is generated from temperature data
-downloaded using hind cast data (see [`heat_demand_profile`](@ref) for details). 
+downloaded using hindcast data (see [`heat_demand_profile`](@ref) for details). 
 The temperature-to-demand mapping is provided by `temp_to_demand`.
 
 # Arguments
 - **`id`**: Identifier or name of the node.
 - **`cap`**: Demand dictionary for resources (no need to provide heat demand, it will be generated).
-- **`time_start`**, **`time_end`**: Start and end times as `DateTime` objects.
-- **`locations`**: DataFrame containing "lat" and "lon" columns for each location.
-- **`penalty_surplus`**, **`penalty_deficit`**: Penalty dictionaries for surplus and deficit, respectively.
+- **`penalty_surplus`**: Penalty dictionaries for surplus.
+- **`penalty_deficit`**: Penalty dictionaries for deficit.
+- **`input`**: Dictionary of input resources with conversion values.
+- **`time_start`**: Start time for the demand profile as a `DateTime` object.
+- **`time_end`**: End time for the demand profile as a `DateTime` object.
+- **`lat`**: Latitude of the building location.
+- **`lon`**: Longitude of the building location.
 - **`heat_resource`**: `Resource` object representing heat demand in the model.
 - **`temp_to_demand`**: Function mapping temperature in Kelvin to demand.
 
@@ -635,11 +641,12 @@ function Building(
         use_cache = use_cache,
     )
     if heat_resource ∈ keys(cap)
-        @warn "The provided capacity dictionary already contains a profile for the `heat_resource`. 
-        The generated heat demand profile will overwrite the existing profile."
+        @warn "The provided capacity dictionary already contains a profile for the `heat_resource`. " *
+              "The generated heat demand profile will overwrite the existing profile."
     end
-    # Copy to ensure we don't modify the original `cap` dictionary and have the correct key type
-    cap_ext::Dict{Resource,TimeProfile} = copy(cap)
+
+    # Copy to ensure we don't modify the original `cap` dictionary and widen key/value types
+    cap_ext = Dict{Resource,TimeProfile}(resource => profile for (resource, profile) ∈ cap)
     cap_ext[heat_resource] = OperationalProfile(df.heat_demand)
 
     return Building(id, cap_ext, penalty_surplus, penalty_deficit, input, data)

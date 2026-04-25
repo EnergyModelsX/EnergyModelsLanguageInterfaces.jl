@@ -275,7 +275,7 @@ function simple_graph_building(; cap_p = nothing,
         )
     else
         building = Building(
-            "Buildings",
+            "Building",
             cap_p,
             penalty_surplus,
             penalty_deficit,
@@ -284,7 +284,7 @@ function simple_graph_building(; cap_p = nothing,
     end
 
     nodes = [building, sources...]
-    links = [Direct(node.id * "-Buildings", node, building, Linear()) for node ∈ sources]
+    links = [Direct(node.id * "-Building", node, building, Linear()) for node ∈ sources]
 
     case = Case(T, products, [nodes, links], [[get_nodes, get_links]])
 
