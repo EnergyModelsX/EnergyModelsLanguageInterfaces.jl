@@ -1,6 +1,6 @@
 # [Building nodes](@id nodes-AbstractBuildings)
 
-The [`EMLI.AbstractBuildings`](@ref) node types creates sinks for all demand resources with penalties for both surplus and deficit.
+The [`EMLI.AbstractBuildings`](@ref) node types create sinks for all demand resources with penalties for both surplus and deficit.
 The implementation uses `Dict` structures for the fields `cap`, `penalty_surplus`, and `penalty_deficit` to facilitate
 multiple [Resource](@extref EnergyModelsBase.Resource)s.
 This approach allows modeling building demands with flexible penalty mechanisms for over- and under-supply.

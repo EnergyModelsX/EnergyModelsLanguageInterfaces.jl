@@ -392,7 +392,11 @@ function heat_demand_profile(
         save_csv,
         use_cache,
     )
-    df.heat_demand = temp_to_demand.(df.air_temperature_2m)
+    temperature_column = Symbol(variables[1])
+    if !hasproperty(df, temperature_column)
+        error("Temperature column $(variables[1]) not found in meteorological data.")
+    end
+    df.heat_demand = temp_to_demand.(df[!, temperature_column])
     return df
 end
 

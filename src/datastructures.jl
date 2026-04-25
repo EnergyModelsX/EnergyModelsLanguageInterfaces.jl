@@ -526,10 +526,11 @@ abstract type AbstractBuildings <: EMB.Sink end
 """
     struct Building <: AbstractBuildings
 
-A [`MultipleBuildingTypes`](@ref) node that creates sinks for all demand resources. The
-demand for each resources has a penalty for both surplus and deficit.
-The penalties introduced in the field `penalty` affect the variable OPEX for both a surplus
-and deficit.
+A `Building` node representing a single-location building heat-demand-from-temperature
+constructor. It creates sinks for all demand resources, where the demand for each resource
+can have separate penalties for surplus and deficit.
+The penalties introduced in the fields `penalty_surplus` and `penalty_deficit` affect the
+variable OPEX for surplus and deficit, respectively.
 
 # Fields
 - **`id`** is the name/identifier of the node.
