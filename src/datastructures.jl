@@ -526,7 +526,7 @@ abstract type AbstractBuildings <: EMB.Sink end
 """
     struct Building <: AbstractBuildings
 
-A `Building` node representing a single-location building heat-demand-from-temperature
+A [`Building`](@ref) node representing a single-location building heat-demand-from-temperature
 constructor. It creates sinks for all demand resources, where the demand for each resource
 can have separate penalties for surplus and deficit.
 The penalties introduced in the fields `penalty_surplus` and `penalty_deficit` affect the
@@ -582,7 +582,7 @@ end
         use_cache::Bool = true,
     )
 
-Constructs a `Building` instance where the heat demand profile is generated from temperature data
+Constructs a [`Building`](@ref) instance where the heat demand profile is generated from temperature data
 downloaded using hind cast data (see [`heat_demand_profile`](@ref) for details). 
 The temperature-to-demand mapping is provided by `temp_to_demand`.
 

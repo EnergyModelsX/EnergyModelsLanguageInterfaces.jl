@@ -219,8 +219,8 @@ function simple_graph_buildings(; cap_p = nothing,
 end
 
 function simple_graph_building(; cap_p = nothing,
-    penalty_surplus = Dict(HeatHT=>FixedProfile(0.5), Power=>FixedProfile(0.5)),
-    penalty_deficit = Dict(HeatHT=>FixedProfile(0.5), Power=>FixedProfile(0.5)),
+    penalty_surplus = Dict(HeatHT=>FixedProfile(100), Power=>FixedProfile(100)),
+    penalty_deficit = Dict(HeatHT=>FixedProfile(1e4), Power=>FixedProfile(1e4)),
     input = Dict(HeatHT=>1.0, Power=>1.0))
     # Creation of the initial problem with the NonDisRES node
     time_start_str = "2019-01-01"
@@ -248,12 +248,6 @@ function simple_graph_building(; cap_p = nothing,
         ) for resource ∈ building_res
     ]
     if isnothing(cap_p)
-        penalty_surplus = Dict{Resource,TimeProfile}(
-            resource => FixedProfile(100) for resource ∈ building_res
-        )
-        penalty_deficit = Dict{Resource,TimeProfile}(
-            resource => FixedProfile(1e4) for resource ∈ building_res
-        )
         # Example temp_to_demand function (replace with your actual function)
         temp_to_demand(temp) = max(0, 20 - (temp - 273.15))
         # Example location (replace with actual values or make it an argument)

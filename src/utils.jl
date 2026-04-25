@@ -96,6 +96,15 @@ function fetch_element(elements, id)
     return getfirst(element -> element.id == id, elements)
 end
 
+function sanitize_filename_hint(filename_hint::String)
+    if isempty(filename_hint)
+        filehint = ""
+    else
+        filehint = "_" * replace(filename_hint, r"[^\w\.-]" => "_")
+    end
+    return filehint
+end
+
 """
     pvgis_profile(time_start::DateTime, params::PVParameters;
         peakpower::Real=1.0,
@@ -156,11 +165,7 @@ function pvgis_profile(time_start::DateTime, params::PVParameters;
     end
 
     # Create a sanitized file hint for the cache file name
-    if isempty(filename_hint)
-        filehint = ""
-    else
-        filehint = "_" * replace(filename_hint, r"[^\w\.-]" => "_")
-    end
+    filehint = sanitize_filename_hint(filename_hint)
 
     csv_path = joinpath(
         data_path,
@@ -329,10 +334,19 @@ function get_pvgis_data(
 end
 
 """
-    heat_demand_profile(time_start::DateTime, time_end::DateTime, lat::Float64, lon::Float64, 
-                       temp_to_demand::Function; data_path::String = "heat_data", 
-                       filename_hint::String = "", source::String = "NORA3", reload::Bool = true, 
-                       save_csv::Bool = true, use_cache::Bool = true)
+    heat_demand_profile(
+        time_start::DateTime,
+        time_end::DateTime,
+        lat::Float64,
+        lon::Float64,
+        temp_to_demand::Function;
+        data_path::String = "metocean_api_data",
+        filename_hint::String = "",
+        source::String = "NORA3",
+        reload::Bool = true,
+        save_csv::Bool = true,
+        use_cache::Bool = true,
+    )
 
 Generates a heat demand profile for a specified location and time period using temperature data 
 and a user-provided temperature-to-demand mapping function.
@@ -350,10 +364,10 @@ caching, and storage.
 - **`lat::Float64`**: Latitude of the location.
 - **`lon::Float64`**: Longitude of the location.
 - **`temp_to_demand::Function`**: Function mapping temperature in Kelvin to demand.
-- **`data_path::String`**: Directory path to store or load temperature data (default: "heat_data").
+- **`data_path::String`**: Directory path to store or load temperature data (default: "metocean_api_data").
 - **`filename_hint::String`**: Optional hint for naming the data file (default: "").
 - **`source::String`**: Data source for temperature (default: "NORA3").
-- **`reload::Bool`**: If true, reloads data even if cached data exists (default: true).
+- **`reload::Bool`**: If true, reloads CSV data even if cached data exists (default: true).
 - **`save_csv::Bool`**: If true, saves the generated profile to a CSV file (default: true).
 - **`use_cache::Bool`**: If true, uses cached data if available (default: true).
 """
@@ -408,17 +422,17 @@ end
 Fetches meteorological data for a specified time range and geographic location.
 
 # Arguments
-- `time_start::DateTime`: Start of the time range for data retrieval.
-- `time_end::DateTime`: End of the time range for data retrieval.
-- `lat::Float64`: Latitude of the location.
-- `lon::Float64`: Longitude of the location.
-- `product::String`: Name of the meteorological data product to use.
-- `variables::Vector{String}`: List of meteorological variables to retrieve.
-- `data_path::String`: Directory path where data files are stored or will be saved.
-- `filename_hint::String`: Hint for naming the output file.
-- `reload::Bool`: If `true`, forces re-download of data even if cached data exists.
-- `save_csv::Bool`: If `true`, saves the retrieved data as a CSV file.
-- `use_cache::Bool`: If `true`, uses cached data if available.
+- **`time_start::DateTime`**: Start of the time range for data retrieval.
+- **`time_end::DateTime`**: End of the time range for data retrieval.
+- **`lat::Float64`**: Latitude of the location.
+- **`lon::Float64`**: Longitude of the location.
+- **`product::String`**: Name of the meteorological data product to use.
+- **`variables::Vector{String}`**: List of meteorological variables to retrieve.
+- **`data_path::String`**: Directory path where data files are stored or will be saved.
+- **`filename_hint::String`**: Hint for naming the output file.
+- **`reload::Bool`**: If true, reloads CSV data even if cached data exists (default: true).
+- **`save_csv::Bool`**: If `true`, saves the retrieved data as a CSV file (default: true).
+- **`use_cache::Bool`**: If `true`, uses cached data if available (default: true).
 
 # Notes
 - The function may download data from remote sources if not available locally or if `reload` is 
@@ -445,9 +459,15 @@ function get_met_data(
 )
     # Ensure the cache directory exists
     isdir(data_path) || mkpath(data_path)
+
+    # Create a sanitized file hint for the cache file name
+    filehint = sanitize_filename_hint(filename_hint)
+
     csv_path = joinpath(
         data_path,
-        product * "_" * Dates.format(time_start, "yyyymmdd") * "_" * filename_hint * ".csv",
+        product * "_" * Dates.format(time_start, "yyyymmdd") * "_" *
+        Dates.format(time_end, "yyyymmdd") * "_lat" * string(lat) * "_lon" *
+        string(lon) * filehint * ".csv",
     )
 
     if reload && isfile(csv_path) && filesize(csv_path) > 0
