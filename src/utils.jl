@@ -435,8 +435,7 @@ Fetches meteorological data for a specified time range and geographic location.
 - **`use_cache::Bool`**: If `true`, uses cached data if available (default: true).
 
 # Notes
-- The function may download data from remote sources if not available locally or if `reload` is 
-  set to `true`.
+- The function may download data from remote sources if not available locally.
 - If `save_csv` is enabled, the data will be saved to a CSV file in the specified `data_path`.
 - Caching behavior is controlled by the `use_cache` parameter.
 

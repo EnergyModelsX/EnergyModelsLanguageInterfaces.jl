@@ -6,7 +6,7 @@
 
 * Added a `Building` node to the package, which provides sampling routines for building heat demand profiles based on temperature data.
   A function `heat_demand_profile` is included to generate the heat demand profile from temperature data downloaded using hindcast data.
-  A function `get_met_data` is included to handle data retrieval, caching, and storage (using the python [`metocean_api_data`](https://metocean-api.readthedocs.io/en/latest/) library) for the meteorological data used in the `heat_demand_profile` function.
+  A function `get_met_data` is included to handle data retrieval, caching, and storage (using the python [`metocean_api`](https://metocean-api.readthedocs.io/en/latest/) library) for the meteorological data used in the `heat_demand_profile` function.
   This function enables implementation of meteorological data dependent nodes.
 
 ### Add PV node
