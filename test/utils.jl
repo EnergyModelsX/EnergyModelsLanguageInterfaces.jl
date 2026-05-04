@@ -330,7 +330,6 @@ function simple_graph_pv(;
             pv_params = PVParameters(
                 40.0,    # lat
                 0.0;     # lon
-                peakpower = cap.val,
                 loss = 14.0,
                 pvtechchoice = "crystSi",
                 mountingplace = "free",

@@ -2,7 +2,7 @@ abstract type AbstractParameters end
 
 """
     PVParameters
-    PVParameters(lat::Real, lon::Real; peakpower::Real = 1.0, loss::Real = 14.0, 
+    PVParameters(lat::Real, lon::Real; loss::Real = 14.0, 
         pvtechchoice::String = "crystSi", mountingplace::String = "free", 
         optimalangles::Bool = true, usehorizon::Bool = true, 
     )
@@ -12,7 +12,6 @@ A structure to hold parameters for photovoltaic (PV) power generation.
 # Fields
 - **`lat::Real`**: Latitude of the location in decimal degrees (e.g., 52.0 for 52°N).
 - **`lon::Real`**: Longitude of the location in decimal degrees (e.g., 13.0 for 13°E).
-- **`peakpower::Real=1.0`**: Nominal peak power of the PV system in kilowatts (kW).
 - **`loss::Real=14.0`**: Total system losses in percentage (e.g., 14.0 for 14% losses).
 - **`pvtechchoice::String="crystSi"`**: Type of PV technology. Options include:
     - `"crystSi"`: Crystalline silicon (default).
@@ -27,7 +26,6 @@ A structure to hold parameters for photovoltaic (PV) power generation.
 struct PVParameters <: AbstractParameters
     lat::Real
     lon::Real
-    peakpower::Real
     loss::Real
     pvtechchoice::String
     mountingplace::String
@@ -36,25 +34,30 @@ struct PVParameters <: AbstractParameters
     function PVParameters(
         lat::Real,
         lon::Real,
-        peakpower::Real,
         loss::Real,
         pvtechchoice::String,
         mountingplace::String,
         optimalangles::Bool,
         usehorizon::Bool,
     )
-        peakpower > 0 || throw(ArgumentError("Peak power must be positive."))
-        loss >= 0 || throw(ArgumentError("Loss must be non-negative."))
+        errors = String[]
+        if loss < 0
+            push!(errors, "Loss must be non-negative.")
+        end
         pvtechs = ("crystSi", "CIS", "CdTe")
-        pvtechchoice in pvtechs ||
-            throw(ArgumentError("pvtechchoice must be one of $(pvtechs)."))
+        if !(pvtechchoice in pvtechs)
+            push!(errors, "pvtechchoice must be one of $(pvtechs).")
+        end
         mountings = ("free", "building")
-        mountingplace in mountings ||
-            throw(ArgumentError("mountingplace must be one of $(mountings)."))
+        if !(mountingplace in mountings)
+            push!(errors, "mountingplace must be one of $(mountings).")
+        end
+        if !isempty(errors)
+            throw(ArgumentError(join(errors, " ")))
+        end
         return new(
             lat,
             lon,
-            peakpower,
             loss,
             pvtechchoice,
             mountingplace,
@@ -66,14 +69,13 @@ end
 function PVParameters(
     lat::Real,
     lon::Real;
-    peakpower::Real = 1.0,
     loss::Real = 14.0,
     pvtechchoice::String = "crystSi",
     mountingplace::String = "free",
     optimalangles::Bool = true,
     usehorizon::Bool = true,
 )
-    return PVParameters(lat, lon, peakpower, loss, pvtechchoice, mountingplace,
+    return PVParameters(lat, lon, loss, pvtechchoice, mountingplace,
         optimalangles, usehorizon)
 end
 

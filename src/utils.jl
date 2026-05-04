@@ -98,6 +98,7 @@ end
 
 """
     pvgis_profile(time_start::DateTime, params::PVParameters;
+        peakpower::Real=1.0,
         data_path::String = "pvgis_cache",
         filename_hint::String = "",
         normalize::Bool = true,
@@ -118,6 +119,7 @@ see [`get_pvgis_data`](@ref) for details.
   is requested.
 - **`params::PVParameters`**: Struct containing PV system and location parameters
   (e.g., latitude, longitude, peak power, technology, etc.).
+- **`peakpower::Real=1.0`**: Nominal peak power of the PV system in kilowatts (kW).
 - **`data_path::String="pvgis_cache"`**: Directory where the cached CSV file will be
   stored.
 - **`filename_hint::String=""`**: Optional string to include in the cache file name for
@@ -133,6 +135,7 @@ A `DataFrame` containing the following columns:
 - **`:pv`**: PV power output in kilowatts (kW), normalized if requested.
 """
 function pvgis_profile(time_start::DateTime, params::PVParameters;
+    peakpower::Real = 1.0,
     data_path::String = "pvgis_cache",
     filename_hint::String = "",
     normalize::Bool = true,
@@ -168,7 +171,7 @@ function pvgis_profile(time_start::DateTime, params::PVParameters;
         return CSV.read(csv_path, DataFrame)
 
     else
-        df = get_pvgis_data(start_year, end_year, params, normalize)
+        df = get_pvgis_data(start_year, end_year, params; peakpower, normalize)
 
         if remove_leap_day
             # Remove special case of Feb 29 in non-leap years
@@ -190,14 +193,15 @@ function pvgis_profile(time_start::DateTime, params::PVParameters;
 end
 
 """
-    get_pvgis_data(start_year::Int64, end_year::Int64, params::PVParameters, normalize::Bool)
+    get_pvgis_data(start_year::Int64, end_year::Int64, params::PVParameters, peakpower::Real, normalize::Bool)
 
 # Arguments
 - **`start_year::Int64`**: The starting year for the PVGIS data request.
 - **`end_year::Int64`**: The ending year for the PVGIS data request.
 - **`params::PVParameters`**: Struct containing PV system and location parameters
-  (e.g., latitude, longitude, peak power, technology, etc.).
-- **`normalize::Bool`**: Whether to normalize the power output by the peak power.
+  (e.g., latitude, longitude, technology, etc.).
+- **`peakpower::Real = 1.0`**: Nominal peak power of the PV system in kilowatts (kW).
+- **`normalize::Bool = true`**: Whether to normalize the power output by the peak power.
 
 Fetches hourly photovoltaic (PV) power output data for the specified years and PV system 
 parameters using the PVGIS `seriescalc` API.
@@ -230,8 +234,9 @@ number of years, and an optional `filename_hint`.
 function get_pvgis_data(
     start_year::Int64,
     end_year::Int64,
-    params::PVParameters,
-    normalize::Bool,
+    params::PVParameters;
+    peakpower::Real = 1.0,
+    normalize::Bool = true,
 )
     base = "https://re.jrc.ec.europa.eu/api/seriescalc"
 
@@ -243,7 +248,7 @@ function get_pvgis_data(
         "outputformat" => "json",
         "usehorizon" => params.usehorizon ? "1" : "0",
         "pvcalculation" => "1",
-        "peakpower" => string(params.peakpower),
+        "peakpower" => string(peakpower),
         "pvtechchoice" => params.pvtechchoice,
         "mountingplace" => params.mountingplace,
         "loss" => string(params.loss),
@@ -303,7 +308,7 @@ function get_pvgis_data(
             elseif k == "P"
                 d[:P] = v / 1000  # Convert power from W to kW
                 if normalize
-                    d[:P] /= params.peakpower  # Normalize by peak power if requested
+                    d[:P] /= peakpower  # Normalize by peak power if requested
                 end
             end
         end

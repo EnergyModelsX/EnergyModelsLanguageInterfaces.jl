@@ -46,6 +46,24 @@ The standard fields (of a [`AbstractNonDisRES`](@extref EnergyModelsRenewablePro
 
 [`PV`](@ref) adds no additional fields to that of [`AbstractNonDisRES`](@extref EnergyModelsRenewableProducers.AbstractNonDisRES).
 
+### [Constructor for sampling](@id nodes-PV-fields-const)
+
+The specialized PV node provides a constructor that automatically samples solar generation profiles from the PVGIS service using user-specified parameters.
+
+The additional inputs to this constructor are:
+
+- **`time_start::DateTime`**: The start of the time range for which PV output data is requested.
+- **`time_end::DateTime`**: The end of the time range for which PV output data is requested.
+- **`params::PVParameters`**: A structure specifying the PV system and site parameters. See [`PVParameters`](@ref) for details.
+
+Additional keyword arguments for the constructor:
+
+- **`data::Vector{<:Data}`**: Additional data (e.g., for investments). Optional.
+- **`data_path::String="pvgis_cache"`**: Directory for caching downloaded PVGIS data.
+- **`filename_hint::String=""`**: Optional string to include in the cache file name for identification.
+
+The constructor will automatically retrieve and cache the PV production profile for the specified location and configuration, and use it as the node's operational profile.
+
 ## [Mathematical description](@id nodes-PV-math)
 
 In the following mathematical equations, we use the name for variables and functions used in the model.
