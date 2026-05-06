@@ -1,3 +1,39 @@
+@testset "PVParameters" begin
+    # Test the constructor and field access
+    @testset "Constructor" begin
+        params1 = PVParameters(
+            52.0,
+            5.0;
+            loss = 14.0,
+            pvtechchoice = "crystSi",
+            mountingplace = "free",
+            optimalangles = true,
+            usehorizon = true,
+        )
+        params2 = PVParameters(52.0, 5.0, 14.0, "crystSi", "free", true, true)
+        for params ∈ (params1, params2)
+            @test params.lat == 52.0
+            @test params.lon == 5.0
+            @test params.loss == 14.0
+            @test params.pvtechchoice == "crystSi"
+            @test params.mountingplace == "free"
+            @test params.optimalangles == true
+            @test params.usehorizon == true
+        end
+    end
+
+    @testset "Invalid parameters" begin
+        # Test that invalid loss throws an error
+        @test_throws ArgumentError PVParameters(52.0, 5.0; loss = -1.0)
+
+        # Test that invalid pvtechchoice throws an error
+        @test_throws ArgumentError PVParameters(52.0, 5.0; pvtechchoice = "invalid")
+
+        # Test that invalid mountingplace throws an error
+        @test_throws ArgumentError PVParameters(52.0, 5.0; mountingplace = "invalid")
+    end
+end
+
 @testset "PV" begin
     @testset "Utilities" begin
         # Create the general data for the activation cost node
