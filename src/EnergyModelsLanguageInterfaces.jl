@@ -13,6 +13,12 @@ using Dates
 using Libdl
 using YAML
 
+# The following packages are needed for PVGIS
+using HTTP
+using JSON
+using CSV
+using DataFrames
+
 const EMB = EnergyModelsBase
 const EMR = EnergyModelsRenewableProducers
 const EMH = EnergyModelsHeat
@@ -30,5 +36,6 @@ include("utils.jl")
 export call_python_function, fetch_element
 export WindPower, CSPandPV, MultipleBuildingTypes
 export ResourceBio, BioCHP
+export PV, PVParameters
 
 end # module EnergyModelsLanguageInterfaces

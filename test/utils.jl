@@ -296,6 +296,83 @@ function simple_graph_csp_pv(; cap_p = nothing,
     return case, modeltype, create_model(case, modeltype)
 end
 
+function simple_graph_pv(;
+    cap = FixedProfile(100),
+    profile = nothing,
+    opex_var = FixedProfile(0.1),
+    opex_fixed = FixedProfile(5.0),
+    output = Dict(Power => 1.0),
+    pv_params = nothing,
+)
+    # Creation of the initial problem with the NonDisRES node
+    time_start_str = "2019-01-01"
+    time_end_str = "2019-01-01"
+    op_duration = 1
+    op_number = 24 * (Dates.value(Date(time_end_str) - Date(time_start_str)) + 1)
+    operational_periods = SimpleTimes(op_number, op_duration)
+
+    sp_duration = [1, 2, 10]
+    T = TwoLevel(sp_duration, operational_periods; op_per_strat = 8760.0)
+
+    products = [Power, CO2]
+    sink = RefSink(
+        "Sink for Power",
+        FixedProfile(30),
+        Dict(:surplus => FixedProfile(1), :deficit => FixedProfile(1e4)),
+        Dict(Power => 1.0),
+    )
+
+    time_start = DateTime(time_start_str * "T00:00:00")
+
+    if isnothing(profile)
+        # Use default PVParameters if not provided
+        if isnothing(pv_params)
+            pv_params = PVParameters(
+                40.0,    # lat
+                0.0;     # lon
+                loss = 14.0,
+                pvtechchoice = "crystSi",
+                mountingplace = "free",
+                optimalangles = false,
+                usehorizon = false,
+            )
+        end
+        pv_plant = PV(
+            "PV plant",
+            cap,
+            opex_var,
+            opex_fixed,
+            output,
+            time_start,
+            time_start + Hour(op_number - 1),
+            pv_params;
+            data_path = joinpath(pkgdir(EMLI), "test", "data", "PV"),
+            filename_hint = "",
+        )
+    else
+        pv_plant = PV(
+            "PV plant",
+            cap,
+            profile,
+            opex_var,
+            opex_fixed,
+            output,
+        )
+    end
+
+    nodes = [pv_plant, sink]
+    links = [
+        Direct("pv_plant-sink", pv_plant, sink, Linear()),
+    ]
+
+    case = Case(T, products, [nodes, links], [[get_nodes, get_links]])
+
+    em_limits = Dict(CO2 => FixedProfile(1e4))   # Emission cap for CO₂ in t/year
+    em_cost = Dict(CO2 => FixedProfile(71.0))    # Emission price for CO₂ in €/t
+    modeltype = OperationalModel(em_limits, em_cost, CO2)
+    return case, modeltype, create_model(case, modeltype)
+end
+
 function simple_graph_biochp(; output = nothing)
     # Creation of the initial problem with the NonDisRES node
     op_duration = 1

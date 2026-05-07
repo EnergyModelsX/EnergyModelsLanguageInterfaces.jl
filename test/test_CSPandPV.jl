@@ -21,8 +21,7 @@ using Dates
         # Test that curtailment is correctly with respect to the profile.
         @test sum(
             value.(m[:solar_curtailment][csp_and_pv_plant, t, Power]) > 0.0 for t ∈ 𝒯
-        ) ==
-              102
+        ) == 102
 
         # Test constraints from EMB.constraints_capacity
         @test sum(

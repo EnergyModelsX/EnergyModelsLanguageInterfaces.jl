@@ -1,15 +1,15 @@
 """
-    EMB.check_node(n::WindPower, 𝒯, modeltype::EnergyModel, check_timeprofiles::Bool)
+    EMB.check_node(n::Union{WindPower, PV}, 𝒯, modeltype::EnergyModel, check_timeprofiles::Bool)
 
-This method checks that the *[`WindPower`](@ref)* node is valid.
+This method checks that the *[`WindPower`](@ref)* or *[`PV`](@ref)* node is valid.
 
 It reuses the standard checks of a `Source` node through calling the function
 [`EMB.check_node_default`](@extref EnergyModelsBase.check_node_default), but adds an
-additional check on the data.
+additional checks on the profile field.
 
 ## Checks
  - The field `cap` is required to be non-negative (similar to the `Source` check).
- - The value of the field `fixed_opex` is required to be non-negative and
+ - The value of the field `opex_fixed` is required to be non-negative and
    accessible through a `StrategicPeriod` as outlined in the function
    `check_fixed_opex(n, 𝒯ᴵⁿᵛ, check_timeprofiles)`.
  - The values of the dictionary `output` are required to be non-negative
@@ -18,7 +18,7 @@ additional check on the data.
    ``t ∈ \\mathcal{T}``.
 """
 function EMB.check_node(
-    n::WindPower,
+    n::Union{WindPower,PV},
     𝒯,
     modeltype::EnergyModel,
     check_timeprofiles::Bool,
@@ -177,7 +177,7 @@ This method checks that the *[`BioCHP`](@ref)* node is valid.
 - The field `cap` is required to be non-negative.
 - The values of the dictionary `input` are required to be non-negative.
 - The values of the dictionary `output` are required to be non-negative.
-- The value of the field `fixed_opex` is required to be non-negative and
+- The value of the field `opex_fixed` is required to be non-negative and
   accessible through a `StrategicPeriod` as outlined in the function
   [`check_fixed_opex(n, 𝒯ᴵⁿᵛ, check_timeprofiles)`](@extref EnergyModelsBase.check_fixed_opex).
 """

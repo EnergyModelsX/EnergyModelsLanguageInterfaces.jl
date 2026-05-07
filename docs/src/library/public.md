@@ -6,10 +6,17 @@
 EnergyModelsLanguageInterfaces.ResourceBio
 ```
 
+## [New parameter types](@id lib-pub-parameter_types)
+
+```@docs
+EnergyModelsLanguageInterfaces.PVParameters
+```
+
 ## [New nodal types](@id lib-pub-nodal_types)
 
 ```@docs
 EnergyModelsLanguageInterfaces.WindPower
+EnergyModelsLanguageInterfaces.PV
 EnergyModelsLanguageInterfaces.CSPandPV
 EnergyModelsLanguageInterfaces.MultipleBuildingTypes
 EnergyModelsLanguageInterfaces.BioCHP
@@ -27,6 +34,19 @@ EnergyModelsLanguageInterfaces.WindPower(
     ::TimeStruct.TimeProfile,
     ::TimeStruct.TimeProfile,
     ::Dict{<:EnergyModelsBase.Resource,<:Real},
+)
+EnergyModelsLanguageInterfaces.PV(
+    ::Any,
+    ::TimeProfile,
+    ::TimeProfile,
+    ::TimeProfile,
+    ::Dict{<:Resource,<:Real},
+    ::DateTime,
+    ::DateTime,
+    ::PVParameters;
+    data::Vector{<:Data} = Data[],
+    data_path::String = "pvgis_cache",
+    filename_hint::String = "",
 )
 EnergyModelsLanguageInterfaces.CSPandPV(
     ::Any,

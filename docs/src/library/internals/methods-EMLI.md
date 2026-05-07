@@ -15,6 +15,8 @@ EnergyModelsLanguageInterfaces.get_python_function
 EnergyModelsLanguageInterfaces.moisture
 EnergyModelsLanguageInterfaces.bio_type
 EnergyModelsLanguageInterfaces.electricity_resource
+EnergyModelsLanguageInterfaces.pvgis_profile
+EnergyModelsLanguageInterfaces.get_pvgis_data
 ```
 
 ## [Macros](@id lib-int-mac-util)
