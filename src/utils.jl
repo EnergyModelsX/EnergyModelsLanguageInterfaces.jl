@@ -512,6 +512,13 @@ function get_met_data(
         for col ∈ colnames
             df[!, col] = Float64.(df[!, col])
         end
+        
+        @info("PyCall python", PyCall.pyversion, PyCall.libpython)
+        md = pyimport("importlib.metadata")
+
+        met = pyimport("metocean_api")
+        @info("metocean_api version", md.version("metocean-api"))
+
         return df
     end
 end
