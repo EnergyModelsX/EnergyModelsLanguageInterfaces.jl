@@ -140,7 +140,11 @@ end
             18.03,
         ])
 
+        @info "Flow out of the sink for HeatHT:"
         @info [value.(m[:flow_out][sink, t, HeatHT]) for t ∈ 𝒯]
+
+        @info "Reference values for the sink flow:"
+        @info building.cap[HeatHT].vals
         @test all(
             isapprox(
                 value.(m[:flow_out][sink, t, HeatHT]),

@@ -241,7 +241,7 @@ function simple_graph_building(; cap_p = nothing,
     sources = [
         RefSource(
             "Source for " * resource.id,
-            FixedProfile(150e6),
+            FixedProfile(1e4),
             FixedProfile(120),
             FixedProfile(0),
             Dict(resource => 1.0),
