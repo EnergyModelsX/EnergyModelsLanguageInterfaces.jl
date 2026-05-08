@@ -140,6 +140,7 @@ end
             18.03,
         ])
 
+        @info [value.(m[:flow_out][sink, t, HeatHT]) for t ∈ 𝒯]
         @test all(
             isapprox(
                 value.(m[:flow_out][sink, t, HeatHT]),
