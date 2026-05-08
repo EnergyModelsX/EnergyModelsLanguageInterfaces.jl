@@ -144,7 +144,7 @@ end
         @info [value.(m[:flow_out][sink, t, HeatHT]) for t ∈ 𝒯]
 
         @info "Reference values for the sink flow:"
-        @info building.cap[HeatHT].vals
+        @info [building.cap[HeatHT][t] for t ∈ 𝒯]
         @test all(
             isapprox(
                 value.(m[:flow_out][sink, t, HeatHT]),
