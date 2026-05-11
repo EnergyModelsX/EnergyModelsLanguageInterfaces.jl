@@ -649,8 +649,6 @@ function Building(
     # Copy to ensure we don't modify the original `cap` dictionary and widen key/value types
     cap_ext = Dict{Resource,TimeProfile}(resource => profile for (resource, profile) ∈ cap)
     cap_ext[heat_resource] = OperationalProfile(df.heat_demand)
-    @info "Generated heat demand profile for resource $(heat_resource) based on temperature data from $(source)."
-    @info df.heat_demand
 
     return Building(id, cap_ext, penalty_surplus, penalty_deficit, input, data)
 end
