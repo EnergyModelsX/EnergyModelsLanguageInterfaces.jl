@@ -24,6 +24,7 @@ runs:
 
         cd "$GITHUB_WORKSPACE/submodules/wind_power_timeseries"
         poetry install
+        pip install metocean-api==1.1.14
         cd "$GITHUB_WORKSPACE"
 
         cd "$GITHUB_WORKSPACE/submodules/Tecnalia_Solar-Energy-Model"

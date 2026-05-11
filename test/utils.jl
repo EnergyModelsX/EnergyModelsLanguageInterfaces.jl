@@ -251,7 +251,7 @@ function simple_graph_building(; cap_p = nothing,
         # Example temp_to_demand function (replace with your actual function)
         temp_to_demand(temp) = max(0, 20 - (temp - 273.15))
         # Example location (replace with actual values or make it an argument)
-        lat, lon = 63.4378306,10.3984953 # Trondheim, Norway
+        lat, lon = 59.91, 10.75  # Oslo coordinates as example
         cap = Dict(
             resource => FixedProfile(120) for resource ∈ building_res if resource != HeatHT
         )
