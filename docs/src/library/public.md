@@ -77,7 +77,6 @@ EMLI.Building(
     source::String = "NORA3",
     reload_csv::Bool = true,
     save_csv::Bool = true,
-    use_cache::Bool = true,
 )
 EMLI.MultipleBuildingTypes(
     ::Any,

@@ -59,7 +59,7 @@ function get_python_function(module_name::String, function_name::String)
     sub_names = split(function_name, ".")
     python_function = pyimport(module_name)
     for name ∈ sub_names
-        python_function = getproperty(python_function, name)
+        python_function = getproperty(python_function, Symbol(name))
     end
     return python_function
 end

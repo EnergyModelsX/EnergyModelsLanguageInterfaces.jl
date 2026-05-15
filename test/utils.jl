@@ -82,7 +82,7 @@ function simple_graph_wind(;
         "shape" => missing,
         "turbine_height" => 150,
     )
-    data_path = mkpath(joinpath(@__DIR__, "downloaded_nora3"))
+    data_path = mkpath(joinpath(testdir, "data", "WindPower"))
     if isnothing(profile)
         wind = WindPower(
             "Windfarm",                     # Node id
