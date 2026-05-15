@@ -72,6 +72,11 @@ end
     )
 end
 
+@testset "Test checks - Building" begin
+    # Test that a unsupported source is caught by the checks
+    @test_throws ArgumentError simple_graph_building(; source = "unsupported_source")
+end
+
 @testset "Test checks - CSPandPV" begin
     # Test missing resource in cap
     @test_throws AssertionError simple_graph_csp_pv(;

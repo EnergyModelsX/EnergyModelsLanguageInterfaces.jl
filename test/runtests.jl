@@ -33,6 +33,9 @@ include(joinpath(testdir, "utils.jl"))
     # Test checks
     include(joinpath(testdir, "test_checks.jl"))
 
+    # Test utils
+    include(joinpath(testdir, "test_utils.jl"))
+
     # Test nodes
     include(joinpath(testdir, "test_windpower.jl"))
     include(joinpath(testdir, "test_PV.jl"))

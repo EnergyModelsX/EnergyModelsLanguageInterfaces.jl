@@ -581,7 +581,6 @@ end
         source::String = "NORA3",
         reload_csv::Bool = true,
         save_csv::Bool = true,
-        use_cache::Bool = true,
     )
 
 Constructs a [`Building`](@ref) instance where the heat demand profile is generated from temperature data
@@ -608,7 +607,6 @@ The temperature-to-demand mapping is provided by `temp_to_demand`.
 - **`source::String`** is the data source, e.g., "NORA3" or "ERA5".
 - **`reload_csv::Bool`** is a boolean flag to reload data from local CSV files if available (default: true).
 - **`save_csv::Bool`** is a boolean flag to save data to CSV files.
-- **`use_cache::Bool`** is a boolean flag to use local cache.
 """
 function Building(
     id::Any,
@@ -627,7 +625,6 @@ function Building(
     source::String = "NORA3",
     reload_csv::Bool = true,
     save_csv::Bool = true,
-    use_cache::Bool = true,
 )
     df = heat_demand_profile(
         time_start,
@@ -639,7 +636,6 @@ function Building(
         source = source,
         reload_csv = reload_csv,
         save_csv = save_csv,
-        use_cache = use_cache,
     )
     if heat_resource ∈ keys(cap)
         @warn "The provided capacity dictionary already contains a profile for the `heat_resource`. " *

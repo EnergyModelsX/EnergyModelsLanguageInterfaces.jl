@@ -345,7 +345,6 @@ end
         source::String = "NORA3",
         reload_csv::Bool = true,
         save_csv::Bool = true,
-        use_cache::Bool = true,
     )
 
 Generates a heat demand profile for a specified location and time period using temperature data 
@@ -369,7 +368,6 @@ caching, and storage.
 - **`source::String`** is the data source for temperature (default: "NORA3").
 - **`reload_csv::Bool`** is a flag indicating whether to reload CSV data if available (default: true).
 - **`save_csv::Bool`** is a flag indicating whether to save the generated profile to a CSV file (default: true).
-- **`use_cache::Bool`** is a flag indicating whether to use cached data if available (default: true).
 """
 function heat_demand_profile(
     time_start::DateTime,
@@ -382,7 +380,6 @@ function heat_demand_profile(
     source::String = "NORA3",
     reload_csv::Bool = true,
     save_csv::Bool = true,
-    use_cache::Bool = true,
 )
     if source == "NORA3"
         product = "NORA3_atm_sub"
@@ -391,7 +388,11 @@ function heat_demand_profile(
         product = "ERA5"
         variables = ["2m_temperature"]
     else
-        error("Unsupported data source: $source. Use 'NORA3' or 'ERA5'.")
+        throw(
+            ArgumentError(
+                "Unsupported data source: $source. Supported data sources are 'NORA3' or 'ERA5'.",
+            ),
+        )
     end
     df = get_met_data(
         time_start,
@@ -404,13 +405,8 @@ function heat_demand_profile(
         filename_hint,
         reload_csv,
         save_csv,
-        use_cache,
     )
-    temperature_column = variables[1]
-    if !(temperature_column in names(df))
-        error("Temperature column $temperature_column not found in meteorological data.")
-    end
-    df.heat_demand = temp_to_demand.(df[!, temperature_column])
+    df.heat_demand = temp_to_demand.(df[!, variables[1]])
     return df
 end
 
@@ -426,7 +422,6 @@ end
         filename_hint::String = "", 
         reload_csv::Bool = true, 
         save_csv::Bool = true, 
-        use_cache::Bool = true,
     )
 
 Fetches meteorological data for a specified time range and geographic location.
@@ -442,12 +437,10 @@ Fetches meteorological data for a specified time range and geographic location.
 - **`filename_hint::String`**: Hint for naming the output file.
 - **`reload_csv::Bool`**: If true, reloads CSV data if available (default: true).
 - **`save_csv::Bool`**: If `true`, saves the retrieved data as a CSV file (default: true).
-- **`use_cache::Bool`**: If `true`, uses cached data if available (default: true).
 
 !!! note "Usage of the function"
     * The function may download data from remote sources if not available locally.
     * If `save_csv` is enabled, the data will be saved to a CSV file in the specified `data_path`.
-    * Caching behavior is controlled by the `use_cache` parameter.
     * For use of the "ERA5" data source, the user needs to register and obtain a CDS API key.
       This can be achieved by performing step 1: https://cds.climate.copernicus.eu/how-to-api
 """
@@ -462,7 +455,6 @@ function get_met_data(
     filename_hint::String = "",
     reload_csv::Bool = true,
     save_csv::Bool = true,
-    use_cache::Bool = true,
 )
     # Ensure the cache directory exists
     isdir(data_path) || mkpath(data_path)
@@ -486,7 +478,6 @@ function get_met_data(
             types = Dict(:time => DateTime),
         )
         rename!(df, :time => :time_utc)
-        return df
     else
         ts = pyimport("metocean_api.ts")
         ts_data = ts.TimeSeries(
@@ -499,7 +490,7 @@ function get_met_data(
             datafile = nothing,
         )
         ts_data.datafile = csv_path
-        ts_data.import_data(save_csv = save_csv, save_nc = false, use_cache = use_cache)
+        ts_data.import_data(save_csv = save_csv, save_nc = false, use_cache = true)
         idx_np = ts_data.data.index.to_numpy(copy = true)
         time = DateTime(1970, 1, 1) .+ Nanosecond.(idx_np.astype("int64"))
         data = ts_data.data.to_numpy(copy = true)
@@ -510,7 +501,9 @@ function get_met_data(
         for col ∈ colnames
             df[!, col] = Float64.(df[!, col])
         end
-
-        return df
     end
+    if product == "ERA5"
+        rename!(df, "t2m" => "2m_temperature")
+    end
+    return df
 end

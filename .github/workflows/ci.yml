@@ -62,6 +62,9 @@ jobs:
           Add-Content $env:GITHUB_ENV "SSL_CERT_FILE=$ca"
       - name: Run Julia tests inside the testenv-enviornment in Miniconda (Linux)
         if: runner.os == 'Linux'
+        env:
+          CDSAPI_URL: https://cds.climate.copernicus.eu/api
+          CDSAPI_KEY: ${{ secrets.CDSAPI_KEY }}
         run: |
           source "$HOME/miniconda/etc/profile.d/conda.sh"
           conda init bash
@@ -75,6 +78,9 @@ jobs:
         shell: bash
       - name: Run Julia tests inside the testenv-environment in Miniconda (Windows)
         if: runner.os == 'Windows'
+        env:
+          CDSAPI_URL: https://cds.climate.copernicus.eu/api
+          CDSAPI_KEY: ${{ secrets.CDSAPI_KEY }}
         run: |
           $conda = Join-Path $env:USERPROFILE "miniconda\Scripts\conda.exe"
           & $conda "shell.powershell" "hook" | Out-String | Invoke-Expression

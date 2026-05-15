@@ -221,7 +221,7 @@ end
 function simple_graph_building(; cap_p = nothing,
     penalty_surplus = Dict(HeatHT=>FixedProfile(100), Power=>FixedProfile(100)),
     penalty_deficit = Dict(HeatHT=>FixedProfile(1e4), Power=>FixedProfile(1e4)),
-    input = Dict(HeatHT=>1.0, Power=>1.0))
+    input = Dict(HeatHT=>1.0, Power=>1.0), source = "NORA3")
     # Creation of the initial problem with the NonDisRES node
     time_start_str = "2019-01-01"
     time_end_str = "2019-01-01"
@@ -268,7 +268,7 @@ function simple_graph_building(; cap_p = nothing,
             HeatHT,
             temp_to_demand;
             data_path = joinpath(pkgdir(EMLI), "test", "data", "building"),
-            source = "NORA3",
+            source,
         )
     else
         building = Building(
@@ -566,4 +566,19 @@ end
 function get_node(case::Case, id)
     elements = get_nodes(case)
     return EMLI.fetch_element(elements, id)
+end
+
+function get_heat_demand_profile(; source = "NORA3")
+    return EMLI.heat_demand_profile(
+        DateTime("2019-01-01T00:00:00"),
+        DateTime("2019-01-01T23:00:00"),
+        55, # lat
+        9, # lon
+        temp -> max(0, 20 - (temp - 273.15));
+        data_path = joinpath(testdir, "data", "heat_demand_profile_test", source),
+        filename_hint = "Denmark",
+        source = source,
+        reload_csv = true,
+        save_csv = true,
+    )
 end
