@@ -17,10 +17,10 @@ The subtype [`Building`](@ref) can be used to model a simple building demand whe
 See the [constructor](@ref lib-pub-sampling_constructors) for more details.
 
 !!! note "Sampling Tecnalia_Building-Stock-Energy-Model module"
-    To use the [constructor](@ref lib-pub-sampling_constructors) for [`MultipleBuildingTypes`](@ref) that samples the [`Tecnalia_Building-Stock-Energy-Model`](https://github.com/iDesignRES/Tecnalia_Building-Stock-Energy-Model) module, follow the installation in the [Use nodes](@ref how_to-utilize-use_nodes) section.
+    To use the [constructor](@ref lib-pub-sampling_constructors) for [`MultipleBuildingTypes`](@ref) that samples the [`Tecnalia_Building-Stock-Energy-Model`](https://github.com/iDesignRES/Tecnalia_Building-Stock-Energy-Model) module, follow the installation in the *[Use nodes section](@ref how_to-utilize-use_nodes)*.
 
 !!! note "Using the sampling constructor for `Building` nodes"
-    The sampling [constructor](@ref lib-pub-sampling_constructors) for [`Building`](@ref) node requires the installation of the python package `metocean_api` which can be done with (there is a breaking change in version 1.1.14 which is currently not available in Conda, so we recommend installing it with pip):
+    The sampling [constructor](@ref lib-pub-sampling_constructors) for the [`Building`](@ref) node requires the installation of the python package `metocean_api` which can be done with (there is a breaking change in version 1.1.14 which is currently not available in Conda, so we recommend installing it with pip):
 
     ```bash
     pip install metocean-api
