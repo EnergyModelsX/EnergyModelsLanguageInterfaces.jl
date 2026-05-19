@@ -255,23 +255,23 @@ end
         filename_hint::String = "",
     )
 
-A PV source producing power. It extends the existing `AbstractNonDisRES` node by extracting
-data from the PVGIS tool from the EU Science Hub (available at https://re.jrc.ec.europa.eu/pvg_tools)
-through a constructor.
+Constructs a [`PV`](@ref) instance where the power production profile is sampled from
+the PVGIS API.
 
-# Fields
-- **`id`** is the name/identifier of the node.
-- **`cap::TimeProfile`** is the installed capacity.
-- **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
-- **`opex_fixed::TimeProfile`** is the fixed operating expense.
-- **`output::Dict{<:Resource,<:Real}`** are the generated `Resource`s, normally Power.
-- **`time_start::DateTime`** is the start of the time range for which the PV output data is requested.
-- **`time_end::DateTime`** is the end of the time range for which the PV output data is requested.
-- **`params::PVParameters`** are the parameters for the PV system. See [`PVParameters`](@ref) for details.
-- **`data::Vector{<:ExtensionData}`** is the additional data (e.g., for investments). 
-  The field `data` is conditional through usage of a constructor.
-- **`data_path::String`** is the directory where the cached CSV file will be stored. Default is `"pvgis_cache"`.
-- **`filename_hint::String`** is an optional string to include in the cache file name for identification. Default is `""`.
+# Arguments
+- **`id`**: The name or identifier of the node.
+- **`cap`**: The installed capacity.
+- **`opex_var`**: The variable operating expense per energy unit produced.
+- **`opex_fixed`**: The fixed operating expense.
+- **`output`**: The generated `Resource`s, normally Power, with conversion value `Real`.
+- **`time_start::DateTime`**: The start of the time range for which the PV output data is requested.
+- **`time_end::DateTime`**: The end of the time range for which the PV output data is requested.
+- **`params::PVParameters`**: Parameters for the PV system. See [`PVParameters`](@ref) for details.
+
+# Keyword arguments
+- **`data`**: Additional data (e.g., for investments). Default is no `data`.
+- **`data_path`**: Directory where the cached CSV file will be stored. Default is `"pvgis_cache"`.
+- **`filename_hint`**: Optional string to include in the cache file name for identification. Default is `""`.
 """
 function PV(
     id::Any,

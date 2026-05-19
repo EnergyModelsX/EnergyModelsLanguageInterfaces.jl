@@ -443,6 +443,8 @@ Fetches meteorological data for a specified time range and geographic location.
     * If `save_csv` is enabled, the data will be saved to a CSV file in the specified `data_path`.
     * For use of the "ERA5" data source, the user needs to register and obtain a CDS API key.
       This can be achieved by performing step 1: https://cds.climate.copernicus.eu/how-to-api
+    * If `data_path` is provided as a relative path, it is relative to the current working directory of the Julia session.
+      The user can check using `pwd()`, respectively.
 """
 function get_met_data(
     time_start::DateTime,

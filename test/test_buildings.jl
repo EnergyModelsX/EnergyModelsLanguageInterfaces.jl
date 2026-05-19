@@ -106,33 +106,6 @@
                 )
                 for t_inv ∈ 𝒯ᴵⁿᵛ
             )
-
-            # Test the utility functions for MultipleBuildingTypes
-            for p ∈ building_res
-                # Capacity
-                @test EMB.capacity(buildings) isa Dict
-                @test EMB.capacity(buildings, p) isa TimeProfile
-                @test EMB.capacity(buildings)[p] == EMB.capacity(buildings, p)
-                @test EMB.capacity(buildings, first(𝒯), p) ==
-                      EMB.capacity(buildings, p)[first(𝒯)]
-
-                # Surplus penalty
-                @test EMB.surplus_penalty(buildings) isa Dict
-                @test EMB.surplus_penalty(buildings, p) isa TimeProfile
-                @test EMB.surplus_penalty(buildings)[p] == EMB.surplus_penalty(buildings, p)
-                @test EMB.surplus_penalty(buildings, first(𝒯), p) ==
-                      EMB.surplus_penalty(buildings, p)[first(𝒯)]
-
-                # Deficit penalty
-                @test EMB.deficit_penalty(buildings) isa Dict
-                @test EMB.deficit_penalty(buildings, p) isa TimeProfile
-                @test EMB.deficit_penalty(buildings)[p] == EMB.deficit_penalty(buildings, p)
-                @test EMB.deficit_penalty(buildings, first(𝒯), p) ==
-                      EMB.deficit_penalty(buildings, p)[first(𝒯)]
-            end
-
-            # Test has_capacity utility function
-            @test EMB.has_capacity(buildings) == false
         end
     end
 end

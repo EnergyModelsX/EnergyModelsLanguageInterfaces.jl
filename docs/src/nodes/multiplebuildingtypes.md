@@ -104,8 +104,6 @@ with parentheses.
 
 - ``\texttt{buildings\_surplus}[n, t, p]``: Surplus (over-supply) for node ``n`` in operational period ``t`` for resource ``p``.
 - ``\texttt{buildings\_deficit}[n, t, p]``: Deficit (under-supply) for node ``n`` in operational period ``t`` for resource ``p``.
-- ``\texttt{sink\_surplus}[n, t]``: Total surplus aggregated across all resources.
-- ``\texttt{sink\_deficit}[n, t]``: Total deficit aggregated across all resources.
 
 ### [Constraints](@id nodes-AbstractBuildings-math-con)
 
