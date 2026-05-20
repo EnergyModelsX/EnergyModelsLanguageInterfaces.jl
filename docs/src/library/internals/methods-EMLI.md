@@ -9,14 +9,16 @@ Pages = ["methods-EMLI.md"]
 ## [Utility methods](@id lib-int-met-util)
 
 ```@docs
-EnergyModelsLanguageInterfaces.cleanup_libraries
-EnergyModelsLanguageInterfaces.getfirst
-EnergyModelsLanguageInterfaces.get_python_function
-EnergyModelsLanguageInterfaces.moisture
-EnergyModelsLanguageInterfaces.bio_type
-EnergyModelsLanguageInterfaces.electricity_resource
-EnergyModelsLanguageInterfaces.pvgis_profile
-EnergyModelsLanguageInterfaces.get_pvgis_data
+EMLI.cleanup_libraries
+EMLI.getfirst
+EMLI.get_python_function
+EMLI.moisture
+EMLI.bio_type
+EMLI.electricity_resource
+EMLI.pvgis_profile
+EMLI.get_pvgis_data
+EMLI.get_met_data
+EMLI.heat_demand_profile
 ```
 
 ## [Macros](@id lib-int-mac-util)

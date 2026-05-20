@@ -82,7 +82,7 @@ function simple_graph_wind(;
         "shape" => missing,
         "turbine_height" => 150,
     )
-    data_path = mkpath(joinpath(@__DIR__, "downloaded_nora3"))
+    data_path = mkpath(joinpath(testdir, "data", "WindPower"))
     if isnothing(profile)
         wind = WindPower(
             "Windfarm",                     # Node id
@@ -209,6 +209,79 @@ function simple_graph_buildings(; cap_p = nothing,
 
     nodes = [buildings, sources...]
     links = [Direct(node.id * "-Buildings", node, buildings, Linear()) for node ∈ sources]
+
+    case = Case(T, products, [nodes, links], [[get_nodes, get_links]])
+
+    em_limits = Dict(CO2 => FixedProfile(1e10))   # Emission cap for CO₂ in t/year
+    em_cost = Dict(CO2 => FixedProfile(71.0))    # Emission price for CO₂ in €/t
+    modeltype = OperationalModel(em_limits, em_cost, CO2)
+    return case, modeltype, create_model(case, modeltype)
+end
+
+function simple_graph_building(; cap_p = nothing,
+    penalty_surplus = Dict(HeatHT=>FixedProfile(100), Power=>FixedProfile(100)),
+    penalty_deficit = Dict(HeatHT=>FixedProfile(1e4), Power=>FixedProfile(1e4)),
+    input = Dict(HeatHT=>1.0, Power=>1.0), source = "NORA3")
+    # Creation of the initial problem with the NonDisRES node
+    time_start_str = "2019-01-01"
+    time_end_str = "2019-01-01"
+    op_duration = 1
+    op_number = 24 * (Dates.value(Date(time_end_str) - Date(time_start_str)) + 1)
+    operational_periods = SimpleTimes(op_number, op_duration)
+
+    sp_duration = [1, 2, 10]
+    T = TwoLevel(sp_duration, operational_periods; op_per_strat = 8760.0)
+
+    time_start = DateTime(time_start_str * "T00:00:00")
+    time_end = DateTime(time_end_str * "T23:00:00")
+
+    building_res = [Power, HeatHT]
+    products = [building_res..., CO2]
+
+    sources = [
+        RefSource(
+            "Source for " * resource.id,
+            FixedProfile(1e4),
+            FixedProfile(120),
+            FixedProfile(0),
+            Dict(resource => 1.0),
+        ) for resource ∈ building_res
+    ]
+    if isnothing(cap_p)
+        # Example temp_to_demand function (replace with your actual function)
+        temp_to_demand(temp) = max(0, 20 - (temp - 273.15))
+        # Example location (replace with actual values or make it an argument)
+        lat, lon = 59.91, 10.75  # Oslo coordinates as example
+        cap = Dict(
+            resource => FixedProfile(120) for resource ∈ building_res if resource != HeatHT
+        )
+        building = Building(
+            "Building",
+            cap,
+            penalty_surplus,
+            penalty_deficit,
+            input,
+            time_start,
+            time_end,
+            lat,
+            lon,
+            HeatHT,
+            temp_to_demand;
+            data_path = joinpath(pkgdir(EMLI), "test", "data", "building"),
+            source,
+        )
+    else
+        building = Building(
+            "Building",
+            cap_p,
+            penalty_surplus,
+            penalty_deficit,
+            input,
+        )
+    end
+
+    nodes = [building, sources...]
+    links = [Direct(node.id * "-Building", node, building, Linear()) for node ∈ sources]
 
     case = Case(T, products, [nodes, links], [[get_nodes, get_links]])
 
@@ -493,4 +566,19 @@ end
 function get_node(case::Case, id)
     elements = get_nodes(case)
     return EMLI.fetch_element(elements, id)
+end
+
+function get_heat_demand_profile(; source = "NORA3")
+    return EMLI.heat_demand_profile(
+        DateTime("2019-01-01T00:00:00"),
+        DateTime("2019-01-01T23:00:00"),
+        55, # lat
+        9, # lon
+        temp -> max(0, 20 - (temp - 273.15));
+        data_path = joinpath(testdir, "data", "heat_demand_profile_test", source),
+        filename_hint = "Denmark",
+        source = source,
+        reload_csv = true,
+        save_csv = true,
+    )
 end

@@ -1,7 +1,7 @@
 using JuliaFormatter
 
 @testset "JuliaFormatter.jl" begin
-    @test format(joinpath(@__DIR__, "..", "src"))
-    @test format(joinpath(@__DIR__, "..", "test"))
-    @test format(joinpath(@__DIR__, "..", "ext"))
+    @test format(joinpath(testdir, "..", "src"))
+    @test format(joinpath(testdir, "..", "test"))
+    @test format(joinpath(testdir, "..", "ext"))
 end

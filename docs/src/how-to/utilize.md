@@ -189,7 +189,9 @@ cd ../..
 !!! note "Environments"
     If you are a developer, you probably want to install the python modules in a separate environment which can be done with, *e.g.*, [miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install).
 
-Enable these by starting a julia session in the main folder
+### [Enable python modules](@id how_to-utilize-use_nodes-enable_python_modules)
+
+The python modules above (and other modules) can be enabled by starting a julia session in the main folder
 
 ```PowerShell
 julia --project=.

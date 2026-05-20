@@ -21,19 +21,22 @@ testdir = joinpath(pkg_dir, "test")
 include(joinpath(testdir, "utils.jl"))
 
 @testset "EnergyModelsLanguageInterfaces" begin
-    ## Run all Aqua tests
+    # Run all Aqua tests
     include(joinpath(testdir, "Aqua.jl"))
 
-    ## Check if there is need for formatting
+    # Check if there is need for formatting
     include(joinpath(testdir, "JuliaFormatter.jl"))
 
-    ## Test sampling routines
+    # Test sampling routines
     include(joinpath(testdir, "test_sampling_routines.jl"))
 
-    ## Test checks
+    # Test checks
     include(joinpath(testdir, "test_checks.jl"))
 
-    ## Test nodes
+    # Test utils
+    include(joinpath(testdir, "test_utils.jl"))
+
+    # Test nodes
     include(joinpath(testdir, "test_windpower.jl"))
     include(joinpath(testdir, "test_PV.jl"))
     include(joinpath(testdir, "test_buildings.jl"))

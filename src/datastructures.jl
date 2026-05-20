@@ -93,7 +93,7 @@ sampling the profile from a Python code through a constructor.
 - **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
 - **`opex_fixed::TimeProfile`** is the fixed operating expense.
 - **`output::Dict{Resource, Real}`** are the generated `Resource`s, normally Power.
-- **`data::Vector{<:Data}`** is the additional data (e.g. for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (e.g. for investments). The field `data`
   is conditional through usage of a constructor.
 """
 struct WindPower <: AbstractNonDisRES
@@ -103,7 +103,7 @@ struct WindPower <: AbstractNonDisRES
     opex_var::TimeProfile
     opex_fixed::TimeProfile
     output::Dict{<:Resource,<:Real}
-    data::Vector{<:Data}
+    data::Vector{<:ExtensionData}
 end
 function WindPower(
     id::Any,
@@ -113,7 +113,7 @@ function WindPower(
     opex_fixed::TimeProfile,
     output::Dict{<:Resource,<:Real},
 )
-    return WindPower(id, cap, profile, opex_var, opex_fixed, output, Data[])
+    return WindPower(id, cap, profile, opex_var, opex_fixed, output, ExtensionData[])
 end
 
 """
@@ -126,7 +126,7 @@ end
         opex_var::TimeProfile,
         opex_fixed::TimeProfile,
         output::Dict{<:Resource,<:Real};
-        data::Vector{<:Data} = Data[],
+        data::Vector{<:ExtensionData} = ExtensionData[],
         method::String = "Ninja",
         data_path::String = "",
         source::String = "NORA3",
@@ -182,7 +182,7 @@ function WindPower(
     opex_var::TimeProfile,
     opex_fixed::TimeProfile,
     output::Dict{<:Resource,<:Real};
-    data::Vector{<:Data} = Data[],
+    data::Vector{<:ExtensionData} = ExtensionData[],
     method::String = "Ninja",
     data_path::String = "",
     source::String = "NORA3",
@@ -217,7 +217,7 @@ through a constructor.
 - **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
 - **`opex_fixed::TimeProfile`** is the fixed operating expense.
 - **`output::Dict{Resource, Real}`** are the generated `Resource`s, normally Power.
-- **`data::Vector{<:Data}`** is the additional data (e.g. for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (e.g. for investments). The field `data`
   is conditional through usage of a constructor.
 """
 struct PV <: AbstractNonDisRES
@@ -227,7 +227,7 @@ struct PV <: AbstractNonDisRES
     opex_var::TimeProfile
     opex_fixed::TimeProfile
     output::Dict{<:Resource,<:Real}
-    data::Vector{<:Data}
+    data::Vector{<:ExtensionData}
 end
 function PV(
     id::Any,
@@ -237,7 +237,7 @@ function PV(
     opex_fixed::TimeProfile,
     output::Dict{<:Resource,<:Real},
 )
-    return PV(id, cap, profile, opex_var, opex_fixed, output, Data[])
+    return PV(id, cap, profile, opex_var, opex_fixed, output, ExtensionData[])
 end
 
 """
@@ -250,7 +250,7 @@ end
         time_start::DateTime,
         time_end::DateTime,
         params::PVParameters;
-        data::Vector{<:Data} = Data[],
+        data::Vector{<:ExtensionData} = ExtensionData[],
         data_path::String = "pvgis_cache",
         filename_hint::String = "",
     )
@@ -282,7 +282,7 @@ function PV(
     time_start::DateTime,
     time_end::DateTime,
     params::PVParameters;
-    data::Vector{<:Data} = Data[],
+    data::Vector{<:ExtensionData} = ExtensionData[],
     data_path::String = "pvgis_cache",
     filename_hint::String = "",
 )
@@ -313,7 +313,7 @@ the strategic level.
 - **`opex_fixed::Dict{<:Resource,<:TimeProfile}`** is the fixed operating expense (for all
   resources in a Dict).
 - **`output::Dict{Resource, Real}`** are the generated `Resource`s, normally Power.
-- **`data::Vector{<:Data}`** is the additional data (e.g. for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (e.g. for investments). The field `data`
   is conditional through usage of a constructor.
 
 !!! danger
@@ -326,7 +326,7 @@ struct CSPandPV <: AbstractNonDisRES
     opex_var::Dict{<:Resource,<:TimeProfile}
     opex_fixed::Dict{<:Resource,<:TimeProfile}
     output::Dict{<:Resource,<:Real}
-    data::Vector{<:Data}
+    data::Vector{<:ExtensionData}
 end
 function CSPandPV(
     id::Any,
@@ -336,7 +336,7 @@ function CSPandPV(
     opex_fixed::Dict{<:Resource,<:TimeProfile},
     output::Dict{<:Resource,<:Real},
 )
-    return CSPandPV(id, cap, profile, opex_var, opex_fixed, output, Data[])
+    return CSPandPV(id, cap, profile, opex_var, opex_fixed, output, ExtensionData[])
 end
 
 """
@@ -346,7 +346,7 @@ end
         time_start::DateTime,
         time_end::DateTime,
         resources_map::Dict{String,<:Resource};
-        data::Vector{<:Data} = Data[],
+        data::Vector{<:ExtensionData} = ExtensionData[],
         data_location::String = joinpath(tempdir(), "CSPandPV"),
         overwrite_saved_data::Bool = false,
     )
@@ -396,7 +396,7 @@ function CSPandPV(
     time_start::DateTime,
     time_end::DateTime,
     resources_map::Dict{String,<:Resource};
-    data::Vector{<:Data} = Data[],
+    data::Vector{<:ExtensionData} = ExtensionData[],
     data_location::String = joinpath(tempdir(), "CSPandPV"),
     overwrite_saved_data::Bool = false,
 )
@@ -517,7 +517,140 @@ EMR.profile(n::CSPandPV, p::Resource) = n.profile[p]
 EMR.profile(n::CSPandPV, t, p::Resource) = n.profile[p][t]
 
 """
-    struct MultipleBuildingTypes <: EMB.Sink
+    abstract type AbstractBuildings <: EMB.Sink
+
+Abstract supertype for all building nodes.
+"""
+abstract type AbstractBuildings <: EMB.Sink end
+
+"""
+    struct Building <: AbstractBuildings
+
+A [`Building`](@ref) node representing a single-location building heat-demand-from-temperature
+constructor. It creates sinks for all demand resources, where the demand for each resource
+can have separate penalties for surplus and deficit.
+The penalties introduced in the fields `penalty_surplus` and `penalty_deficit` affect the
+variable OPEX for surplus and deficit, respectively.
+
+# Fields
+- **`id`** is the name/identifier of the node.
+- **`cap::Dict{<:Resource,<:TimeProfile}`** is the demand.
+- **`penalty_surplus::Dict{<:Resource,<:TimeProfile}`** are the penalties for surplus.
+- **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** are the penalties for deficit.
+- **`input::Dict{<:Resource,<:Real}`** are the input
+  [`Resource`](@extref EnergyModelsBase.Resource)s with conversion value `Real`.
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.*, for investments). The field `data`
+  is conditional through usage of a constructor.
+
+!!! danger
+    Investments are not available for this node.
+"""
+struct Building <: AbstractBuildings
+    id::Any
+    cap::Dict{<:Resource,<:TimeProfile}
+    penalty_surplus::Dict{<:Resource,<:TimeProfile}
+    penalty_deficit::Dict{<:Resource,<:TimeProfile}
+    input::Dict{<:Resource,<:Real}
+    data::Vector{<:ExtensionData}
+end
+function Building(
+    id::Any,
+    cap::Dict{<:Resource,<:TimeProfile},
+    penalty_surplus::Dict{<:Resource,<:TimeProfile},
+    penalty_deficit::Dict{<:Resource,<:TimeProfile},
+    input::Dict{<:Resource,<:Real},
+)
+    return Building(id, cap, penalty_surplus, penalty_deficit, input, ExtensionData[])
+end
+
+"""
+    Building(
+        id::Any,
+        cap::Dict{<:Resource,<:TimeProfile},
+        penalty_surplus::Dict{<:Resource,<:TimeProfile},
+        penalty_deficit::Dict{<:Resource,<:TimeProfile},
+        input::Dict{<:Resource,<:Real},
+        time_start::DateTime,
+        time_end::DateTime,
+        lat::Real,
+        lon::Real,
+        heat_resource::Resource,
+        temp_to_demand::Function;
+        data::Vector{<:ExtensionData} = ExtensionData[],
+        data_path::String = joinpath(tempdir(), "building"),
+        source::String = "NORA3",
+        reload_csv::Bool = true,
+        save_csv::Bool = true,
+    )
+
+Constructs a [`Building`](@ref) instance where the heat demand profile is generated from temperature data
+downloaded using hindcast data (see [`heat_demand_profile`](@ref) for details). 
+The temperature-to-demand mapping is provided by `temp_to_demand`.
+
+# Arguments
+- **`id`** is the name/identifier of the node.
+- **`cap::Dict{<:Resource,<:TimeProfile}`** is the demand (no need to provide heat demand, it will be generated).
+- **`penalty_surplus::Dict{<:Resource,<:TimeProfile}`** are the penalties for surplus.
+- **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** are the penalties for deficit.
+- **`input::Dict{<:Resource,<:Real}`** are the input [`Resource`](@extref EnergyModelsBase.Resource)s 
+  with conversion value `Real`.
+- **`time_start::DateTime`** is the start time for the demand profile.
+- **`time_end::DateTime`** is the end time for the demand profile.
+- **`lat::Real`** is the latitude of the building location.
+- **`lon::Real`** is the longitude of the building location.
+- **`heat_resource::Resource`** is the `Resource` object representing heat demand in the model.
+- **`temp_to_demand::Function`** is the function mapping temperature in Kelvin to demand.
+
+# Keyword arguments
+- **`data::Vector{<:ExtensionData}`** is the additional data to be used.
+- **`data_path::String`** is the directory path for cached CSV files.
+- **`source::String`** is the data source, e.g., "NORA3" or "ERA5".
+- **`reload_csv::Bool`** is a boolean flag to reload data from local CSV files if available (default: true).
+- **`save_csv::Bool`** is a boolean flag to save data to CSV files.
+"""
+function Building(
+    id::Any,
+    cap::Dict{<:Resource,<:TimeProfile},
+    penalty_surplus::Dict{<:Resource,<:TimeProfile},
+    penalty_deficit::Dict{<:Resource,<:TimeProfile},
+    input::Dict{<:Resource,<:Real},
+    time_start::DateTime,
+    time_end::DateTime,
+    lat::Real,
+    lon::Real,
+    heat_resource::Resource,
+    temp_to_demand::Function;
+    data::Vector{<:ExtensionData} = ExtensionData[],
+    data_path::String = joinpath(tempdir(), "building"),
+    source::String = "NORA3",
+    reload_csv::Bool = true,
+    save_csv::Bool = true,
+)
+    df = heat_demand_profile(
+        time_start,
+        time_end,
+        lat,
+        lon,
+        temp_to_demand;
+        data_path = data_path,
+        source = source,
+        reload_csv = reload_csv,
+        save_csv = save_csv,
+    )
+    if heat_resource ∈ keys(cap)
+        @warn "The provided capacity dictionary already contains a profile for the `heat_resource`. " *
+              "The generated heat demand profile will overwrite the existing profile."
+    end
+
+    # Copy to ensure we don't modify the original `cap` dictionary and widen key/value types
+    cap_ext = Dict{Resource,TimeProfile}(resource => profile for (resource, profile) ∈ cap)
+    cap_ext[heat_resource] = OperationalProfile(df.heat_demand)
+
+    return Building(id, cap_ext, penalty_surplus, penalty_deficit, input, data)
+end
+
+"""
+    struct MultipleBuildingTypes <: AbstractBuildings
 
 A [`MultipleBuildingTypes`](@ref) node that creates sinks for all demand resources. The
 demand for each resources has a penalty for both surplus and deficit.
@@ -531,19 +664,19 @@ and deficit.
 - **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** are the penalties for deficit.
 - **`input::Dict{<:Resource,<:Real}`** are the input
   [`Resource`](@extref EnergyModelsBase.Resource)s with conversion value `Real`.
-- **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.*, for investments). The field `data`
   is conditional through usage of a constructor.
 
 !!! danger
     Investments are not available for this node.
 """
-struct MultipleBuildingTypes <: EMB.Sink
+struct MultipleBuildingTypes <: AbstractBuildings
     id::Any
     cap::Dict{<:Resource,<:TimeProfile}
     penalty_surplus::Dict{<:Resource,<:TimeProfile}
     penalty_deficit::Dict{<:Resource,<:TimeProfile}
     input::Dict{<:Resource,<:Real}
-    data::Vector{<:Data}
+    data::Vector{<:ExtensionData}
 end
 function MultipleBuildingTypes(
     id::Any,
@@ -552,7 +685,14 @@ function MultipleBuildingTypes(
     penalty_deficit::Dict{<:Resource,<:TimeProfile},
     input::Dict{<:Resource,<:Real},
 )
-    return MultipleBuildingTypes(id, cap, penalty_surplus, penalty_deficit, input, Data[])
+    return MultipleBuildingTypes(
+        id,
+        cap,
+        penalty_surplus,
+        penalty_deficit,
+        input,
+        ExtensionData[],
+    )
 end
 
 """
@@ -566,7 +706,7 @@ end
         T::TimeStructure,
         penalty_surplus::Dict{<:Resource,<:TimeProfile},
         penalty_deficit::Dict{<:Resource,<:TimeProfile};
-        data::Vector{<:Data} = Data[],
+        data::Vector{<:ExtensionData} = ExtensionData[],
         data_location::String = joinpath(tempdir(), "buildings"),
         overwrite_saved_data::Bool = false,
     )
@@ -619,15 +759,15 @@ Constructs a `MultipleBuildingTypes` instance where the demand profiles are samp
       "Heat|Solar" => SolarHeat,
   )
   ```
-- **`T`** is the TimeStructure used in the model.
+- **`T::TimeStructure`** is the TimeStructure used in the model.
 - **`penalty_surplus::Dict{<:Resource,<:TimeProfile}`** is the penalties for surplus.
 - **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** is the penalties for deficit.
 
 # Keyword arguments
-- **`data`** is the additional data (*e.g.*, for investments). The default value is no `data`.
-- **`data_location`** is the location where the data is saved. The default value is in the
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.*, for investments). The default value is no `data`.
+- **`data_location::String`** is the location where the data is saved. The default value is in the
   temporary directory.
-- **`overwrite_saved_data`** is a boolean that determines if the stored data should be
+- **`overwrite_saved_data::Bool`** is a boolean that determines if the stored data should be
   overwritten (in which case the building_energy_process is called). The default value is
   `false`.
 
@@ -659,7 +799,7 @@ function MultipleBuildingTypes(
     T::TimeStructure,
     penalty_surplus::Dict{<:Resource,<:TimeProfile},
     penalty_deficit::Dict{<:Resource,<:TimeProfile};
-    data::Vector{<:Data} = Data[],
+    data::Vector{<:ExtensionData} = ExtensionData[],
     data_location::String = joinpath(tempdir(), "buildings"),
     overwrite_saved_data::Bool = false,
 )
@@ -721,47 +861,47 @@ function MultipleBuildingTypes(
 end
 
 """
-    EMB.capacity(n::MultipleBuildingTypes)
-    EMB.capacity(n::MultipleBuildingTypes, p::Resource)
-    EMB.capacity(n::MultipleBuildingTypes, t, p::Resource)
+    EMB.capacity(n::AbstractBuildings)
+    EMB.capacity(n::AbstractBuildings, p::Resource)
+    EMB.capacity(n::AbstractBuildings, t, p::Resource)
 
-Returns the capacity of a MultipleBuildingTypes `n` as a `Dictionary` or of resource `p` as `TimeProfile`
+Returns the capacity of an AbstractBuildings `n` as a `Dictionary` or of resource `p` as `TimeProfile`
 or in operational period `t`.
 """
-EMB.capacity(n::MultipleBuildingTypes) = n.cap
-EMB.capacity(n::MultipleBuildingTypes, p::Resource) = n.cap[p]
-EMB.capacity(n::MultipleBuildingTypes, t, p::Resource) = n.cap[p][t]
+EMB.capacity(n::AbstractBuildings) = n.cap
+EMB.capacity(n::AbstractBuildings, p::Resource) = n.cap[p]
+EMB.capacity(n::AbstractBuildings, t, p::Resource) = n.cap[p][t]
 
 """
-    EMB.has_capacity(n::MultipleBuildingTypes)
+    EMB.has_capacity(n::AbstractBuildings)
 
-A MultipleBuildingTypes has capacity for all its resources but not in a EMB sense.
+An AbstractBuildings has capacity for all its resources but not in a EMB sense.
 """
-EMB.has_capacity(n::MultipleBuildingTypes) = false
+EMB.has_capacity(n::AbstractBuildings) = false
 
 """
-    EMB.surplus_penalty(n::MultipleBuildingTypes)
-    EMB.surplus_penalty(n::MultipleBuildingTypes, p::Resource)
-    EMB.surplus_penalty(n::MultipleBuildingTypes, t, p::Resource)
+    EMB.surplus_penalty(n::AbstractBuildings)
+    EMB.surplus_penalty(n::AbstractBuildings, p::Resource)
+    EMB.surplus_penalty(n::AbstractBuildings, t, p::Resource)
 
-Returns the surplus penalty of MultipleBuildingTypes `n` as a `Dictionary` or of resource `p` as `TimeProfile`
+Returns the surplus penalty of AbstractBuildings `n` as a `Dictionary` or of resource `p` as `TimeProfile`
 or in operational period `t`.
 """
-EMB.surplus_penalty(n::MultipleBuildingTypes) = n.penalty_surplus
-EMB.surplus_penalty(n::MultipleBuildingTypes, p::Resource) = n.penalty_surplus[p]
-EMB.surplus_penalty(n::MultipleBuildingTypes, t, p::Resource) = n.penalty_surplus[p][t]
+EMB.surplus_penalty(n::AbstractBuildings) = n.penalty_surplus
+EMB.surplus_penalty(n::AbstractBuildings, p::Resource) = n.penalty_surplus[p]
+EMB.surplus_penalty(n::AbstractBuildings, t, p::Resource) = n.penalty_surplus[p][t]
 
 """
-    EMB.deficit_penalty(n::MultipleBuildingTypes)
-    EMB.deficit_penalty(n::MultipleBuildingTypes, p::Resource)
-    EMB.deficit_penalty(n::MultipleBuildingTypes, t, p::Resource)
+    EMB.deficit_penalty(n::AbstractBuildings)
+    EMB.deficit_penalty(n::AbstractBuildings, p::Resource)
+    EMB.deficit_penalty(n::AbstractBuildings, t, p::Resource)
 
-Returns the deficit penalty of MultipleBuildingTypes `n` as a `Dictionary` or of resource `p` as `TimeProfile`
+Returns the deficit penalty of AbstractBuildings `n` as a `Dictionary` or of resource `p` as `TimeProfile`
 or in operational period `t`.
 """
-EMB.deficit_penalty(n::MultipleBuildingTypes) = n.penalty_deficit
-EMB.deficit_penalty(n::MultipleBuildingTypes, p::Resource) = n.penalty_deficit[p]
-EMB.deficit_penalty(n::MultipleBuildingTypes, t, p::Resource) = n.penalty_deficit[p][t]
+EMB.deficit_penalty(n::AbstractBuildings) = n.penalty_deficit
+EMB.deficit_penalty(n::AbstractBuildings, p::Resource) = n.penalty_deficit[p]
+EMB.deficit_penalty(n::AbstractBuildings, t, p::Resource) = n.penalty_deficit[p][t]
 
 """
     ResourceBio{T<:Real} <: Resource
@@ -825,7 +965,7 @@ The capacity is hereby normalized to a conversion value of 1 in the fields `inpu
   value `Real`.
 - **`output::Dict{<:Resource,<:Real}`** are the generated [`Resource`](@extref EnergyModelsBase.Resource)s with
   conversion value `Real`.
-- **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.*, for investments). The field `data`
   is conditional through usage of a constructor.
 """
 struct BioCHP <: NetworkNode
@@ -836,7 +976,7 @@ struct BioCHP <: NetworkNode
     opex_fixed::TimeProfile
     input::Dict{<:ResourceBio,<:Real}
     output::Dict{<:Resource,<:Real}
-    data::Vector{<:Data}
+    data::Vector{<:ExtensionData}
 end
 function BioCHP(
     id,
@@ -866,7 +1006,7 @@ end
         mass_fractions::Dict{<:ResourceBio,<:Real},
         heat_output_ratios::Dict{<:ResourceHeat,<:Real},
         electricity_resource::Resource;
-        data::Vector{<:Data} = Data[],
+        data::Vector{<:ExtensionData} = ExtensionData[],
         libpath::String = joinpath(
             @__DIR__,
             "..",
@@ -893,7 +1033,7 @@ library file located at `libpath`. The BioCHP has electricity production of the 
 - **`electricity_resource`** is the `Resource` for the electricity.
 
 # Keyword arguments
-- **`data::Vector{<:Data}`** is the additional data (*e.g.*, for investments).
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.*, for investments).
 - **`libpath`** is the absolute path of the `CHP_modelling` library file.
 
 !!! note "EmissionsEnergy"
@@ -908,7 +1048,7 @@ function BioCHP(
     mass_fractions::Dict{<:ResourceBio,<:Real},
     heat_output_ratios::Dict{<:ResourceHeat,<:Real},
     electricity_resource::Resource;
-    data::Vector{<:Data} = Data[],
+    data::Vector{<:ExtensionData} = ExtensionData[],
     libpath::String = joinpath(
         @__DIR__,
         "..",
@@ -944,7 +1084,7 @@ function BioCHP(
     mass_fractions::Dict{<:ResourceBio,<:Real},
     heat_output_ratios::Dict{<:ResourceHeat,<:Real},
     electricity_resource::Resource,
-    data::Vector{<:Data},
+    data::Vector{<:ExtensionData},
     libpath::String,
 )
     # Get the capacity

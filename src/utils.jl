@@ -59,7 +59,7 @@ function get_python_function(module_name::String, function_name::String)
     sub_names = split(function_name, ".")
     python_function = pyimport(module_name)
     for name ∈ sub_names
-        python_function = python_function[name]
+        python_function = getproperty(python_function, Symbol(name))
     end
     return python_function
 end
@@ -94,6 +94,15 @@ Fetch the element with the given `id` from the `elements` array.
 """
 function fetch_element(elements, id)
     return getfirst(element -> element.id == id, elements)
+end
+
+function sanitize_filename_hint(filename_hint::String)
+    if isempty(filename_hint)
+        filehint = ""
+    else
+        filehint = "_" * replace(filename_hint, r"[^\w\.-]" => "_")
+    end
+    return filehint
 end
 
 """
@@ -156,11 +165,7 @@ function pvgis_profile(time_start::DateTime, params::PVParameters;
     end
 
     # Create a sanitized file hint for the cache file name
-    if isempty(filename_hint)
-        filehint = ""
-    else
-        filehint = "_" * replace(filename_hint, r"[^\w\.-]" => "_")
-    end
+    filehint = sanitize_filename_hint(filename_hint)
 
     csv_path = joinpath(
         data_path,
@@ -326,4 +331,181 @@ function get_pvgis_data(
     # T2m [°C] - Air temperature
     # WS10m [m/s] - Wind speed at 10m
     return DataFrame(rows)
+end
+
+"""
+    heat_demand_profile(
+        time_start::DateTime,
+        time_end::DateTime,
+        lat::Real,
+        lon::Real,
+        temp_to_demand::Function;
+        data_path::String = "metocean_api_data",
+        filename_hint::String = "",
+        source::String = "NORA3",
+        reload_csv::Bool = true,
+        save_csv::Bool = true,
+    )
+
+Generates a heat demand profile for a specified location and time period using temperature data 
+and a user-provided temperature-to-demand mapping function.
+
+The function retrieves temperature data for the given latitude and longitude from the specified
+data source (e.g., "NORA3" or "ERA5") and applies the `temp_to_demand` function to convert
+temperature values into heat demand.
+
+The data source is queried using the [`get_met_data`](@ref) function, which handles data retrieval, 
+caching, and storage.
+
+# Arguments
+- **`time_start::DateTime`** is the start of the time period for the demand profile.
+- **`time_end::DateTime`** is the end of the time period for the demand profile.
+- **`lat::Real`** is the latitude of the location.
+- **`lon::Real`** is the longitude of the location.
+- **`temp_to_demand::Function`** is a function mapping temperature in Kelvin to demand.
+- **`data_path::String`** is the directory path to store or load temperature data (default: "metocean_api_data").
+- **`filename_hint::String`** is an optional hint for naming the data file (default: "").
+- **`source::String`** is the data source for temperature (default: "NORA3").
+- **`reload_csv::Bool`** is a flag indicating whether to reload CSV data if available (default: true).
+- **`save_csv::Bool`** is a flag indicating whether to save the generated profile to a CSV file (default: true).
+"""
+function heat_demand_profile(
+    time_start::DateTime,
+    time_end::DateTime,
+    lat::Real,
+    lon::Real,
+    temp_to_demand::Function;
+    data_path::String = "metocean_api_data",
+    filename_hint::String = "",
+    source::String = "NORA3",
+    reload_csv::Bool = true,
+    save_csv::Bool = true,
+)
+    if source == "NORA3"
+        product = "NORA3_atm_sub"
+        variables = ["air_temperature_2m"]
+    elseif source == "ERA5"
+        product = "ERA5"
+        variables = ["2m_temperature"]
+    else
+        throw(
+            ArgumentError(
+                "Unsupported data source: $source. Supported data sources are 'NORA3' or 'ERA5'.",
+            ),
+        )
+    end
+    df = get_met_data(
+        time_start,
+        time_end,
+        lat,
+        lon,
+        product,
+        variables;
+        data_path,
+        filename_hint,
+        reload_csv,
+        save_csv,
+    )
+    df.heat_demand = temp_to_demand.(df[!, variables[1]])
+    return df
+end
+
+"""
+    get_met_data(
+        time_start::DateTime, 
+        time_end::DateTime, 
+        lat::Real, 
+        lon::Real, 
+        product::String, 
+        variables::Vector{String}; 
+        data_path::String = "metocean_api_data", 
+        filename_hint::String = "", 
+        reload_csv::Bool = true, 
+        save_csv::Bool = true, 
+    )
+
+Fetches meteorological data for a specified time range and geographic location.
+
+# Arguments
+- **`time_start::DateTime`**: Start of the time range for data retrieval.
+- **`time_end::DateTime`**: End of the time range for data retrieval.
+- **`lat::Real`**: Latitude of the location.
+- **`lon::Real`**: Longitude of the location.
+- **`product::String`**: Name of the meteorological data product to use.
+- **`variables::Vector{String}`**: List of meteorological variables to retrieve.
+- **`data_path::String`**: Directory path where data files are stored or will be saved.
+- **`filename_hint::String`**: Hint for naming the output file.
+- **`reload_csv::Bool`**: If true, reloads CSV data if available (default: true).
+- **`save_csv::Bool`**: If `true`, saves the retrieved data as a CSV file (default: true).
+
+!!! note "Usage of the function"
+    * The function may download data from remote sources if not available locally.
+    * If `save_csv` is enabled, the data will be saved to a CSV file in the specified `data_path`.
+    * For use of the "ERA5" data source, the user needs to register and obtain a CDS API key.
+      This can be achieved by performing step 1: https://cds.climate.copernicus.eu/how-to-api
+    * If `data_path` is provided as a relative path, it is relative to the current working directory of the Julia session.
+      The user can check using `pwd()`, respectively.
+"""
+function get_met_data(
+    time_start::DateTime,
+    time_end::DateTime,
+    lat::Real,
+    lon::Real,
+    product::String,
+    variables::Vector{String};
+    data_path::String = "metocean_api_data",
+    filename_hint::String = "",
+    reload_csv::Bool = true,
+    save_csv::Bool = true,
+)
+    # Ensure the cache directory exists
+    isdir(data_path) || mkpath(data_path)
+
+    # Create a sanitized file hint for the cache file name
+    filehint = sanitize_filename_hint(filename_hint)
+
+    csv_path = joinpath(
+        data_path,
+        product * "_" * Dates.format(time_start, "yyyymmdd") * "_" *
+        Dates.format(time_end, "yyyymmdd") * "_lat" * string(lat) * "_lon" *
+        string(lon) * filehint * ".csv",
+    )
+
+    if reload_csv && isfile(csv_path) && filesize(csv_path) > 0
+        df = CSV.read(
+            csv_path,
+            DataFrame;
+            comment = "#",
+            dateformat = "yyyy-mm-dd HH:MM:SS",
+            types = Dict(:time => DateTime),
+        )
+        rename!(df, :time => :time_utc)
+    else
+        ts = pyimport("metocean_api.ts")
+        ts_data = ts.TimeSeries(
+            lon = lon,
+            lat = lat,
+            start_time = Dates.format(time_start, "yyyy-mm-dd"),
+            end_time = Dates.format(time_end, "yyyy-mm-dd"),
+            product = product,
+            variable = variables,
+            datafile = nothing,
+        )
+        ts_data.datafile = csv_path
+        ts_data.import_data(save_csv = save_csv, save_nc = false, use_cache = true)
+        idx_np = ts_data.data.index.to_numpy(copy = true)
+        time = DateTime(1970, 1, 1) .+ Nanosecond.(idx_np.astype("int64"))
+        data = ts_data.data.to_numpy(copy = true)
+        colnames = Symbol.(ts_data.data.columns.tolist())
+        df = DataFrame([time data], [:time_utc; colnames...])
+        # Ensure correct types
+        df.time_utc = DateTime.(df.time_utc)
+        for col ∈ colnames
+            df[!, col] = Float64.(df[!, col])
+        end
+    end
+    if product == "ERA5"
+        rename!(df, "t2m" => "2m_temperature")
+    end
+    return df
 end

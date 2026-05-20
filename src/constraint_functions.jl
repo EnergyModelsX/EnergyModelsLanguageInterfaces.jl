@@ -1,12 +1,12 @@
 """
-    EMB.constraints_capacity(m, n::MultipleBuildingTypes, 𝒯::TimeStructure, modeltype::EnergyModel)
+    EMB.constraints_capacity(m, n::AbstractBuildings, 𝒯::TimeStructure, modeltype::EnergyModel)
 
 Function for creating the constraints on the maximum capacity of a
-[`MultipleBuildingTypes`](@ref) node.
+[`AbstractBuildings`](@ref) node.
 """
 function EMB.constraints_capacity(
     m,
-    n::MultipleBuildingTypes,
+    n::AbstractBuildings,
     𝒯::TimeStructure,
     ::EnergyModel,
 )
@@ -57,12 +57,12 @@ function EMB.constraints_capacity(m, n::CSPandPV, 𝒯::TimeStructure, ::EnergyM
 end
 
 """
-    EMB.constraints_flow_in(m, n::MultipleBuildingTypes, 𝒯::TimeStructure, ::EnergyModel)
+    EMB.constraints_flow_in(m, n::AbstractBuildings, 𝒯::TimeStructure, ::EnergyModel)
 
-The constraints on the inlet flow for a [`MultipleBuildingTypes`](@ref) node are implemented
+The constraints on the inlet flow for a [`AbstractBuildings`](@ref) node are implemented
 directly in the function `EMB.constraints_capacity`.
 """
-function EMB.constraints_flow_in(m, ::MultipleBuildingTypes, ::TimeStructure, ::EnergyModel)
+function EMB.constraints_flow_in(m, ::AbstractBuildings, ::TimeStructure, ::EnergyModel)
 end
 
 """
@@ -81,15 +81,15 @@ function EMB.constraints_flow_out(m, n::CSPandPV, 𝒯::TimeStructure, modeltype
 end
 
 """
-    EMB.constraints_opex_var(m, n::MultipleBuildingTypes, 𝒯ᴵⁿᵛ, ::EnergyModel)
+    EMB.constraints_opex_var(m, n::AbstractBuildings, 𝒯ᴵⁿᵛ, ::EnergyModel)
 
-Function for creating the constraint on the variable OPEX of a [`MultipleBuildingTypes`](@ref)
+Function for creating the constraint on the variable OPEX of a [`AbstractBuildings`](@ref)
 node.
 
 The variable OPEX is calculate through the penalties for both `surplus` and `deficit` for
 each of the individual resource demands.
 """
-function EMB.constraints_opex_var(m, n::MultipleBuildingTypes, 𝒯ᴵⁿᵛ, ::EnergyModel)
+function EMB.constraints_opex_var(m, n::AbstractBuildings, 𝒯ᴵⁿᵛ, ::EnergyModel)
     @constraint(m, [t_inv ∈ 𝒯ᴵⁿᵛ],
         m[:opex_var][n, t_inv] ==
         sum(

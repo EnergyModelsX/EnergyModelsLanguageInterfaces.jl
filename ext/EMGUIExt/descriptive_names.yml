@@ -5,3 +5,6 @@ structures:
     MultipleBuildingTypes:
       penalty_surplus:        "Penalty for surplus"
       penalty_deficit:        "Penalty for deficits"
+    Building:
+      penalty_surplus:        "Penalty for surplus"
+      penalty_deficit:        "Penalty for deficits"

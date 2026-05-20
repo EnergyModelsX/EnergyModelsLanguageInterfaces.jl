@@ -24,6 +24,7 @@ runs:
 
         cd "$GITHUB_WORKSPACE/submodules/wind_power_timeseries"
         poetry install
+        pip install metocean-api==1.1.14
         cd "$GITHUB_WORKSPACE"
 
         cd "$GITHUB_WORKSPACE/submodules/Tecnalia_Solar-Energy-Model"
@@ -70,6 +71,7 @@ runs:
         poetry install
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\wind_power_timeseries")
         poetry install
+        pip install metocean-api==1.1.14
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\Tecnalia_Solar-Energy-Model")
         poetry install
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\Tecnalia_Building-Stock-Energy-Model")
