@@ -2,9 +2,9 @@ abstract type AbstractParameters end
 
 """
     PVParameters
-    PVParameters(lat::Real, lon::Real; loss::Real = 14.0, 
-        pvtechchoice::String = "crystSi", mountingplace::String = "free", 
-        optimalangles::Bool = true, usehorizon::Bool = true, 
+    PVParameters(lat::Real, lon::Real; loss::Real = 14.0,
+        pvtechchoice::String = "crystSi", mountingplace::String = "free",
+        optimalangles::Bool = true, usehorizon::Bool = true,
     )
 
 A structure to hold parameters for photovoltaic (PV) power generation.
@@ -206,7 +206,7 @@ end
     PV <: AbstractNonDisRES
 
 A photovoltaic source. It extends the existing `AbstractNonDisRES` node through extracting
-data from the PVGIS tool from the EU Science Hub (available at https://re.jrc.ec.europa.eu/pvg_tools) 
+data from the PVGIS tool from the EU Science Hub (available at https://re.jrc.ec.europa.eu/pvg_tools)
 through a constructor.
 
 # Fields
@@ -584,7 +584,7 @@ end
     )
 
 Constructs a [`Building`](@ref) instance where the heat demand profile is generated from temperature data
-downloaded using hindcast data (see [`heat_demand_profile`](@ref) for details). 
+downloaded using hindcast data (see [`heat_demand_profile`](@ref) for details).
 The temperature-to-demand mapping is provided by `temp_to_demand`.
 
 # Arguments
@@ -592,7 +592,7 @@ The temperature-to-demand mapping is provided by `temp_to_demand`.
 - **`cap::Dict{<:Resource,<:TimeProfile}`** is the demand (no need to provide heat demand, it will be generated).
 - **`penalty_surplus::Dict{<:Resource,<:TimeProfile}`** are the penalties for surplus.
 - **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** are the penalties for deficit.
-- **`input::Dict{<:Resource,<:Real}`** are the input [`Resource`](@extref EnergyModelsBase.Resource)s 
+- **`input::Dict{<:Resource,<:Real}`** are the input [`Resource`](@extref EnergyModelsBase.Resource)s
   with conversion value `Real`.
 - **`time_start::DateTime`** is the start time for the demand profile.
 - **`time_end::DateTime`** is the end time for the demand profile.
@@ -664,8 +664,9 @@ and deficit.
 - **`penalty_deficit::Dict{<:Resource,<:TimeProfile}`** are the penalties for deficit.
 - **`input::Dict{<:Resource,<:Real}`** are the input
   [`Resource`](@extref EnergyModelsBase.Resource)s with conversion value `Real`.
-- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.*, for investments). The field `data`
-  is conditional through usage of a constructor.
+- **`data::Vector{<:ExtensionData}`** is the additional data. The field `data` is
+  conditional through usage of a constructor. An inner constructor adds
+  [`EmissionsEnergy`](@extref EnergyModelsBase.EmissionsEnergy) as data if it is not specified.
 
 !!! danger
     Investments are not available for this node.
@@ -677,6 +678,21 @@ struct MultipleBuildingTypes <: AbstractBuildings
     penalty_deficit::Dict{<:Resource,<:TimeProfile}
     input::Dict{<:Resource,<:Real}
     data::Vector{<:ExtensionData}
+    function MultipleBuildingTypes(
+        id::Any,
+        cap::Dict{<:Resource,<:TimeProfile},
+        penalty_surplus::Dict{<:Resource,<:TimeProfile},
+        penalty_deficit::Dict{<:Resource,<:TimeProfile},
+        input::Dict{<:Resource,<:Real},
+        data::Vector{<:ExtensionData},
+    )
+        # Add emission data if it is not included by the user
+        if !any(isa.(data, EmissionsData))
+            data = convert(Vector{ExtensionData}, data)
+            push!(data, EmissionsEnergy())
+        end
+        new(id, cap, penalty_surplus, penalty_deficit, input, data)
+    end
 end
 function MultipleBuildingTypes(
     id::Any,
@@ -691,7 +707,7 @@ function MultipleBuildingTypes(
         penalty_surplus,
         penalty_deficit,
         input,
-        ExtensionData[],
+        ExtensionData[EmissionsEnergy()],
     )
 end
 
@@ -804,8 +820,8 @@ function MultipleBuildingTypes(
     overwrite_saved_data::Bool = false,
 )
     oper_length = length(T.operational[1]) # Assume the length to be the same in all Strategic periods
-    resources = values(resources_map)
-    cap_vec = Dict{Resource,Vector}(resource => zeros(oper_length) for resource ∈ resources)
+    𝒫 = values(resources_map)
+    cap_vec = Dict{Resource,Vector}(resource => zeros(oper_length) for resource ∈ 𝒫)
 
     data_path = joinpath(data_location, "all_buildings.yml")
     if isfile(data_path) && !overwrite_saved_data
@@ -850,13 +866,12 @@ function MultipleBuildingTypes(
         end
     end
 
-    # Convert to OperationalProfile
-    cap = Dict{Resource,TimeProfile}(
-        resource => OperationalProfile(cap_vec[resource]) for
-        resource ∈ resources
-    )
+    # Convert the demand profile to OperationalProfile
+    cap = Dict{Resource,TimeProfile}(p => OperationalProfile(cap_vec[p]) for p ∈ 𝒫)
 
-    input = Dict{Resource,Real}(resource => 1.0 for resource ∈ resources)
+    # Create the input map for the node
+    input = Dict{Resource,Float64}(p => 1.0 for p ∈ 𝒫)
+
     return MultipleBuildingTypes(id, cap, penalty_surplus, penalty_deficit, input, data)
 end
 

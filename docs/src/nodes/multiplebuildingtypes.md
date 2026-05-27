@@ -13,7 +13,7 @@ This approach allows modeling building demands with flexible penalty mechanisms 
 
 The subtype [`MultipleBuildingTypes`](@ref) is used to enable a specialized constructor that samples the [`Tecnalia_Building-Stock-Energy-Model`](https://github.com/iDesignRES/Tecnalia_Building-Stock-Energy-Model) module.
 
-The subtype [`Building`](@ref) can be used to model a simple building demand where the heat demand is calculated from the temperature at a single location and a user-defined temperature-to-demand function. 
+The subtype [`Building`](@ref) can be used to model a simple building demand where the heat demand is calculated from the temperature at a single location and a user-defined temperature-to-demand function.
 See the [constructor](@ref lib-pub-sampling_constructors) for more details.
 
 !!! note "Sampling Tecnalia_Building-Stock-Energy-Model module"
@@ -42,8 +42,8 @@ Standard fields of [AbstractBuildings](@ref EMLI.AbstractBuildings) nodes are gi
   All values have to be non-negative.
 - **`data::Vector{<:ExtensionData}`**:\
   An entry for providing additional data to the model.
-  In the current version, it is not applicable. 
-  We intend to change this in future releases to enable investments.
+  The subtype [`MultipleBuildingTypes`](@ref) adds automatically [`EmissionsEnergy`](@extref EnergyModelsBase.EmissionsEnergy) to account for the emissions given by energy consumption through an inner constructor, if not specified explicitly.
+  The subtype [`Building`](@ref) does not automatically add [`EmissionsEnergy`](@extref EnergyModelsBase.EmissionsEnergy) as it is not a requirement that the emissions are associated directly to this node.
 
   !!! note "Constructor for `AbstractBuildings` nodes"
       The field `data` is not required as we include a constructor when the value is excluded.

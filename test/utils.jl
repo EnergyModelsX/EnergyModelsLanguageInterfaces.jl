@@ -111,7 +111,9 @@ end
 function simple_graph_buildings(; cap_p = nothing,
     penalty_surplus = Dict(HeatHT=>FixedProfile(0.5), Power=>FixedProfile(0.5)),
     penalty_deficit = Dict(HeatHT=>FixedProfile(0.5), Power=>FixedProfile(0.5)),
-    input = Dict(HeatHT=>1.0, Power=>1.0))
+    input = Dict(HeatHT=>1.0, Power=>1.0),
+)
+
     # Creation of the initial problem with the NonDisRES node
     time_start_str = "2019-01-01"
     time_end_str = "2019-01-07"
@@ -120,7 +122,6 @@ function simple_graph_buildings(; cap_p = nothing,
     operational_periods = SimpleTimes(op_number, op_duration)
 
     sp_duration = [1, 2, 10]
-    sp_number = length(sp_duration)
     T = TwoLevel(sp_duration, operational_periods; op_per_strat = 8760.0)
 
     # Load paths to default Buildings process
@@ -193,7 +194,6 @@ function simple_graph_buildings(; cap_p = nothing,
             T,                            # Time structure
             penalty_surplus, # surplus penalty for the node in €/MWh;
             penalty_deficit, # deficit penalty for the node in €/MWh;
-            data = [EmissionsEnergy()],
             data_location = joinpath(pkgdir(EMLI), "test", "data", "buildings"),
             overwrite_saved_data = false,
         )
