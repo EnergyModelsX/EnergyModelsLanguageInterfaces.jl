@@ -10,6 +10,7 @@ EMLI.ResourceBio
 
 ```@docs
 EMLI.PVParameters
+EMLI.WindFarmParameters
 ```
 
 ## [New nodal types](@id lib-pub-nodal_types)
@@ -29,12 +30,12 @@ EMLI.BioCHP
 EMLI.WindPower(
     ::Any,
     ::TimeStruct.TimeProfile,
-    ::Dict,
-    ::String,
-    ::String,
     ::TimeStruct.TimeProfile,
     ::TimeStruct.TimeProfile,
     ::Dict{<:EnergyModelsBase.Resource,<:Real},
+    ::WindFarmParameters,
+    ::DateTime,
+    ::DateTime,
 )
 EMLI.PV(
     ::Any,
@@ -108,4 +109,5 @@ EMLI.BioCHP(
 ```@docs
 EMLI.call_python_function
 EMLI.fetch_element
+EMLI.to_dict
 ```

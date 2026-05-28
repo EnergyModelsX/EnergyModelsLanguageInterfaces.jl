@@ -34,9 +34,9 @@ include("constraint_functions.jl")
 include("utils.jl")
 
 export call_python_function, fetch_element
-export WindPower, CSPandPV, MultipleBuildingTypes
+export PVParameters, WindFarmParameters
+export PV, WindPower, CSPandPV, MultipleBuildingTypes
 export ResourceBio, BioCHP
-export PV, PVParameters
 export Building
 
 end # module EnergyModelsLanguageInterfaces
