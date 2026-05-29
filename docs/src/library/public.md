@@ -33,9 +33,9 @@ EMLI.WindPower(
     ::TimeStruct.TimeProfile,
     ::TimeStruct.TimeProfile,
     ::Dict{<:EnergyModelsBase.Resource,<:Real},
+    ::DateTime,
+    ::DateTime,
     ::WindFarmParameters,
-    ::DateTime,
-    ::DateTime,
 )
 EMLI.PV(
     ::Any,

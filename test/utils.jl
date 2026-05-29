@@ -90,9 +90,9 @@ function simple_graph_wind(;
             opex_var,                       # Variable operational cost in €/MWh
             opex_fixed,                     # Fixed operational cost in €/MW/year
             output,                         # The generated resources with conversion value 1
-            wind_params,                    # Windfarm data
             time_start,                     # Start time for the data
-            time_end;                       # End time for the data
+            time_end,                       # End time for the data
+            wind_params;                    # Windfarm data
             data_path,                      # Path to the data
         )
     else
