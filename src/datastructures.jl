@@ -41,10 +41,14 @@ struct PVParameters <: AbstractParameters
         usehorizon::Bool,
     )
         errors = String[]
-        if lat < -90 || lat > 90
+        if !isfinite(lat)
+            push!(errors, "lat must be finite.")
+        elseif lat < -90 || lat > 90
             push!(errors, "lat must be in [-90, 90].")
         end
-        if lon < -180 || lon > 180
+        if !isfinite(lon)
+            push!(errors, "lon must be finite.")
+        elseif lon < -180 || lon > 180
             push!(errors, "lon must be in [-180, 180].")
         end
         if loss < 0
@@ -133,14 +137,14 @@ struct WindFarmParameters <: AbstractParameters
         source::String,
     )
         errors = String[]
-        if lat < -90 || lat > 90
-            push!(errors, "lat must be in [-90, 90].")
+        if !isfinite(lat) || lat < -90 || lat > 90
+            push!(errors, "lat must be finite and in [-90, 90].")
         end
-        if lon < -180 || lon > 180
-            push!(errors, "lon must be in [-180, 180].")
+        if !isfinite(lon) || lon < -180 || lon > 180
+            push!(errors, "lon must be finite and in [-180, 180].")
         end
-        if turbine_height <= 0
-            push!(errors, "turbine_height must be positive.")
+        if !isfinite(turbine_height) || turbine_height <= 0
+            push!(errors, "turbine_height must be finite and positive.")
         end
 
         methods = ("Ninja", "Tradewind_offshore", "Tradewind_upland", "Tradewind_lowland")
