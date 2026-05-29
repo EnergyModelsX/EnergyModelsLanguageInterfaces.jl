@@ -109,9 +109,9 @@ function simple_graph_wind(;
 end
 
 function simple_graph_buildings(; cap_p = nothing,
-    penalty_surplus = Dict(HeatHT=>FixedProfile(0.5), Power=>FixedProfile(0.5)),
-    penalty_deficit = Dict(HeatHT=>FixedProfile(0.5), Power=>FixedProfile(0.5)),
-    input = Dict(HeatHT=>1.0, Power=>1.0),
+    penalty_surplus = Dict(HeatHT => FixedProfile(0.5), Power => FixedProfile(0.5)),
+    penalty_deficit = Dict(HeatHT => FixedProfile(0.5), Power => FixedProfile(0.5)),
+    input = Dict(HeatHT => 1.0, Power => 1.0),
 )
 
     # Creation of the initial problem with the NonDisRES node

@@ -2,16 +2,21 @@ abstract type AbstractParameters end
 
 """
     PVParameters
-    PVParameters(lat::Real, lon::Real; loss::Real = 14.0,
-        pvtechchoice::String = "crystSi", mountingplace::String = "free",
-        optimalangles::Bool = true, usehorizon::Bool = true,
+    PVParameters(
+        lat::Real, 
+        lon::Real; 
+        loss::Real = 14.0,
+        pvtechchoice::String = "crystSi", 
+        mountingplace::String = "free",
+        optimalangles::Bool = true, 
+        usehorizon::Bool = true,
     )
 
 A structure to hold parameters for photovoltaic (PV) power generation.
 
 # Fields
-- **`lat::Real`** is the latitude of the location in decimal degrees (e.g., 52.0 for 52°N).
-- **`lon::Real`** is the longitude of the location in decimal degrees (e.g., 13.0 for 13°E).
+- **`lat::Real`** is the latitude of the location in decimal degrees (e.g., `52.5` for 52°30′ N, `-33.75` for 33°45′ S).
+- **`lon::Real`** is the longitude of the location in decimal degrees (e.g., `13.5` for 13°30′ E, `-122.25` for 122°15′ W).
 - **`loss::Real=14.0`** is the total system losses in percentage (e.g., 14.0 for 14% losses).
 - **`pvtechchoice::String="crystSi"`** is the type of PV technology. Options include:
     - `"crystSi"`: Crystalline silicon (default).
@@ -22,6 +27,9 @@ A structure to hold parameters for photovoltaic (PV) power generation.
     - `"building"`: Building-integrated system.
 - **`optimalangles::Bool=true`** is a flag for whether to use optimal tilt and azimuth angles for the PV system.
 - **`usehorizon::Bool=true`** is a flag for whether to include the effect of the horizon in the calculations.
+
+!!! note "Key word argument in constructors"
+    If not all fields with default values are provided, the user must use the keyword arguments.
 """
 struct PVParameters <: AbstractParameters
     lat::Real
@@ -41,14 +49,10 @@ struct PVParameters <: AbstractParameters
         usehorizon::Bool,
     )
         errors = String[]
-        if !isfinite(lat)
-            push!(errors, "lat must be finite.")
-        elseif lat < -90 || lat > 90
+        if lat < -90 || lat > 90
             push!(errors, "lat must be in [-90, 90].")
         end
-        if !isfinite(lon)
-            push!(errors, "lon must be finite.")
-        elseif lon < -180 || lon > 180
+        if lon < -180 || lon > 180
             push!(errors, "lon must be in [-180, 180].")
         end
         if loss < 0
@@ -105,17 +109,20 @@ end
 A structure to hold wind farm parameters and metadata for wind power time series generation.
 
 # Fields
-- **`id`**: Identifier for the wind farm.
-- **`lat`**: Latitude of the wind farm.
-- **`lon`**: Longitude of the wind farm.
-- **`turbine_height`**: Height of the wind turbines in meters.
-- **`orientation`**: Orientation of the wind farm (default: `missing`).
-- **`shape`**: Shape of the wind farm (default: `missing`).
-- **`method`** is the chosen method for data retrieval. The user can choose between the
+- **`id`** is the identifier for the wind farm.
+- **`lat::Real`** is the latitude of the location in decimal degrees (e.g., `52.5` for 52°30′ N, `-33.75` for 33°45′ S).
+- **`lon::Real`** is the longitude of the location in decimal degrees (e.g., `13.5` for 13°30′ E, `-122.25` for 122°15′ W).
+- **`turbine_height::Real`** is the height of the wind turbines in meters.
+- **`orientation`** is the orientation of the wind farm (default: `missing`).
+- **`shape`** is the shape of the wind farm (default: `missing`).
+- **`method::String`** is the chosen method for data retrieval. The user can choose between the
   strings "Ninja", "Tradewind_offshore", "Tradewind_upland",  and "Tradewind_lowland".
   The default value is "Ninja".
-- **`source`** is the data source for wind data. The user can choose between the strings
+- **`source::String`** is the data source for wind data. The user can choose between the strings
   "NORA3" and "ERA5". The default value is "NORA3".
+
+!!! note "Key word argument in constructors"
+    If not all fields with default values are provided, the user must use the keyword arguments.
 """
 struct WindFarmParameters <: AbstractParameters
     id::String
@@ -137,14 +144,14 @@ struct WindFarmParameters <: AbstractParameters
         source::String,
     )
         errors = String[]
-        if !isfinite(lat) || lat < -90 || lat > 90
-            push!(errors, "lat must be finite and in [-90, 90].")
+        if lat < -90 || lat > 90
+            push!(errors, "lat must be in [-90, 90].")
         end
-        if !isfinite(lon) || lon < -180 || lon > 180
-            push!(errors, "lon must be finite and in [-180, 180].")
+        if lon < -180 || lon > 180
+            push!(errors, "lon must be in [-180, 180].")
         end
-        if !isfinite(turbine_height) || turbine_height <= 0
-            push!(errors, "turbine_height must be finite and positive.")
+        if turbine_height <= 0
+            push!(errors, "turbine_height must be positive.")
         end
 
         methods = ("Ninja", "Tradewind_offshore", "Tradewind_upland", "Tradewind_lowland")
@@ -225,7 +232,7 @@ sampling the profile from a Python code through a constructor.
 - **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
 - **`opex_fixed::TimeProfile`** is the fixed operating expense.
 - **`output::Dict{Resource, Real}`** are the generated `Resource`s, normally Power.
-- **`data::Vector{<:ExtensionData}`** is the additional data (e.g. for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.* for investments). The field `data`
   is conditional through usage of a constructor.
 """
 struct WindPower <: AbstractNonDisRES
@@ -326,7 +333,7 @@ through a constructor.
 - **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
 - **`opex_fixed::TimeProfile`** is the fixed operating expense.
 - **`output::Dict{Resource, Real}`** are the generated `Resource`s, normally Power.
-- **`data::Vector{<:ExtensionData}`** is the additional data (e.g. for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.* for investments). The field `data`
   is conditional through usage of a constructor.
 """
 struct PV <: AbstractNonDisRES
@@ -378,7 +385,7 @@ the PVGIS API tool from the EU Science Hub (available at https://re.jrc.ec.europ
 - **`params::PVParameters`** are the parameters for the PV system. See [`PVParameters`](@ref) for details.
 
 # Keyword arguments
-- **`data::Vector{<:ExtensionData}`** is the additional data (e.g., for investments). 
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.*, for investments). 
   The field `data` is conditional through usage of a constructor.
 - **`data_path::String`** is the directory where the cached CSV file will be stored. Default is `"pvgis_cache"`.
 - **`filename_hint::String`** is an optional string to include in the cache file name for identification. Default is `""`.
@@ -423,7 +430,7 @@ the strategic level.
 - **`opex_fixed::Dict{<:Resource,<:TimeProfile}`** is the fixed operating expense (for all
   resources in a Dict).
 - **`output::Dict{Resource, Real}`** are the generated `Resource`s, normally Power.
-- **`data::Vector{<:ExtensionData}`** is the additional data (e.g. for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.* for investments). The field `data`
   is conditional through usage of a constructor.
 
 !!! danger
