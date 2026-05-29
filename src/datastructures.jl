@@ -255,9 +255,9 @@ end
         opex_var::TimeProfile,
         opex_fixed::TimeProfile,
         output::Dict{<:Resource,<:Real},
-        wind_params::WindFarmParameters,
         time_start::DateTime,
-        time_end::DateTime;
+        time_end::DateTime,
+        wind_params::WindFarmParameters;
         data::Vector{<:ExtensionData} = ExtensionData[],
         data_path::String = "",
     )
@@ -271,9 +271,9 @@ a Python function.
 - **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
 - **`opex_fixed::TimeProfile`** is the fixed operating expense.
 - **`output::Dict{<:Resource,<:Real}`** are the generated `Resource`s, normally Power, with conversion value `Real`.
-- **`wind_params::WindFarmParameters`** are the parameters for the wind farm. See [`WindFarmParameters`](@ref) for details.
 - **`time_start::DateTime`** is the starting time for the wind power time series sampling.
 - **`time_end::DateTime`** is the end time for the wind power time series sampling.
+- **`wind_params::WindFarmParameters`** are the parameters for the wind farm. See [`WindFarmParameters`](@ref) for details.
 
 # Keyword arguments
 - **`data`** is the additional data (*e.g.*, for investments). The default value is no `data`.
@@ -290,9 +290,9 @@ function WindPower(
     opex_var::TimeProfile,
     opex_fixed::TimeProfile,
     output::Dict{<:Resource,<:Real},
-    wind_params::WindFarmParameters,
     time_start::DateTime,
-    time_end::DateTime;
+    time_end::DateTime,
+    wind_params::WindFarmParameters;
     data::Vector{<:ExtensionData} = ExtensionData[],
     data_path::String = "",
 )
@@ -367,7 +367,7 @@ end
 Constructs a [`PV`](@ref) instance where the power production profile is sampled from
 the PVGIS API tool from the EU Science Hub (available at https://re.jrc.ec.europa.eu/pvg_tools).
 
-# Fields
+# Arguments
 - **`id`** is the name/identifier of the node.
 - **`cap::TimeProfile`** is the installed capacity.
 - **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
