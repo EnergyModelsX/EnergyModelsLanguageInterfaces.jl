@@ -2,26 +2,34 @@ abstract type AbstractParameters end
 
 """
     PVParameters
-    PVParameters(lat::Real, lon::Real; loss::Real = 14.0,
-        pvtechchoice::String = "crystSi", mountingplace::String = "free",
-        optimalangles::Bool = true, usehorizon::Bool = true,
+    PVParameters(
+        lat::Real, 
+        lon::Real; 
+        loss::Real = 14.0,
+        pvtechchoice::String = "crystSi", 
+        mountingplace::String = "free",
+        optimalangles::Bool = true, 
+        usehorizon::Bool = true,
     )
 
 A structure to hold parameters for photovoltaic (PV) power generation.
 
 # Fields
-- **`lat::Real`**: Latitude of the location in decimal degrees (e.g., 52.0 for 52°N).
-- **`lon::Real`**: Longitude of the location in decimal degrees (e.g., 13.0 for 13°E).
-- **`loss::Real=14.0`**: Total system losses in percentage (e.g., 14.0 for 14% losses).
-- **`pvtechchoice::String="crystSi"`**: Type of PV technology. Options include:
+- **`lat::Real`** is the latitude of the location in decimal degrees (e.g., `52.5` for 52°30′ N, `-33.75` for 33°45′ S).
+- **`lon::Real`** is the longitude of the location in decimal degrees (e.g., `13.5` for 13°30′ E, `-122.25` for 122°15′ W).
+- **`loss::Real=14.0`** is the total system losses in percentage (e.g., 14.0 for 14% losses).
+- **`pvtechchoice::String="crystSi"`** is the type of PV technology. Options include:
     - `"crystSi"`: Crystalline silicon (default).
     - `"CIS"`: Copper indium selenide.
     - `"CdTe"`: Cadmium telluride.
-- **`mountingplace::String="free"`**: Mounting type of the PV system. Options include:
+- **`mountingplace::String="free"`** is the mounting type of the PV system. Options include:
     - `"free"`: Free-standing system (default).
     - `"building"`: Building-integrated system.
-- **`optimalangles::Bool=true`**: Whether to use optimal tilt and azimuth angles for the PV system.
-- **`usehorizon::Bool=true`**: Whether to include the effect of the horizon in the calculations.
+- **`optimalangles::Bool=true`** is a flag for whether to use optimal tilt and azimuth angles for the PV system.
+- **`usehorizon::Bool=true`** is a flag for whether to include the effect of the horizon in the calculations.
+
+!!! note "Key word argument in constructors"
+    If not all fields with default values are provided, the user must use the keyword arguments.
 """
 struct PVParameters <: AbstractParameters
     lat::Real
@@ -41,6 +49,12 @@ struct PVParameters <: AbstractParameters
         usehorizon::Bool,
     )
         errors = String[]
+        if lat < -90 || lat > 90
+            push!(errors, "lat must be in [-90, 90].")
+        end
+        if lon < -180 || lon > 180
+            push!(errors, "lon must be in [-180, 180].")
+        end
         if loss < 0
             push!(errors, "Loss must be non-negative.")
         end
@@ -80,6 +94,131 @@ function PVParameters(
 end
 
 """
+    WindFarmParameters
+    WindFarmParameters(
+        id::String,
+        lat::Real,
+        lon::Real,
+        turbine_height::Real;
+        orientation = missing,
+        shape = missing,
+        method::String = "Ninja",
+        source::String = "NORA3",
+    )
+
+A structure to hold wind farm parameters and metadata for wind power time series generation.
+
+# Fields
+- **`id`** is the identifier for the wind farm.
+- **`lat::Real`** is the latitude of the location in decimal degrees (e.g., `52.5` for 52°30′ N, `-33.75` for 33°45′ S).
+- **`lon::Real`** is the longitude of the location in decimal degrees (e.g., `13.5` for 13°30′ E, `-122.25` for 122°15′ W).
+- **`turbine_height::Real`** is the height of the wind turbines in meters.
+- **`orientation`** is the orientation of the wind farm (default: `missing`).
+- **`shape`** is the shape of the wind farm (default: `missing`).
+- **`method::String`** is the chosen method for data retrieval. The user can choose between the
+  strings "Ninja", "Tradewind_offshore", "Tradewind_upland",  and "Tradewind_lowland".
+  The default value is "Ninja".
+- **`source::String`** is the data source for wind data. The user can choose between the strings
+  "NORA3" and "ERA5". The default value is "NORA3".
+
+!!! note "Key word argument in constructors"
+    If not all fields with default values are provided, the user must use the keyword arguments.
+"""
+struct WindFarmParameters <: AbstractParameters
+    id::String
+    lat::Real
+    lon::Real
+    turbine_height::Real
+    orientation::Any
+    shape::Any
+    method::String
+    source::String
+    function WindFarmParameters(
+        id::String,
+        lat::Real,
+        lon::Real,
+        turbine_height::Real,
+        orientation::Any,
+        shape::Any,
+        method::String,
+        source::String,
+    )
+        errors = String[]
+        if lat < -90 || lat > 90
+            push!(errors, "lat must be in [-90, 90].")
+        end
+        if lon < -180 || lon > 180
+            push!(errors, "lon must be in [-180, 180].")
+        end
+        if turbine_height <= 0
+            push!(errors, "turbine_height must be positive.")
+        end
+
+        methods = ("Ninja", "Tradewind_offshore", "Tradewind_upland", "Tradewind_lowland")
+        if !(method in methods)
+            push!(errors, "method must be one of $(methods).")
+        end
+
+        sources = ("NORA3", "ERA5")
+        if !(source in sources)
+            push!(errors, "source must be one of $(sources).")
+        end
+
+        if !isempty(errors)
+            throw(ArgumentError(join(errors, " ")))
+        end
+
+        return new(
+            id,
+            lat,
+            lon,
+            turbine_height,
+            orientation,
+            shape,
+            method,
+            source,
+        )
+    end
+end
+function WindFarmParameters(
+    id::String,
+    lat::Real,
+    lon::Real,
+    turbine_height::Real;
+    orientation = missing,
+    shape = missing,
+    method::String = "Ninja",
+    source::String = "NORA3",
+)
+    return WindFarmParameters(
+        id,
+        lat,
+        lon,
+        turbine_height,
+        orientation,
+        shape,
+        method,
+        source,
+    )
+end
+
+"""
+    to_dict(params::WindFarmParameters)
+
+Convert a `WindFarmParameters` instance to a dictionary for use in Python calls.
+"""
+function to_dict(params::WindFarmParameters)
+    return Dict(
+        "id" => params.id,
+        "lat" => params.lat,
+        "lon" => params.lon,
+        "turbine_height" => params.turbine_height,
+        "orientation" => params.orientation,
+        "shape" => params.shape,
+    )
+end
+
+"""
     WindPower <: AbstractNonDisRES
 
 A wind power source. It extends the existing `AbstractNonDisRES` node through allowing for
@@ -93,7 +232,7 @@ sampling the profile from a Python code through a constructor.
 - **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
 - **`opex_fixed::TimeProfile`** is the fixed operating expense.
 - **`output::Dict{Resource, Real}`** are the generated `Resource`s, normally Power.
-- **`data::Vector{<:ExtensionData}`** is the additional data (e.g. for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.* for investments). The field `data`
   is conditional through usage of a constructor.
 """
 struct WindPower <: AbstractNonDisRES
@@ -120,16 +259,14 @@ end
     WindPower(
         id::Any,
         cap::TimeProfile,
-        windfarm::Dict,
-        time_start::String,
-        time_end::String,
         opex_var::TimeProfile,
         opex_fixed::TimeProfile,
-        output::Dict{<:Resource,<:Real};
+        output::Dict{<:Resource,<:Real},
+        time_start::DateTime,
+        time_end::DateTime,
+        wind_params::WindFarmParameters;
         data::Vector{<:ExtensionData} = ExtensionData[],
-        method::String = "Ninja",
         data_path::String = "",
-        source::String = "NORA3",
     )
 
 Constructs a [`WindPower`](@ref) instance where the power production profile is sampled from
@@ -137,37 +274,18 @@ a Python function.
 
 # Arguments
 - **`id`** is the name or identifier of the node.
-- **`cap`** is the installed capacity.
-- **`windfarm`** is a dictionary containing the wind farm parameters. An example dictionary
-  is given by:
-
-  ```julia
-    windfarm = Dict(
-        "id" => "windfarm_1",       # The identifier of the windfarm
-        "lat" => 56.8233,           # The latitude coordinates of the windfarm
-        "lon" => 4.3467,            # The longitude of the wind farm
-        "orientation" => missing,   # The orientation
-        "shape" => missing,
-        "turbine_height" => 150,    # The turbine height
-    )
-  ```
-- **`time_start`** is the starting time (as a string) for the wind power time series sampling.
-  The format is "YYYY-MM-DD".
-- **`time_end`** is the end time (as a string) for the wind power time series sampling.
-  The format is "YYYY-MM-DD".
-- **`opex_var`** is the variable operating expense per energy unit produced.
-- **`opex_fixed`** is the fixed operating expense.
-- **`output`** are the generated `Resource`s, normally Power, with conversion value `Real`.
+- **`cap::TimeProfile`** is the installed capacity.
+- **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
+- **`opex_fixed::TimeProfile`** is the fixed operating expense.
+- **`output::Dict{<:Resource,<:Real}`** are the generated `Resource`s, normally Power, with conversion value `Real`.
+- **`time_start::DateTime`** is the starting time for the wind power time series sampling.
+- **`time_end::DateTime`** is the end time for the wind power time series sampling.
+- **`wind_params::WindFarmParameters`** are the parameters for the wind farm. See [`WindFarmParameters`](@ref) for details.
 
 # Keyword arguments
 - **`data`** is the additional data (*e.g.*, for investments). The default value is no `data`.
-- **`method`** is the chosen method for data retrieval. The user can choose between the
-  strings "Ninja", "Tradewind_offshore", "Tradewind_upland",  and "Tradewind_lowland".
-  The default value is "Ninja".
 - **`data_path`** is an optional file path for already downloaded data. The default value is
   an empty datapath.
-- **`source`** is the data source for wind data. The user can choose between the strings
-  "NORA3" and "ERA5". The default value is "NORA3".
 
 !!! note "Usage of the ERA5 data source in wind_power_timeseries"
     For use of the "ERA5" data source, the user needs to register and obtain a CDS API key.
@@ -176,26 +294,24 @@ a Python function.
 function WindPower(
     id::Any,
     cap::TimeProfile,
-    windfarm::Dict,
-    time_start::String,
-    time_end::String,
     opex_var::TimeProfile,
     opex_fixed::TimeProfile,
-    output::Dict{<:Resource,<:Real};
+    output::Dict{<:Resource,<:Real},
+    time_start::DateTime,
+    time_end::DateTime,
+    wind_params::WindFarmParameters;
     data::Vector{<:ExtensionData} = ExtensionData[],
-    method::String = "Ninja",
     data_path::String = "",
-    source::String = "NORA3",
 )
     power = call_python_function(
         "wind_power_timeseries",
         "sample.wind_power";
-        windfarm = windfarm,
-        time_start = time_start,
-        time_end = time_end,
-        method = method,
+        windfarm = to_dict(wind_params),
+        time_start = Dates.format(time_start, "yyyy-mm-dd"),
+        time_end = Dates.format(time_end, "yyyy-mm-dd"),
+        method = wind_params.method,
         data_path = data_path,
-        source = source,
+        source = wind_params.source,
     )
     profile = OperationalProfile(power)
 
@@ -217,7 +333,7 @@ through a constructor.
 - **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
 - **`opex_fixed::TimeProfile`** is the fixed operating expense.
 - **`output::Dict{Resource, Real}`** are the generated `Resource`s, normally Power.
-- **`data::Vector{<:ExtensionData}`** is the additional data (e.g. for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.* for investments). The field `data`
   is conditional through usage of a constructor.
 """
 struct PV <: AbstractNonDisRES
@@ -256,22 +372,23 @@ end
     )
 
 Constructs a [`PV`](@ref) instance where the power production profile is sampled from
-the PVGIS API.
+the PVGIS API tool from the EU Science Hub (available at https://re.jrc.ec.europa.eu/pvg_tools).
 
 # Arguments
-- **`id`**: The name or identifier of the node.
-- **`cap`**: The installed capacity.
-- **`opex_var`**: The variable operating expense per energy unit produced.
-- **`opex_fixed`**: The fixed operating expense.
-- **`output`**: The generated `Resource`s, normally Power, with conversion value `Real`.
-- **`time_start::DateTime`**: The start of the time range for which the PV output data is requested.
-- **`time_end::DateTime`**: The end of the time range for which the PV output data is requested.
-- **`params::PVParameters`**: Parameters for the PV system. See [`PVParameters`](@ref) for details.
+- **`id`** is the name/identifier of the node.
+- **`cap::TimeProfile`** is the installed capacity.
+- **`opex_var::TimeProfile`** is the variable operating expense per energy unit produced.
+- **`opex_fixed::TimeProfile`** is the fixed operating expense.
+- **`output::Dict{<:Resource,<:Real}`** are the generated `Resource`s, normally Power.
+- **`time_start::DateTime`** is the start of the time range for which the PV output data is requested.
+- **`time_end::DateTime`** is the end of the time range for which the PV output data is requested.
+- **`params::PVParameters`** are the parameters for the PV system. See [`PVParameters`](@ref) for details.
 
 # Keyword arguments
-- **`data`**: Additional data (e.g., for investments). Default is no `data`.
-- **`data_path`**: Directory where the cached CSV file will be stored. Default is `"pvgis_cache"`.
-- **`filename_hint`**: Optional string to include in the cache file name for identification. Default is `""`.
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.*, for investments). 
+  The field `data` is conditional through usage of a constructor.
+- **`data_path::String`** is the directory where the cached CSV file will be stored. Default is `"pvgis_cache"`.
+- **`filename_hint::String`** is an optional string to include in the cache file name for identification. Default is `""`.
 """
 function PV(
     id::Any,
@@ -313,7 +430,7 @@ the strategic level.
 - **`opex_fixed::Dict{<:Resource,<:TimeProfile}`** is the fixed operating expense (for all
   resources in a Dict).
 - **`output::Dict{Resource, Real}`** are the generated `Resource`s, normally Power.
-- **`data::Vector{<:ExtensionData}`** is the additional data (e.g. for investments). The field `data`
+- **`data::Vector{<:ExtensionData}`** is the additional data (*e.g.* for investments). The field `data`
   is conditional through usage of a constructor.
 
 !!! danger

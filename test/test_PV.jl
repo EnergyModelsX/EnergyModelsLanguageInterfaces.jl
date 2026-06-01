@@ -1,5 +1,4 @@
 @testset "PVParameters" begin
-    # Test the constructor and field access
     @testset "Constructor" begin
         params1 = PVParameters(
             52.0,
@@ -23,6 +22,12 @@
     end
 
     @testset "Invalid parameters" begin
+        # Test that invalid lat/lon throws an error
+        @test_throws ArgumentError PVParameters(-91.0, 5.0)
+        @test_throws ArgumentError PVParameters(91.0, 5.0)
+        @test_throws ArgumentError PVParameters(52.0, -181.0)
+        @test_throws ArgumentError PVParameters(52.0, 181.0)
+
         # Test that invalid loss throws an error
         @test_throws ArgumentError PVParameters(52.0, 5.0; loss = -1.0)
 

@@ -72,27 +72,27 @@ function simple_graph_wind(;
     profile = nothing,
 )
     # Creation of the initial problem with the NonDisRES node
-    time_start = "2022-05-01"
-    time_end = "2022-05-03"
-    windfarm = Dict(
-        "id" => "windfarm_1",
-        "lat" => 55,
-        "lon" => 9,
-        "orientation" => missing,
-        "shape" => missing,
-        "turbine_height" => 150,
+    time_start = DateTime("2022-05-01T00:00:00")
+    time_end = DateTime("2022-05-03T23:00:00")
+    wind_params = WindFarmParameters(
+        "windfarm_1",
+        55,
+        9,
+        150;
+        orientation = missing,
+        shape = missing,
     )
     data_path = mkpath(joinpath(testdir, "data", "WindPower"))
     if isnothing(profile)
         wind = WindPower(
             "Windfarm",                     # Node id
             cap,                            # Capacity in MW
-            windfarm,                       # Windfarm data
-            time_start,                     # Start time for the data
-            time_end,                       # End time for the data
             opex_var,                       # Variable operational cost in €/MWh
             opex_fixed,                     # Fixed operational cost in €/MW/year
-            output;                         # The generated resources with conversion value 1
+            output,                         # The generated resources with conversion value 1
+            time_start,                     # Start time for the data
+            time_end,                       # End time for the data
+            wind_params;                    # Windfarm data
             data_path,                      # Path to the data
         )
     else
@@ -109,9 +109,9 @@ function simple_graph_wind(;
 end
 
 function simple_graph_buildings(; cap_p = nothing,
-    penalty_surplus = Dict(HeatHT=>FixedProfile(0.5), Power=>FixedProfile(0.5)),
-    penalty_deficit = Dict(HeatHT=>FixedProfile(0.5), Power=>FixedProfile(0.5)),
-    input = Dict(HeatHT=>1.0, Power=>1.0),
+    penalty_surplus = Dict(HeatHT => FixedProfile(0.5), Power => FixedProfile(0.5)),
+    penalty_deficit = Dict(HeatHT => FixedProfile(0.5), Power => FixedProfile(0.5)),
+    input = Dict(HeatHT => 1.0, Power => 1.0),
 )
 
     # Creation of the initial problem with the NonDisRES node
@@ -219,9 +219,9 @@ function simple_graph_buildings(; cap_p = nothing,
 end
 
 function simple_graph_building(; cap_p = nothing,
-    penalty_surplus = Dict(HeatHT=>FixedProfile(100), Power=>FixedProfile(100)),
-    penalty_deficit = Dict(HeatHT=>FixedProfile(1e4), Power=>FixedProfile(1e4)),
-    input = Dict(HeatHT=>1.0, Power=>1.0), source = "NORA3")
+    penalty_surplus = Dict(HeatHT => FixedProfile(100), Power => FixedProfile(100)),
+    penalty_deficit = Dict(HeatHT => FixedProfile(1e4), Power => FixedProfile(1e4)),
+    input = Dict(HeatHT => 1.0, Power => 1.0), source = "NORA3")
     # Creation of the initial problem with the NonDisRES node
     time_start_str = "2019-01-01"
     time_end_str = "2019-01-01"
@@ -292,10 +292,10 @@ function simple_graph_building(; cap_p = nothing,
 end
 
 function simple_graph_csp_pv(; cap_p = nothing,
-    profile = Dict(Power=>FixedProfile(0.8), CSPHeat=>FixedProfile(0.7)),
-    opex_var_p = Dict(Power=>FixedProfile(0.1), CSPHeat=>FixedProfile(0.2)),
-    opex_fixed_p = Dict(Power=>FixedProfile(5.0), CSPHeat=>FixedProfile(2.0)),
-    output = Dict(CSPHeat=>1.0, Power=>1.0),
+    profile = Dict(Power => FixedProfile(0.8), CSPHeat => FixedProfile(0.7)),
+    opex_var_p = Dict(Power => FixedProfile(0.1), CSPHeat => FixedProfile(0.2)),
+    opex_fixed_p = Dict(Power => FixedProfile(5.0), CSPHeat => FixedProfile(2.0)),
+    output = Dict(CSPHeat => 1.0, Power => 1.0),
 )
     # Creation of the initial problem with the NonDisRES node
     time_start_str = "2019-01-01"

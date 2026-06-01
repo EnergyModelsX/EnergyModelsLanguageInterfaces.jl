@@ -1,6 +1,10 @@
 # Release notes
 
-## Version 0.1.0 (2026-04-25)
+## Version 0.1.0 (2026-05-28)
+
+### Added WindFarmParameters
+
+* Introduces `WindFarmParameters` more in line with `PVParameters` and also made the corresponding nodes more consistent.
 
 ### Add Building node
 
@@ -16,7 +20,7 @@
 ### Initial version of the package
 
 * Provide sampling routines for C++ and Python for incorporation into `EnergyModelsX` models.
-* Utilize the sampling routines for sampling from:.
+* Utilize the sampling routines for sampling from:
   * C++: `BioCHP` node.
   * Python: `MultipleBuildingTypes`, `CSPandPV`, and `WindPower` nodes.
 * Incorporation of a `BioResource` for `BiOCHP` plant.
