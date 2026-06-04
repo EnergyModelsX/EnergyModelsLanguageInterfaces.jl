@@ -19,6 +19,7 @@ EMLI.pvgis_profile
 EMLI.get_pvgis_data
 EMLI.get_met_data
 EMLI.heat_demand_profile
+EMLI.to_pandas_series
 ```
 
 ## [Macros](@id lib-int-mac-util)

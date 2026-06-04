@@ -9,6 +9,7 @@ using Dates
 using JSON
 using HiGHS
 using JuMP
+using DataFrames
 
 const EMLI = EnergyModelsLanguageInterfaces
 const EMB = EnergyModelsBase

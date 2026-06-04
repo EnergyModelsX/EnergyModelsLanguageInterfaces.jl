@@ -40,7 +40,7 @@ function small_graph(; source = nothing, sink = nothing, ops = SimpleTimes(24, 2
     if isnothing(sink)
         sink = RefSink(
             3,
-            FixedProfile(20),
+            FixedProfile(8),
             Dict(:surplus => FixedProfile(1e3), :deficit => FixedProfile(1e6)),
             Dict(Power => 1),
         )
@@ -70,17 +70,29 @@ function simple_graph_wind(;
     opex_fixed = FixedProfile(50e3),
     output = Dict(Power => 1.0),
     profile = nothing,
+    orientation = nothing,
+    shape = nothing,
+    method::String = "Ninja",
+    source::String = "NORA3",
+    turbine_power_curve::Union{DataFrame,String,Nothing} = nothing,
+    sigma::Union{Real,Nothing} = nothing,
+    wakeloss::Union{Real,Nothing} = nothing,
 )
     # Creation of the initial problem with the NonDisRES node
     time_start = DateTime("2022-05-01T00:00:00")
-    time_end = DateTime("2022-05-03T23:00:00")
+    time_end = DateTime("2022-05-01T23:00:00")
     wind_params = WindFarmParameters(
         "windfarm_1",
         55,
         9,
         150;
-        orientation = missing,
-        shape = missing,
+        orientation,
+        shape,
+        method,
+        source,
+        turbine_power_curve,
+        sigma,
+        wakeloss,
     )
     data_path = mkpath(joinpath(testdir, "data", "WindPower"))
     if isnothing(profile)
@@ -105,7 +117,7 @@ function simple_graph_wind(;
             output,
         )
     end
-    return small_graph(source = wind, ops = SimpleTimes(72, 1))
+    return small_graph(source = wind, ops = SimpleTimes(24, 1))
 end
 
 function simple_graph_buildings(; cap_p = nothing,

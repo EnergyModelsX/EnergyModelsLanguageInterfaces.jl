@@ -509,3 +509,12 @@ function get_met_data(
     end
     return df
 end
+
+"""
+    to_pandas_series(df::DataFrame)
+
+Convert a DataFrame with two columns (index and values) to a Pandas Series.
+The first column of the DataFrame is treated as the index, and the second column is treated as the values of the Series.
+"""
+to_pandas_series(df::DataFrame) =
+    pyimport("pandas").Series(df[:, "power_curve"], index = df[:, "wind_speed"])

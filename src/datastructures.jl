@@ -100,10 +100,13 @@ end
         lat::Real,
         lon::Real,
         turbine_height::Real;
-        orientation = missing,
-        shape = missing,
+        orientation::Union{Real, Nothing} = nothing,
+        shape::Union{Real, Nothing} = nothing,
         method::String = "Ninja",
         source::String = "NORA3",
+        turbine_power_curve::Union{DataFrame, String, Nothing} = nothing,
+        sigma::Union{Real, Nothing} = nothing,
+        wakeloss::Union{Real, Nothing} = nothing,
     )
 
 A structure to hold wind farm parameters and metadata for wind power time series generation.
@@ -113,13 +116,23 @@ A structure to hold wind farm parameters and metadata for wind power time series
 - **`lat::Real`** is the latitude of the location in decimal degrees (e.g., `52.5` for 52°30′ N, `-33.75` for 33°45′ S).
 - **`lon::Real`** is the longitude of the location in decimal degrees (e.g., `13.5` for 13°30′ E, `-122.25` for 122°15′ W).
 - **`turbine_height::Real`** is the height of the wind turbines in meters.
-- **`orientation`** is the orientation of the wind farm (default: `missing`).
-- **`shape`** is the shape of the wind farm (default: `missing`).
+- **`orientation::Union{Real, Nothing}`** is the orientation of the wind farm (default: `nothing`).
+- **`shape::Union{Real, Nothing}`** is the shape of the wind farm (default: `nothing`).
 - **`method::String`** is the chosen method for data retrieval. The user can choose between the
   strings "Ninja", "Tradewind_offshore", "Tradewind_upland",  and "Tradewind_lowland".
   The default value is "Ninja".
 - **`source::String`** is the data source for wind data. The user can choose between the strings
   "NORA3" and "ERA5". The default value is "NORA3".
+- **`turbine_power_curve::Union{String, DataFrame, Nothing}`** optional power curve input 
+  (e.g. curve name or dataset-based interpolated curve), default: `nothing`.
+  For `String` input, available options are: "VestasV80", "Tradewind_lowland", "Tradewind_upland", 
+  "Tradewind_offshore", "Tradewind_offshore_2030", "IEA_15MW_240_RWT", "IEA_10MW_198_RWT", 
+  "NREL_5MW_126_RWT", and "DTU_10MW_178_RWT". 
+  For `DataFrame` input, the `DataFrame` must contain two columns: "wind_speed" and "power_curve", where 
+  "wind_speed" is the wind speed in m/s and "power_curve" is the normalized power output (must be non-negative) 
+  corresponding to each wind speed (values are normalized by default by the `wind_power_timeseries` module).
+- **`sigma::Union{Real, Nothing}`** optional Ninja smoothing parameter, default: `nothing`.
+- **`wakeloss::Union{Real, Nothing}`** optional Ninja wakeloss parameter, default: `nothing`.
 
 !!! note "Key word argument in constructors"
     If not all fields with default values are provided, the user must use the keyword arguments.
@@ -129,19 +142,26 @@ struct WindFarmParameters <: AbstractParameters
     lat::Real
     lon::Real
     turbine_height::Real
-    orientation::Any
-    shape::Any
+    orientation::Union{Real,Nothing}
+    shape::Union{Real,Nothing}
     method::String
     source::String
+    turbine_power_curve::Union{String,DataFrame,Nothing}
+    sigma::Union{Real,Nothing}
+    wakeloss::Union{Real,Nothing}
+
     function WindFarmParameters(
         id::String,
         lat::Real,
         lon::Real,
         turbine_height::Real,
-        orientation::Any,
-        shape::Any,
+        orientation::Union{Real,Nothing},
+        shape::Union{Real,Nothing},
         method::String,
         source::String,
+        turbine_power_curve::Union{String,DataFrame,Nothing},
+        sigma::Union{Real,Nothing},
+        wakeloss::Union{Real,Nothing},
     )
         errors = String[]
         if lat < -90 || lat > 90
@@ -164,6 +184,40 @@ struct WindFarmParameters <: AbstractParameters
             push!(errors, "source must be one of $(sources).")
         end
 
+        if turbine_power_curve isa DataFrame
+            required_columns = ["wind_speed", "power_curve"]
+            if !all(col -> col in names(turbine_power_curve), required_columns)
+                push!(
+                    errors,
+                    "turbine_power_curve DataFrame must contain columns: $(required_columns).",
+                )
+            end
+            if "power_curve" ∈ names(turbine_power_curve) &&
+               any(turbine_power_curve[:, "power_curve"] .< 0)
+                push!(
+                    errors,
+                    "turbine_power_curve 'power_curve' values must be non-negative.",
+                )
+            end
+        elseif turbine_power_curve isa String
+            valid_curves =
+                ("VestasV80", "Tradewind_lowland", "Tradewind_upland", "Tradewind_offshore",
+                    "Tradewind_offshore_2030", "IEA_15MW_240_RWT", "IEA_10MW_198_RWT",
+                    "NREL_5MW_126_RWT",
+                    "DTU_10MW_178_RWT")
+            if !(turbine_power_curve in valid_curves)
+                push!(errors, "turbine_power_curve string must be one of $(valid_curves).")
+            end
+        end
+
+        if sigma isa Real && sigma < 0
+            push!(errors, "sigma must be a non-negative Real or `nothing`.")
+        end
+
+        if wakeloss isa Real && (wakeloss < 0 || wakeloss > 1)
+            push!(errors, "wakeloss must be a Real in [0, 1] or `nothing`.")
+        end
+
         if !isempty(errors)
             throw(ArgumentError(join(errors, " ")))
         end
@@ -177,6 +231,9 @@ struct WindFarmParameters <: AbstractParameters
             shape,
             method,
             source,
+            turbine_power_curve,
+            sigma,
+            wakeloss,
         )
     end
 end
@@ -185,10 +242,13 @@ function WindFarmParameters(
     lat::Real,
     lon::Real,
     turbine_height::Real;
-    orientation = missing,
-    shape = missing,
+    orientation::Union{Real,Nothing} = nothing,
+    shape::Union{Real,Nothing} = nothing,
     method::String = "Ninja",
     source::String = "NORA3",
+    turbine_power_curve::Union{String,DataFrame,Nothing} = nothing,
+    sigma::Union{Real,Nothing} = nothing,
+    wakeloss::Union{Real,Nothing} = nothing,
 )
     return WindFarmParameters(
         id,
@@ -199,6 +259,9 @@ function WindFarmParameters(
         shape,
         method,
         source,
+        turbine_power_curve,
+        sigma,
+        wakeloss,
     )
 end
 
@@ -303,6 +366,9 @@ function WindPower(
     data::Vector{<:ExtensionData} = ExtensionData[],
     data_path::String = "",
 )
+    power_curve = wind_params.turbine_power_curve
+    turbine_power_curve =
+        power_curve isa DataFrame ? to_pandas_series(power_curve) : power_curve
     power = call_python_function(
         "wind_power_timeseries",
         "sample.wind_power";
@@ -312,6 +378,9 @@ function WindPower(
         method = wind_params.method,
         data_path = data_path,
         source = wind_params.source,
+        turbine_power_curve = turbine_power_curve,
+        sigma = wind_params.sigma,
+        wakeloss = wind_params.wakeloss,
     )
     profile = OperationalProfile(power)
 
