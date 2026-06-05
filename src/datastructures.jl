@@ -116,9 +116,11 @@ A structure to hold wind farm parameters and metadata for wind power time series
 - **`lat::Real`** is the latitude of the location in decimal degrees (e.g., `52.5` for 52°30′ N, `-33.75` for 33°45′ S).
 - **`lon::Real`** is the longitude of the location in decimal degrees (e.g., `13.5` for 13°30′ E, `-122.25` for 122°15′ W).
 - **`turbine_height::Real`** is the height of the wind turbines in meters.
-- **`orientation::Union{Real, Nothing}`** is the orientation of the wind farm (default: `nothing`).
-- **`shape::Union{Real, Nothing}`** is the aspect ratio, number of columns (i.e. number of turbines in a row) 
-  divided by number of rows of turbines (default: `nothing`).
+- **`orientation::Union{Real, Nothing}`** is the orientation of the wind farm (default: `nothing`). 
+  It is given in degrees from north, typically aligned with dominant wind direction (e.g., 0 for north, 
+  90 for east, 180 for south, 270 for west). Must be in the interval `[0, 360)` if provided.
+- **`shape::Union{Real, Nothing}`** is the aspect ratio (must be positive if provided), number of columns 
+  (i.e. number of turbines in a row) divided by number of rows of turbines (default: `nothing`).
 - **`method::String`** is the chosen method for data retrieval. The user can choose between the
   strings "Ninja", "Tradewind_offshore", "Tradewind_upland",  and "Tradewind_lowland".
   The default value is "Ninja".
@@ -132,6 +134,8 @@ A structure to hold wind farm parameters and metadata for wind power time series
   For `DataFrame` input, the `DataFrame` must contain two columns: "wind_speed" and "power_curve", where 
   "wind_speed" is the wind speed in m/s and "power_curve" is the normalized power output (both must be non-negative) 
   corresponding to each wind speed (values are normalized by default by the `wind_power_timeseries` module).
+  Values are set to zero for wind speeds outside the range of the provided power curve.
+  Must have at least 2 rows to allow for interpolation.
 - **`sigma::Union{Real, Nothing}`** optional Ninja smoothing parameter, default: `nothing`.
 - **`wakeloss::Union{Real, Nothing}`** optional Ninja wakeloss parameter, default: `nothing`.
 
@@ -185,8 +189,19 @@ struct WindFarmParameters <: AbstractParameters
             push!(errors, "source must be one of $(sources).")
         end
 
+        if orientation isa Real && (orientation < 0 || orientation >= 360)
+            push!(errors, "orientation must be in [0, 360) or `nothing`.")
+        end
+
+        if shape isa Real && shape <= 0
+            push!(errors, "shape must be a positive Real or `nothing`.")
+        end
+
         if turbine_power_curve isa DataFrame
             required_columns = ["wind_speed", "power_curve"]
+            if nrow(turbine_power_curve) < 2
+                push!(errors, "turbine_power_curve DataFrame must have at least 2 rows.")
+            end
             missing_columns =
                 [col for col ∈ required_columns if !(col in names(turbine_power_curve))]
             if !isempty(missing_columns)

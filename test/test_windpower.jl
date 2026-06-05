@@ -63,6 +63,26 @@
             source = "invalid",
         )
 
+        # invalid orientation
+        @test_throws ArgumentError WindFarmParameters(
+            "wf1", 52.0, 5.0, 100.0;
+            orientation = -10.0,
+        )
+        @test_throws ArgumentError WindFarmParameters(
+            "wf1", 52.0, 5.0, 100.0;
+            orientation = 360.0,
+        )
+
+        # invalid shape
+        @test_throws ArgumentError WindFarmParameters(
+            "wf1", 52.0, 5.0, 100.0;
+            shape = 0.0,
+        )
+        @test_throws ArgumentError WindFarmParameters(
+            "wf1", 52.0, 5.0, 100.0;
+            shape = -1.0,
+        )
+
         @test_throws ArgumentError WindFarmParameters(
             "wf1", 52.0, 5.0, 100.0;
             turbine_power_curve = "invalid",
