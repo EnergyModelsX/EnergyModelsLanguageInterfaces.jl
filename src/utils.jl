@@ -517,4 +517,4 @@ Convert a power-curve DataFrame to a Pandas Series.
 The DataFrame must contain columns "wind_speed" (used as the Series index) and "power_curve" (used as the Series values).
 """
 to_pandas_series(df::DataFrame) =
-    pyimport("pandas").Series(df[:, "power_curve"], index = df[:, "wind_speed"])
+    pyimport("pandas").Series(df[!, "power_curve"], index = df[!, "wind_speed"])

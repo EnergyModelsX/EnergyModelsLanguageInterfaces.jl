@@ -78,6 +78,13 @@
                 power_curve = [0.0, -0.5],
             ),
         )
+        @test_throws ArgumentError WindFarmParameters(
+            "wf1", 52.0, 5.0, 100.0;
+            turbine_power_curve = DataFrame(
+                wind_speed = [0.0, -3.0],
+                power_curve = [0.0, 0.5],
+            ),
+        )
 
         # invalid sigma
         @test_throws ArgumentError WindFarmParameters(

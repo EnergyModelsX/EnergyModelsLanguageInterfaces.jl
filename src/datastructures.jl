@@ -117,7 +117,8 @@ A structure to hold wind farm parameters and metadata for wind power time series
 - **`lon::Real`** is the longitude of the location in decimal degrees (e.g., `13.5` for 13°30′ E, `-122.25` for 122°15′ W).
 - **`turbine_height::Real`** is the height of the wind turbines in meters.
 - **`orientation::Union{Real, Nothing}`** is the orientation of the wind farm (default: `nothing`).
-- **`shape::Union{Real, Nothing}`** is the shape of the wind farm (default: `nothing`).
+- **`shape::Union{Real, Nothing}`** is the aspect ratio, number of columns (i.e. number of turbines in a row) 
+  divided by number of rows of turbines (default: `nothing`).
 - **`method::String`** is the chosen method for data retrieval. The user can choose between the
   strings "Ninja", "Tradewind_offshore", "Tradewind_upland",  and "Tradewind_lowland".
   The default value is "Ninja".
@@ -129,7 +130,7 @@ A structure to hold wind farm parameters and metadata for wind power time series
   "Tradewind_offshore", "Tradewind_offshore_2030", "IEA_15MW_240_RWT", "IEA_10MW_198_RWT", 
   "NREL_5MW_126_RWT", and "DTU_10MW_178_RWT". 
   For `DataFrame` input, the `DataFrame` must contain two columns: "wind_speed" and "power_curve", where 
-  "wind_speed" is the wind speed in m/s and "power_curve" is the normalized power output (must be non-negative) 
+  "wind_speed" is the wind speed in m/s and "power_curve" is the normalized power output (both must be non-negative) 
   corresponding to each wind speed (values are normalized by default by the `wind_power_timeseries` module).
 - **`sigma::Union{Real, Nothing}`** optional Ninja smoothing parameter, default: `nothing`.
 - **`wakeloss::Union{Real, Nothing}`** optional Ninja wakeloss parameter, default: `nothing`.
@@ -186,19 +187,25 @@ struct WindFarmParameters <: AbstractParameters
 
         if turbine_power_curve isa DataFrame
             required_columns = ["wind_speed", "power_curve"]
-            if !all(col -> col in names(turbine_power_curve), required_columns)
+            missing_columns =
+                [col for col ∈ required_columns if !(col in names(turbine_power_curve))]
+            if !isempty(missing_columns)
                 push!(
                     errors,
-                    "turbine_power_curve DataFrame must contain columns: $(required_columns).",
+                    "turbine_power_curve DataFrame must contain columns: $(required_columns). Missing: $(missing_columns).",
                 )
             end
-            if "power_curve" ∈ names(turbine_power_curve)
-                pc = turbine_power_curve[!, "power_curve"]
-                if any(ismissing, pc) || any(x -> !(x isa Real), pc) || any(x -> x < 0, pc)
-                    push!(
-                        errors,
-                        "turbine_power_curve 'power_curve' values must be non-negative Reals (no missing).",
-                    )
+
+            for col ∈ required_columns
+                if col ∈ names(turbine_power_curve)
+                    vals = turbine_power_curve[!, col]
+                    if any(ismissing, vals) || any(x -> !(x isa Real), vals) ||
+                       any(x -> x < 0, vals)
+                        push!(
+                            errors,
+                            "turbine_power_curve '$col' values must be non-negative Reals.",
+                        )
+                    end
                 end
             end
         elseif turbine_power_curve isa String
