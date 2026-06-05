@@ -178,11 +178,17 @@ end
             # - EMB.constraints_capacity(m, n::NonDisRES, 𝒯::TimeStructure, modeltype::EnergyModel)
             #   - 4, as we have one operational period per strategic period with curtailment
             @test sum(value.(m[:curtailment][wind, t]) > 0.0 for t ∈ 𝒯) == 4
-            @test sum(value.(m[:curtailment][wind, t]) for t ∈ 𝒯) == 4 * curtailment
+            @test isapprox(
+                sum(value.(m[:curtailment][wind, t]) for t ∈ 𝒯),
+                4 * curtailment;
+                atol = TEST_ATOL,
+            )
             @test sum(
-                value.(m[:cap_use][wind, t]) + value.(m[:curtailment][wind, t]) ≈
-                EMRP.profile(wind, t) * value.(m[:cap_inst][wind, t]) for
-                t ∈ 𝒯, atol ∈ TEST_ATOL
+                isapprox(
+                    value.(m[:cap_use][wind, t]) + value.(m[:curtailment][wind, t]),
+                    EMRP.profile(wind, t) * value.(m[:cap_inst][wind, t]);
+                    atol = TEST_ATOL,
+                ) for t ∈ 𝒯
             ) == length(𝒯)
         end
 

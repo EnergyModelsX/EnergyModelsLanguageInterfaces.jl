@@ -192,12 +192,14 @@ struct WindFarmParameters <: AbstractParameters
                     "turbine_power_curve DataFrame must contain columns: $(required_columns).",
                 )
             end
-            if "power_curve" ∈ names(turbine_power_curve) &&
-               any(turbine_power_curve[:, "power_curve"] .< 0)
-                push!(
-                    errors,
-                    "turbine_power_curve 'power_curve' values must be non-negative.",
-                )
+            if "power_curve" ∈ names(turbine_power_curve)
+                pc = turbine_power_curve[!, "power_curve"]
+                if any(ismissing, pc) || any(x -> !(x isa Real), pc) || any(x -> x < 0, pc)
+                    push!(
+                        errors,
+                        "turbine_power_curve 'power_curve' values must be non-negative Reals (no missing).",
+                    )
+                end
             end
         elseif turbine_power_curve isa String
             valid_curves =
