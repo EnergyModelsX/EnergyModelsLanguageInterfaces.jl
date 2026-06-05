@@ -1,6 +1,13 @@
 # Release notes
 
-## Version 0.1.0 (2026-05-28)
+## Version 0.1.0 (2026-06-05)
+
+### Extended WindFarmParameters
+
+* Extended `WindFarmParameters` to include an optional `turbine_power_curve` argument, which allows users to specify a custom power curve for the wind turbine.
+  The `turbine_power_curve` is expected to be a `DataFrame` with columns `wind_speed` and `power_curve`, where `wind_speed` represents the wind speed values (in m/s) and `power_curve` represents the corresponding power output of the turbine at those wind speeds.
+* The parameters `sigma` and `wakeloss` were also added to `WindFarmParameters` to enable all options of the `wind_power_timeseries` repository.
+* The `shape` parameter was corrected from a string to a float.
 
 ### Added WindFarmParameters
 
