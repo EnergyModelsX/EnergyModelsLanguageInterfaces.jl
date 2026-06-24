@@ -373,10 +373,6 @@ a Python function.
 - **`data`** is the additional data (*e.g.*, for investments). The default value is no `data`.
 - **`data_path`** is an optional file path for already downloaded data. The default value is
   an empty datapath.
-
-!!! note "Usage of the ERA5 data source in wind_power_timeseries"
-    For use of the "ERA5" data source, the user needs to register and obtain a CDS API key.
-    -  Perform step 1: https://cds.climate.copernicus.eu/how-to-api
 """
 function WindPower(
     id::Any,
@@ -390,22 +386,7 @@ function WindPower(
     data::Vector{<:ExtensionData} = ExtensionData[],
     data_path::String = "",
 )
-    power_curve = wind_params.turbine_power_curve
-    turbine_power_curve =
-        power_curve isa DataFrame ? to_pandas_series(power_curve) : power_curve
-    power = call_python_function(
-        "wind_power_timeseries",
-        "sample.wind_power";
-        windfarm = to_dict(wind_params),
-        time_start = Dates.format(time_start, "yyyy-mm-dd"),
-        time_end = Dates.format(time_end, "yyyy-mm-dd"),
-        method = wind_params.method,
-        data_path = data_path,
-        source = wind_params.source,
-        turbine_power_curve = turbine_power_curve,
-        sigma = wind_params.sigma,
-        wakeloss = wind_params.wakeloss,
-    )
+    power = wind_profile(time_start, time_end, wind_params; data_path)
     profile = OperationalProfile(power)
 
     return WindPower(id, cap, profile, opex_var, opex_fixed, output, data)
