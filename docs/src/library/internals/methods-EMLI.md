@@ -20,6 +20,8 @@ EMLI.get_pvgis_data
 EMLI.get_met_data
 EMLI.heat_demand_profile
 EMLI.to_pandas_series
+EMLI.wind_profile
+EMLI.sanitize_filename_hint
 ```
 
 ## [Macros](@id lib-int-mac-util)

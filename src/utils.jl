@@ -96,6 +96,11 @@ function fetch_element(elements, id)
     return getfirst(element -> element.id == id, elements)
 end
 
+"""
+    sanitize_filename_hint(filename_hint::String)
+
+Sanitize the `filename_hint` string to be used in file names by replacing non-alphanumeric characters with underscores.
+"""
 function sanitize_filename_hint(filename_hint::String)
     if isempty(filename_hint)
         filehint = ""
