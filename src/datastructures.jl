@@ -128,19 +128,28 @@ A structure to hold wind farm parameters and metadata for wind power time series
   "NORA3" and "ERA5". The default value is "NORA3".
 - **`turbine_power_curve::Union{String, DataFrame, Nothing}`** optional power curve input 
   (e.g., curve name or dataset-based interpolated curve), default: `nothing`.
-  For `String` input, available options are: "VestasV80", "Tradewind_lowland", "Tradewind_upland", 
-  "Tradewind_offshore", "Tradewind_offshore_2030", "IEA_15MW_240_RWT", "IEA_10MW_198_RWT", 
-  "NREL_5MW_126_RWT", and "DTU_10MW_178_RWT". 
-  For `DataFrame` input, the `DataFrame` must contain two columns: "wind_speed" and "power_curve", where 
-  "wind_speed" is the wind speed in m/s and "power_curve" is the normalized power output (both must be non-negative) 
-  corresponding to each wind speed (values are normalized by default by the `wind_power_timeseries` module).
-  Values are set to zero for wind speeds outside the range of the provided power curve.
-  Must have at least 2 rows to allow for interpolation.
+  !!! note "String and DataFrame input for `turbine_power_curve`"
+      For `String` input, available options are: "VestasV80", "Tradewind_lowland", "Tradewind_upland", 
+      "Tradewind_offshore", "Tradewind_offshore_2030", "IEA_15MW_240_RWT", "IEA_10MW_198_RWT", 
+      "NREL_5MW_126_RWT", and "DTU_10MW_178_RWT". 
+
+      For `DataFrame` input, the `DataFrame` must contain two columns: "wind_speed" and "power_curve", where 
+      "wind_speed" is the wind speed in m/s and "power_curve" is the normalized power output (both must be non-negative) 
+      corresponding to each wind speed (values are normalized by default by the `wind_power_timeseries` module).
+      Values are set to zero for wind speeds outside the range of the provided power curve.
+      Must have at least 2 rows to allow for interpolation.
 - **`sigma::Union{Real, Nothing}`** optional Ninja smoothing parameter, default: `nothing`.
 - **`wakeloss::Union{Real, Nothing}`** optional Ninja wakeloss parameter, default: `nothing`.
 
 !!! note "Key word argument in constructors"
     If not all fields with default values are provided, the user must use the keyword arguments.
+!!! warning "Optional parameters `sigma` and `wakeloss`"
+    The optional parameters `sigma` and `wakeloss` are only used when the `method` is set to "Ninja". 
+    If the `method` is set to any of the "Tradewind" options, these parameters will be ignored.
+!!! warning "Optional parameter `shape` and `orientation`"
+    The optional parameters `shape` and `orientation` must both be set to be used. They are only used when
+    `method` is set to "Ninja". If the `method` is set to any of the "Tradewind" options, these parameters 
+    will be ignored.
 """
 struct WindFarmParameters <: AbstractParameters
     id::String
