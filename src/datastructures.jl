@@ -120,14 +120,14 @@ A structure to hold wind farm parameters and metadata for wind power time series
   It is given in degrees from north, typically aligned with dominant wind direction (e.g., 0 for north, 
   90 for east, 180 for south, 270 for west). Must be in the interval `[0, 360)` if provided.
 - **`shape::Union{Real, Nothing}`** is the aspect ratio (must be positive if provided), number of columns 
-  (i.e. number of turbines in a row) divided by number of rows of turbines (default: `nothing`).
+  (i.e., number of turbines in a row) divided by number of rows of turbines (default: `nothing`).
 - **`method::String`** is the chosen method for data retrieval. The user can choose between the
   strings "Ninja", "Tradewind_offshore", "Tradewind_upland",  and "Tradewind_lowland".
   The default value is "Ninja".
 - **`source::String`** is the data source for wind data. The user can choose between the strings
   "NORA3" and "ERA5". The default value is "NORA3".
 - **`turbine_power_curve::Union{String, DataFrame, Nothing}`** optional power curve input 
-  (e.g. curve name or dataset-based interpolated curve), default: `nothing`.
+  (e.g., curve name or dataset-based interpolated curve), default: `nothing`.
   For `String` input, available options are: "VestasV80", "Tradewind_lowland", "Tradewind_upland", 
   "Tradewind_offshore", "Tradewind_offshore_2030", "IEA_15MW_240_RWT", "IEA_10MW_198_RWT", 
   "NREL_5MW_126_RWT", and "DTU_10MW_178_RWT". 
@@ -203,7 +203,7 @@ struct WindFarmParameters <: AbstractParameters
                 push!(errors, "turbine_power_curve DataFrame must have at least 2 rows.")
             end
             missing_columns =
-                [col for col ∈ required_columns if !(col in names(turbine_power_curve))]
+                filter(col -> !(col in names(turbine_power_curve)), required_columns)
             if !isempty(missing_columns)
                 push!(
                     errors,
