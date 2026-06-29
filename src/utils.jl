@@ -96,6 +96,11 @@ function fetch_element(elements, id)
     return getfirst(element -> element.id == id, elements)
 end
 
+"""
+    sanitize_filename_hint(filename_hint::String)
+
+Sanitize the `filename_hint` string to be used in file names by replacing non-alphanumeric characters with underscores.
+"""
 function sanitize_filename_hint(filename_hint::String)
     if isempty(filename_hint)
         filehint = ""
@@ -334,6 +339,40 @@ function get_pvgis_data(
 end
 
 """
+    wind_profile(time_start::DateTime, time_end::DateTime, wind_params::WindFarmParameters; data_path::String = "wind_cache")
+
+Fetches hourly wind power output data for a specified time range and wind farm parameters using the `wind_power_timeseries` module. 
+The function caches the results locally in a CSV file to optimize subsequent calls.
+
+!!! note "Usage of the ERA5 data source in wind_power_timeseries"
+    For use of the "ERA5" data source, the user needs to register and obtain a CDS API key.
+    -  Perform step 1: https://cds.climate.copernicus.eu/how-to-api
+"""
+function wind_profile(
+    time_start::DateTime,
+    time_end::DateTime,
+    wind_params::WindFarmParameters;
+    data_path::String = "wind_cache",
+)
+    power_curve = wind_params.turbine_power_curve
+    turbine_power_curve =
+        power_curve isa DataFrame ? to_pandas_series(power_curve) : power_curve
+    return call_python_function(
+        "wind_power_timeseries",
+        "sample.wind_power";
+        windfarm = to_dict(wind_params),
+        time_start = Dates.format(time_start, "yyyy-mm-dd"),
+        time_end = Dates.format(time_end, "yyyy-mm-dd"),
+        method = wind_params.method,
+        data_path = data_path,
+        source = wind_params.source,
+        turbine_power_curve = turbine_power_curve,
+        sigma = wind_params.sigma,
+        wakeloss = wind_params.wakeloss,
+    )
+end
+
+"""
     heat_demand_profile(
         time_start::DateTime,
         time_end::DateTime,
@@ -509,3 +548,12 @@ function get_met_data(
     end
     return df
 end
+
+"""
+    to_pandas_series(df::DataFrame)
+
+Convert a power-curve DataFrame to a Pandas Series.
+The DataFrame must contain columns "wind_speed" (used as the Series index) and "power_curve" (used as the Series values).
+"""
+to_pandas_series(df::DataFrame) =
+    pyimport("pandas").Series(df[!, "power_curve"], index = df[!, "wind_speed"])
