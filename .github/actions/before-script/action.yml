@@ -93,7 +93,7 @@ runs:
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "test\python_module")
         poetry install
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "..\wind_power_timeseries")
-        git checkout v0.6.1
+        git checkout 313cefea33216c2fdecec916c3d2b42f967f755c
         poetry install
         pip install metocean-api==1.1.14
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "..\Tecnalia_Solar-Energy-Model")

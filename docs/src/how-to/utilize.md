@@ -171,7 +171,7 @@ Navigate to the modules you want to install and run `poetry install`. If you wan
 
 ```PowerShell
 cd ../wind_power_timeseries
-git checkout v0.6.1
+git checkout v0.6.2
 poetry install
 cd ..
 cd Tecnalia_Solar-Energy-Model
@@ -272,7 +272,7 @@ poetry install
 cd "../.."
 
 cd "../wind_power_timeseries"
-git checkout v0.6.1
+git checkout v0.6.2
 poetry install
 cd ".."
 
