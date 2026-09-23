@@ -179,7 +179,7 @@ git checkout v0.10.0
 poetry install
 cd ..
 cd Tecnalia_Building-Stock-Energy-Model
-git checkout v0.11.2
+git checkout v0.10.0
 poetry install
 cd ../EnergyModelsLanguageInterfaces.jl
 ```
@@ -282,7 +282,7 @@ poetry install
 cd ".."
 
 cd "Tecnalia_Building-Stock-Energy-Model"
-git checkout v0.11.2
+git checkout v0.10.0
 poetry install
 cd ".."
 

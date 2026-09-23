@@ -100,7 +100,7 @@ runs:
         git checkout v0.10.0
         poetry install
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "..\Tecnalia_Building-Stock-Energy-Model")
-        git checkout v0.11.2
+        git checkout v0.10.0
         poetry install
 
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "..\CHP_modelling")
