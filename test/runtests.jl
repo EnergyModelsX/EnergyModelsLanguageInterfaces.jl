@@ -38,10 +38,6 @@ include(joinpath(testdir, "utils.jl"))
     # Test utils
     include(joinpath(testdir, "test_utils.jl"))
 
-    # Test nodes
-    include(joinpath(testdir, "test_PV.jl"))
-    include(joinpath(testdir, "test_building.jl"))
-
     if RUN_INTEGRATION
         @testset "External models" begin
             # Test checks
@@ -49,6 +45,8 @@ include(joinpath(testdir, "utils.jl"))
 
             # Test nodes
             include(joinpath(testdir, "test_windpower.jl"))
+            include(joinpath(testdir, "test_PV.jl"))
+            include(joinpath(testdir, "test_building.jl"))
             include(joinpath(testdir, "test_buildings.jl"))
             include(joinpath(testdir, "test_CSPandPV.jl"))
             include(joinpath(testdir, "test_bioCHP.jl"))
