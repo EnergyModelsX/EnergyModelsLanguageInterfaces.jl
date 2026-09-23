@@ -4,7 +4,7 @@ runs:
   using: "composite"
   steps:
     - name: Update and install Linux dependencies
-      if: runner.os == 'Linux'
+      if: runner.os == 'Linux' && inputs.install-external-dependencies == 'true'
       run: |
         sudo apt-get update -qq
         sudo apt-get install -y git g++ cmake wget curl python3-pip
@@ -22,18 +22,25 @@ runs:
         poetry install
         cd "$GITHUB_WORKSPACE"
 
-        cd "$GITHUB_WORKSPACE/submodules/wind_power_timeseries"
+        cd "$GITHUB_WORKSPACE/.."
+        git clone https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries
+        git clone https://github.com/iDesignRES/Tecnalia_Solar-Energy-Model.git
+        git clone https://github.com/iDesignRES/Tecnalia_Building-Stock-Energy-Model.git
+        git clone https://github.com/iDesignRES/CHP_modelling
+
+        cd "$GITHUB_WORKSPACE/../wind_power_timeseries"
         poetry install
         pip install metocean-api==1.1.14
         cd "$GITHUB_WORKSPACE"
 
-        cd "$GITHUB_WORKSPACE/submodules/Tecnalia_Solar-Energy-Model"
+        cd "$GITHUB_WORKSPACE/../Tecnalia_Solar-Energy-Model"
+
         poetry install
-        cd "$GITHUB_WORKSPACE/submodules/Tecnalia_Building-Stock-Energy-Model"
+        cd "$GITHUB_WORKSPACE/../Tecnalia_Building-Stock-Energy-Model"
         poetry install
         cd "$GITHUB_WORKSPACE"
 
-        cd "$GITHUB_WORKSPACE/submodules/CHP_modelling"
+        cd "$GITHUB_WORKSPACE/../CHP_modelling"
         mkdir build
         cd build
         conan install .. --output-folder=. --build=missing -s compiler.cppstd=17 -s arch=x86_64
@@ -42,7 +49,7 @@ runs:
         cd "$GITHUB_WORKSPACE"
       shell: bash
     - name: Install Windows dependencies + Miniconda + python/cpp modules
-      if: runner.os == 'Windows'
+      if: runner.os == 'Windows' && inputs.install-external-dependencies == 'true'
       run: |
         # Download & install Miniconda into %USERPROFILE%\miniconda
         $installer = Join-Path $env:RUNNER_TEMP "Miniconda3-latest-Windows-x86_64.exe"
@@ -65,19 +72,25 @@ runs:
         # Check highs installation
         where.exe highs
         highs --version
+        
+        Set-Location (Join-Path $env:GITHUB_WORKSPACE "..")
+        git clone https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries
+        git clone https://github.com/iDesignRES/Tecnalia_Solar-Energy-Model.git
+        git clone https://github.com/iDesignRES/Tecnalia_Building-Stock-Energy-Model.git
+        git clone https://github.com/iDesignRES/CHP_modelling
 
         # Poetry installs
         Set-Location (Join-Path $env:GITHUB_WORKSPACE "test\python_module")
         poetry install
-        Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\wind_power_timeseries")
+        Set-Location (Join-Path $env:GITHUB_WORKSPACE "..\wind_power_timeseries")
         poetry install
         pip install metocean-api==1.1.14
-        Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\Tecnalia_Solar-Energy-Model")
+        Set-Location (Join-Path $env:GITHUB_WORKSPACE "..\Tecnalia_Solar-Energy-Model")
         poetry install
-        Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\Tecnalia_Building-Stock-Energy-Model")
+        Set-Location (Join-Path $env:GITHUB_WORKSPACE "..\Tecnalia_Building-Stock-Energy-Model")
         poetry install
 
-        Set-Location (Join-Path $env:GITHUB_WORKSPACE "submodules\CHP_modelling")
+        Set-Location (Join-Path $env:GITHUB_WORKSPACE "..\CHP_modelling")
         New-Item -ItemType Directory -Force -Path "build" | Out-Null
         Set-Location "build"
 

@@ -6,6 +6,11 @@ on:
       - release-*
   pull_request:
     types: [opened, synchronize, reopened]
+inputs:
+  install-external-dependencies:
+    description: Install Conda/submodules/external models
+    required: false
+    default: "false"
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
@@ -28,9 +33,6 @@ jobs:
             arch: x64
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: true
-          fetch-depth: 0
 
       # Recommended: ensure MSVC environment for conan/cmake on Windows
       - name: Setup MSVC Dev Cmd
@@ -38,6 +40,8 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - uses: ./.github/actions/before-script
+        with:
+          install-external-dependencies: "true"
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
@@ -71,6 +75,7 @@ jobs:
           conda activate testenv
           julia --project=. -e '
             using Pkg;
+            ENV["EMLI_RUN_INTEGRATION_TESTS"]="true"
             ENV["PYTHON"] = joinpath(ENV["HOME"], "miniconda", "envs", "testenv", "bin", "python");
             Pkg.build("PyCall");
             Pkg.test(; coverage=true)
@@ -87,5 +92,11 @@ jobs:
           conda activate testenv
           $env:PATH = "$env:CONDA_PREFIX;$env:CONDA_PREFIX\Scripts;$env:PATH"
 
-          julia --project=. -e 'using Pkg; ENV["PYTHON"] = joinpath(ENV["USERPROFILE"], "miniconda", "envs", "testenv", "python.exe"); Pkg.build("PyCall"); Pkg.test(; coverage=true)'
+          julia --project=. -e '
+            using Pkg
+            ENV["EMLI_RUN_INTEGRATION_TESTS"]="true"
+            ENV["PYTHON"] = joinpath(ENV["USERPROFILE"], "miniconda", "envs", "testenv", "python.exe")
+            Pkg.build("PyCall")
+            Pkg.test(; coverage=true)
+          '
         shell: pwsh
