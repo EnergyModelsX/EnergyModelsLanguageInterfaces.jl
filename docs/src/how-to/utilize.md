@@ -131,10 +131,14 @@ The following installation guides will show how to install the modules to enable
 Navigate to a folder in which you want to download required repositories and run
 
 ```PowerShell
-git clone --recurse-submodules git@github.com:EnergyModelsX/EnergyModelsLanguageInterfaces.jl.git
+git clone git@github.com:EnergyModelsX/EnergyModelsLanguageInterfaces.jl.git
+git clone https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries
+git clone https://github.com/iDesignRES/Tecnalia_Solar-Energy-Model.git
+git clone https://github.com/iDesignRES/Tecnalia_Building-Stock-Energy-Model.git
+git clone https://github.com/iDesignRES/CHP_modelling
 ```
 
-You should now be able to navigate to the main package folder in which the other modules are located (under the submodules folder)
+You should now be able to navigate to the main package folder
 
 ```PowerShell
 cd EnergyModelsLanguageInterfaces.jl
@@ -163,18 +167,21 @@ Start by installing `poetry` using `pip` (which should be included in the python
 pip install poetry
 ```
 
-Navigate to the submodule you want to install and run `poetry install`. If you want all python modules installed run the following
+Navigate to the modules you want to install and run `poetry install`. If you want all python modules installed run the following
 
 ```PowerShell
-cd submodules/wind_power_timeseries
+cd ../wind_power_timeseries
+git checkout v0.6.1
 poetry install
-cd ../..
-cd submodules/Tecnalia_Solar-Energy-Model
+cd ..
+cd Tecnalia_Solar-Energy-Model
+git checkout v0.10.0
 poetry install
-cd ../..
-cd submodules/Tecnalia_Building-Stock-Energy-Model
+cd ..
+cd Tecnalia_Building-Stock-Energy-Model
+git checkout v0.11.2
 poetry install
-cd ../..
+cd ../EnergyModelsLanguageInterfaces.jl
 ```
 
 If you want to be able to run the tests of the main repository later (see [Test modules](@ref how_to-utilize-use_nodes-test)), make sure to install the `python_module` (located in the `test/python_module` folder)
@@ -227,13 +234,14 @@ conan profile detect
 Navigate to the `CHP_modelling` folder, build and install the module with the following
 
 ```PowerShell
-cd submodules/CHP_modelling
+cd ../CHP_modelling
+git checkout v0.5.0
 mkdir build
 cd build
 conan install .. --output-folder=. --build=missing -s compiler.cppstd=17 -s arch=x86_64
 cmake .. -DCMAKE_TOOLCHAIN_FILE="${PWD}/conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release
 cmake --build . --config Release
-cd ../../..
+cd ../../EnergyModelsLanguageInterfaces.jl
 ```
 
 ### [Install modules on linux](@id how_to-utilize-use_nodes-linux)
@@ -254,29 +262,38 @@ conda create --name testenv python=3.11 -y
 conda activate testenv
 conda install -c conda-forge poetry -y
 
-git clone --recurse-submodules git@github.com:EnergyModelsX/EnergyModelsLanguageInterfaces.jl.git
-cd "test/python_module"
+git clone git@github.com:EnergyModelsX/EnergyModelsLanguageInterfaces.jl.git
+git clone https://gitlab.sintef.no/harald.svendsen/wind_power_timeseries
+git clone https://github.com/iDesignRES/Tecnalia_Solar-Energy-Model.git
+git clone https://github.com/iDesignRES/Tecnalia_Building-Stock-Energy-Model.git
+git clone https://github.com/iDesignRES/CHP_modelling
+cd "EnergyModelsLanguageInterfaces.jl/test/python_module"
 poetry install
 cd "../.."
 
-cd "submodules/wind_power_timeseries"
+cd "../wind_power_timeseries"
+git checkout v0.6.1
 poetry install
-cd "../.."
+cd ".."
 
-cd "submodules/Tecnalia_Solar-Energy-Model"
+cd "Tecnalia_Solar-Energy-Model"
+git checkout v0.10.0
 poetry install
-cd "../.."
-cd "submodules/Tecnalia_Building-Stock-Energy-Model"
-poetry install
-cd "../.."
+cd ".."
 
-cd "submodules/CHP_modelling"
+cd "Tecnalia_Building-Stock-Energy-Model"
+git checkout v0.11.2
+poetry install
+cd ".."
+
+cd "CHP_modelling"
+git checkout v0.5.0
 mkdir build
 cd build
 conan install .. --output-folder=. --build=missing -s compiler.cppstd=17 -s arch=x86_64
 cmake .. -DCMAKE_TOOLCHAIN_FILE="${PWD}/conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release
 cmake --build . --config Release
-cd "../../.."
+cd "../../EnergyModelsLanguageInterfaces.jl"
 ```
 
 Enable the python modules by starting a julia session in the main folder

@@ -6,7 +6,7 @@ These properties can significantly affect conversion efficiency and emissions, a
 
 Compared to a [`ResourceCarrier`](@extref EnergyModelsBase.ResourceCarrier), [`ResourceBio`](@ref) includes additional information on the biomass fuel type and its moisture content.
 Resources of type [`ResourceBio`](@ref) are intended to be *consumed* by technologies (*e.g.*, biomass boilers or CHP plants).
-The properties are included in the detailed submodule for the calculation of efficiencies of the the `BioCHP` type.
+The properties are included in the detailed module for the calculation of efficiencies of the the `BioCHP` type.
 
 ## [Introduced type and its fields](@id resources-ResourceBio-fields)
 

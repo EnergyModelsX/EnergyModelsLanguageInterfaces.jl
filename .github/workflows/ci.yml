@@ -6,11 +6,6 @@ on:
       - release-*
   pull_request:
     types: [opened, synchronize, reopened]
-inputs:
-  install-external-dependencies:
-    description: Install Conda/submodules/external models
-    required: false
-    default: "false"
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}

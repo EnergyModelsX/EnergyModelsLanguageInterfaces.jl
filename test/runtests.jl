@@ -41,26 +41,26 @@ include(joinpath(testdir, "utils.jl"))
     # Test nodes
     include(joinpath(testdir, "test_PV.jl"))
     include(joinpath(testdir, "test_building.jl"))
-end
 
-if RUN_INTEGRATION
-    @testset "External models" begin
-        # Test checks
-        include(joinpath(testdir, "test_checks_integration.jl"))
-        
-        # Test nodes
-        include(joinpath(testdir, "test_windpower.jl"))
-        include(joinpath(testdir, "test_buildings.jl"))
-        include(joinpath(testdir, "test_CSPandPV.jl"))
-        include(joinpath(testdir, "test_bioCHP.jl"))
+    if RUN_INTEGRATION
+        @testset "External models" begin
+            # Test checks
+            include(joinpath(testdir, "test_checks_integrated.jl"))
+
+            # Test nodes
+            include(joinpath(testdir, "test_windpower.jl"))
+            include(joinpath(testdir, "test_buildings.jl"))
+            include(joinpath(testdir, "test_CSPandPV.jl"))
+            include(joinpath(testdir, "test_bioCHP.jl"))
+        end
+    else
+        @info """
+        Skipping integration tests.
+
+        Set:
+            EMLI_RUN_INTEGRATION_TESTS=true
+
+        to enable wind, PV, building and CHP model testing.
+        """
     end
-else
-    @info """
-    Skipping integration tests.
-
-    Set:
-        EMLI_RUN_INTEGRATION_TESTS=true
-
-    to enable wind, PV, building and CHP model testing.
-    """
 end
