@@ -521,26 +521,65 @@ function get_met_data(
         rename!(df, :time => :time_utc)
     else
         ts = pyimport("metocean_api.ts")
-        ts_data = ts.TimeSeries(
-            lon = lon,
-            lat = lat,
-            start_time = Dates.format(time_start, "yyyy-mm-dd"),
-            end_time = Dates.format(time_end, "yyyy-mm-dd"),
-            product = product,
-            variable = variables,
-            datafile = nothing,
-        )
-        ts_data.datafile = csv_path
-        ts_data.import_data(save_csv = save_csv, save_nc = false, use_cache = true)
-        idx_np = ts_data.data.index.to_numpy(copy = true)
-        time = DateTime(1970, 1, 1) .+ Nanosecond.(idx_np.astype("int64"))
-        data = ts_data.data.to_numpy(copy = true)
-        colnames = Symbol.(ts_data.data.columns.tolist())
-        df = DataFrame([time data], [:time_utc; colnames...])
-        # Ensure correct types
-        df.time_utc = DateTime.(df.time_utc)
-        for col ∈ colnames
-            df[!, col] = Float64.(df[!, col])
+
+        # Split long requests into at most one-year batches to reduce the risk of
+        # timeouts/connectivity issues in `metocean_api` for large time ranges.
+        batch_start = Date(time_start)
+        final_date = Date(time_end)
+
+        # Precompute the number of batches so the vector can be preallocated.
+        num_batches = 0
+        tmp_start = batch_start
+        while tmp_start <= final_date
+            tmp_end = min(final_date, tmp_start + Year(1) - Day(1))
+            num_batches += 1
+            tmp_start = tmp_end + Day(1)
+        end
+
+        batch_dfs = Vector{DataFrame}(undef, num_batches)
+        batch_idx = 1
+
+        while batch_start <= final_date
+            batch_end = min(final_date, batch_start + Year(1) - Day(1))
+
+            ts_data = ts.TimeSeries(
+                lon = lon,
+                lat = lat,
+                start_time = Dates.format(DateTime(batch_start), "yyyy-mm-dd"),
+                end_time = Dates.format(DateTime(batch_end), "yyyy-mm-dd"),
+                product = product,
+                variable = variables,
+                datafile = nothing,
+            )
+
+            ts_data.import_data(save_csv = false, save_nc = false, use_cache = true)
+
+            idx_np = ts_data.data.index.to_numpy(copy = true)
+            time = DateTime(1970, 1, 1) .+ Nanosecond.(idx_np.astype("int64"))
+            data = ts_data.data.to_numpy(copy = true)
+            colnames = Symbol.(ts_data.data.columns.tolist())
+
+            batch_df = DataFrame([time data], [:time_utc; colnames...])
+            batch_df.time_utc = DateTime.(batch_df.time_utc)
+            for col ∈ colnames
+                batch_df[!, col] = Float64.(batch_df[!, col])
+            end
+
+            batch_dfs[batch_idx] = batch_df
+            batch_idx += 1
+            batch_start = batch_end + Day(1)
+        end
+
+        df = isempty(batch_dfs) ? DataFrame(time_utc = DateTime[]) : vcat(batch_dfs...)
+        if !isempty(df)
+            unique!(df, :time_utc)
+            sort!(df, :time_utc)
+        end
+
+        if save_csv
+            df_to_save = copy(df)
+            rename!(df_to_save, :time_utc => :time)
+            CSV.write(csv_path, df_to_save, dateformat = "yyyy-mm-dd HH:MM:SS")
         end
     end
     if product == "ERA5"

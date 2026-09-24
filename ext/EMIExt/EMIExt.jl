@@ -41,7 +41,7 @@ library file located at `libpath`. The BioCHP has electricity production of the 
 
 # Arguments
 - **`id`** is the name or identifier of the node.
-- **`cap`** is the installed electric capacity used in the CHP submodule for the calculations.
+- **`cap`** is the installed electric capacity used in the CHP module for the calculations.
 - **`cap_init`** is the initial capacity for the node.
 - **`cap_max_installed`** is the maximum installed capacity.
 - **`mass_fractions`** is the mass fractions of each input `ResourceBio`.

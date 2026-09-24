@@ -139,7 +139,7 @@ function simple_graph_buildings(; cap_p = nothing,
     # Load paths to default Buildings process
     project_path = joinpath(
         pkgdir(EMLI),
-        "submodules",
+        "..",
         "Tecnalia_Building-Stock-Energy-Model",
     )
     path_to_json_buildings = joinpath(project_path, "input.json")
@@ -322,7 +322,7 @@ function simple_graph_csp_pv(; cap_p = nothing,
 
     # Load paths to default Buildings process
     project_path =
-        joinpath(pkgdir(EMLI), "submodules", "Tecnalia_Solar-Energy-Model")
+        joinpath(pkgdir(EMLI), "..", "Tecnalia_Solar-Energy-Model")
 
     path_to_json_csp_pv = joinpath(project_path, "input.json")
     process_pay_load_csp_pv = Dict(JSON.parsefile(path_to_json_csp_pv))
@@ -489,7 +489,7 @@ function simple_graph_biochp(; output = nothing)
     libpath::String = if Sys.iswindows()
         joinpath(
             pkgdir(EMLI),
-            "submodules",
+            "..",
             "CHP_modelling",
             "build",
             "Release",
@@ -498,7 +498,7 @@ function simple_graph_biochp(; output = nothing)
     else
         joinpath(
             pkgdir(EMLI),
-            "submodules",
+            "..",
             "CHP_modelling",
             "build",
             "lib",
