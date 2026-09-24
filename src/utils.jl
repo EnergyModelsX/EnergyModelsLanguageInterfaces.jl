@@ -522,9 +522,22 @@ function get_met_data(
     else
         ts = pyimport("metocean_api.ts")
 
-        batch_dfs = DataFrame[]
+        # Split long requests into at most one-year batches to reduce the risk of
+        # timeouts/connectivity issues in `metocean_api` for large time ranges.
         batch_start = Date(time_start)
         final_date = Date(time_end)
+
+        # Precompute the number of batches so the vector can be preallocated.
+        num_batches = 0
+        tmp_start = batch_start
+        while tmp_start <= final_date
+            tmp_end = min(final_date, tmp_start + Year(1) - Day(1))
+            num_batches += 1
+            tmp_start = tmp_end + Day(1)
+        end
+
+        batch_dfs = Vector{DataFrame}(undef, num_batches)
+        batch_idx = 1
 
         while batch_start <= final_date
             batch_end = min(final_date, batch_start + Year(1) - Day(1))
@@ -552,7 +565,8 @@ function get_met_data(
                 batch_df[!, col] = Float64.(batch_df[!, col])
             end
 
-            push!(batch_dfs, batch_df)
+            batch_dfs[batch_idx] = batch_df
+            batch_idx += 1
             batch_start = batch_end + Day(1)
         end
 
